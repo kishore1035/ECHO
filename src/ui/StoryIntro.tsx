@@ -75,13 +75,13 @@ export default function StoryIntro({ onComplete }: StoryIntroProps) {
         position: 'fixed',
         inset: 0,
         zIndex: 10000,
-        background: 'rgba(2, 5, 12, 1.0)',
+        background: '#070B12',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         padding: 40,
-        color: 'var(--text-hi)',
+        color: '#E8E3D8',
         fontFamily: 'var(--font-body)',
         cursor: 'pointer',
       }}
@@ -109,7 +109,7 @@ export default function StoryIntro({ onComplete }: StoryIntroProps) {
               width: i === currentLineIndex ? 22 : 5,
               height: 3,
               borderRadius: 2,
-              background: i === currentLineIndex ? 'var(--gold)' : 'rgba(255,255,255,0.15)',
+              background: i === currentLineIndex ? '#B59A4A' : '#292923',
               transition: 'all 0.35s ease',
             }}
           />
@@ -131,9 +131,9 @@ export default function StoryIntro({ onComplete }: StoryIntroProps) {
             fontWeight: currentLine === 'The Voice.' ? 700 : 400,
             fontFamily: currentLine === 'The Voice.' ? 'var(--font-display)' : 'var(--font-body)',
             lineHeight: 1.65,
-            color: currentLine === 'The Voice.' ? 'var(--gold)' : 'rgba(210, 205, 195, 0.88)',
+            color: currentLine === 'The Voice.' ? '#B59A4A' : '#E8E3D8',
             letterSpacing: currentLine === 'The Voice.' ? '0.35em' : '0.03em',
-            textShadow: currentLine === 'The Voice.' ? '0 0 50px rgba(232, 200, 74, 0.55)' : 'none',
+            textShadow: currentLine === 'The Voice.' ? '0 0 50px rgba(181, 154, 74, 0.45)' : 'none',
           }}
         >
           {currentLine}
@@ -149,12 +149,12 @@ export default function StoryIntro({ onComplete }: StoryIntroProps) {
           alignItems: 'center',
           gap: 16,
           fontSize: 11,
-          color: '#64748b',
+          color: '#77756D',
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
         }}
       >
-        <span style={{ color: '#94a3b8' }}>
+        <span style={{ color: '#E8E3D8' }}>
           {isFinalLine ? '[PRESS ENTER TO AWAKEN]' : '[PRESS ENTER OR CLICK TO CONTINUE]'}
         </span>
         <span>•</span>
@@ -164,7 +164,7 @@ export default function StoryIntro({ onComplete }: StoryIntroProps) {
             playMenuBack();
             onComplete();
           }}
-          style={{ cursor: 'pointer', color: '#64748b' }}
+          style={{ cursor: 'pointer', color: '#77756D' }}
         >
           [ESC] SKIP INTRO
         </span>

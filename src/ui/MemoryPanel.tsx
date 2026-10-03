@@ -9,9 +9,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { getFactionTrust } from '../systems/MemorySystem';
 
 const FACTION_CONFIG: Record<string, { name: string; abbr: string; color: string }> = {
-  suncrest: { name: 'Suncrest', abbr: 'SC', color: '#3878e8' },
-  shadowfang: { name: 'Shadowfang', abbr: 'SF', color: '#c82828' },
-  neutral: { name: 'Meadowlands', abbr: 'ML', color: '#40a858' },
+  suncrest: { name: 'Suncrest', abbr: 'SC', color: '#B59A4A' },
+  shadowfang: { name: 'Shadowfang', abbr: 'SF', color: '#A84034' },
+  neutral: { name: 'Meadowlands', abbr: 'ML', color: '#8F7836' },
 };
 
 function TrustBar({ score }: { score: number }) {
@@ -20,12 +20,12 @@ function TrustBar({ score }: { score: number }) {
   const width = Math.abs(clamped);
 
   const color = clamped > 40
-    ? '#34d399'     // friendly
+    ? '#4E8A5E'     // friendly
     : clamped > 0
-    ? '#86efac'     // cautiously warm
+    ? '#B59A4A'     // cautiously warm
     : clamped > -40
-    ? '#fca5a5'     // wary
-    : '#ef4444';    // hostile
+    ? '#8F7836'     // wary
+    : '#A84034';    // hostile
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flex: 1 }}>
@@ -46,7 +46,7 @@ function TrustBar({ score }: { score: number }) {
       </div>
 
       {/* Center mark */}
-      <div style={{ width: 2, height: 10, background: 'rgba(255,255,255,0.25)', borderRadius: 1 }} />
+      <div style={{ width: 2, height: 10, background: '#292923', borderRadius: 1 }} />
 
       {/* Positive side */}
       <div style={{ width: 50 }}>
@@ -82,12 +82,12 @@ function TrustBar({ score }: { score: number }) {
 }
 
 function TrustLabel({ score }: { score: number }) {
-  if (score > 60) return <span style={{ color: '#34d399', fontSize: 9 }}>REVERED</span>;
-  if (score > 30) return <span style={{ color: '#86efac', fontSize: 9 }}>FRIENDLY</span>;
-  if (score > 0) return <span style={{ color: '#d1fae5', fontSize: 9 }}>NEUTRAL+</span>;
-  if (score > -30) return <span style={{ color: '#fca5a5', fontSize: 9 }}>WARY</span>;
-  if (score > -60) return <span style={{ color: '#f87171', fontSize: 9 }}>HOSTILE</span>;
-  return <span style={{ color: '#ef4444', fontSize: 9 }}>ENEMY</span>;
+  if (score > 60) return <span style={{ color: '#4E8A5E', fontSize: 9 }}>REVERED</span>;
+  if (score > 30) return <span style={{ color: '#B59A4A', fontSize: 9 }}>FRIENDLY</span>;
+  if (score > 0) return <span style={{ color: '#8F7836', fontSize: 9 }}>NEUTRAL+</span>;
+  if (score > -30) return <span style={{ color: '#8F7836', fontSize: 9 }}>WARY</span>;
+  if (score > -60) return <span style={{ color: '#A84034', fontSize: 9 }}>HOSTILE</span>;
+  return <span style={{ color: '#A84034', fontSize: 9 }}>ENEMY</span>;
 }
 
 export default function MemoryPanel() {
@@ -130,14 +130,12 @@ export default function MemoryPanel() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          background: isOpen
-            ? 'rgba(56, 120, 232, 0.22)'
-            : 'rgba(6, 12, 24, 0.82)',
+          background: '#0C1119',
           backdropFilter: 'blur(12px)',
-          border: `1px solid ${isOpen ? 'rgba(56,120,232,0.5)' : 'rgba(255,255,255,0.12)'}`,
-          borderRadius: 8,
+          border: `1px solid ${isOpen ? '#B59A4A' : '#292923'}`,
+          borderRadius: 4,
           padding: '6px 12px',
-          color: isOpen ? '#93c5fd' : '#a0aec0',
+          color: isOpen ? '#B59A4A' : '#77756D',
           fontFamily: '"Inter", sans-serif',
           fontSize: 11,
           fontWeight: 700,
@@ -152,15 +150,15 @@ export default function MemoryPanel() {
         <span style={{
           width: 18,
           height: 18,
-          borderRadius: 3,
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: 2,
+          background: 'rgba(255,255,255,0.04)',
+          border: '1px solid #292923',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 8,
           fontWeight: 800,
-          color: 'rgba(180,200,240,0.7)',
+          color: '#77756D',
           letterSpacing: '0.02em',
           flexShrink: 0,
         }}>MEM</span>
@@ -168,11 +166,11 @@ export default function MemoryPanel() {
         {hasMemories && (
           <span
             style={{
-              background: 'rgba(251, 191, 36, 0.3)',
-              border: '1px solid rgba(251,191,36,0.5)',
-              borderRadius: 4,
+              background: 'rgba(181, 154, 74, 0.15)',
+              border: '1px solid #B59A4A',
+              borderRadius: 3,
               padding: '1px 5px',
-              color: '#fbbf24',
+              color: '#B59A4A',
               fontSize: 9,
             }}
           >
@@ -185,11 +183,11 @@ export default function MemoryPanel() {
       {isOpen && (
         <div
           style={{
-            background: 'rgba(6, 12, 24, 0.94)',
+            background: '#0C1119',
             backdropFilter: 'blur(18px)',
-            border: '1px solid rgba(255, 215, 0, 0.14)',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.65), 0 0 20px rgba(255,200,50,0.04)',
-            borderRadius: 12,
+            border: '1px solid #292923',
+            boxShadow: '0 12px 40px rgba(0,0,0,0.8)',
+            borderRadius: 6,
             padding: '14px 16px',
             width: 240,
             display: 'flex',
@@ -200,13 +198,13 @@ export default function MemoryPanel() {
           {/* Header */}
           <div
             style={{
-              fontFamily: '"Cinzel", "Inter", serif',
-              fontSize: 10,
-              fontWeight: 800,
-              color: '#e2d4a6',
+              fontFamily: 'var(--font-display, serif)',
+              fontSize: 11,
+              fontWeight: 700,
+              color: '#E8E3D8',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              borderBottom: '1px solid rgba(255,215,0,0.12)',
+              borderBottom: '1px solid #292923',
               paddingBottom: 8,
             }}
           >
@@ -218,7 +216,7 @@ export default function MemoryPanel() {
             <div
               style={{
                 fontSize: 9,
-                color: 'rgba(180,200,240,0.5)',
+                color: '#77756D',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 fontFamily: '"Inter", sans-serif',
@@ -235,9 +233,9 @@ export default function MemoryPanel() {
                   <span style={{
                     width: 20,
                     height: 20,
-                    borderRadius: 4,
-                    background: `${cfg.color}22`,
-                    border: `1px solid ${cfg.color}55`,
+                    borderRadius: 3,
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: `1px solid #292923`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -249,10 +247,10 @@ export default function MemoryPanel() {
                   }}>{cfg.abbr}</span>
                   <span
                     style={{
-                      color: cfg.color,
+                      color: '#E8E3D8',
                       fontFamily: '"Inter", sans-serif',
                       fontSize: 10,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       width: 70,
                       flexShrink: 0,
                     }}
@@ -272,12 +270,12 @@ export default function MemoryPanel() {
               <div
                 style={{
                   fontSize: 9,
-                  color: 'rgba(180,200,240,0.5)',
+                  color: '#77756D',
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                   fontFamily: '"Inter", sans-serif',
                   fontWeight: 700,
-                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  borderTop: '1px solid #292923',
                   paddingTop: 8,
                 }}
               >
@@ -286,9 +284,9 @@ export default function MemoryPanel() {
 
               {recentEvents.map((ev) => {
                 const sigColor =
-                  ev.significance === 3 ? '#f59e0b'
-                  : ev.significance === 2 ? '#818cf8'
-                  : '#64748b';
+                  ev.significance === 3 ? '#B59A4A'
+                  : ev.significance === 2 ? '#8F7836'
+                  : '#77756D';
 
                 const sigTag =
                   ev.type === 'malice_summoned' ? 'MAL'
@@ -313,9 +311,9 @@ export default function MemoryPanel() {
                       fontWeight: 800,
                       letterSpacing: '0.08em',
                       color: sigColor,
-                      background: `${sigColor}18`,
-                      border: `1px solid ${sigColor}44`,
-                      borderRadius: 3,
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: `1px solid #292923`,
+                      borderRadius: 2,
                       padding: '1px 4px',
                       flexShrink: 0,
                       marginTop: 1,
@@ -323,7 +321,7 @@ export default function MemoryPanel() {
                     }}>{sigTag}</span>
                     <span
                       style={{
-                        color: 'rgba(210, 225, 245, 0.8)',
+                        color: '#E8E3D8',
                         fontFamily: '"Inter", sans-serif',
                         fontSize: 10,
                         lineHeight: 1.35,
@@ -343,7 +341,7 @@ export default function MemoryPanel() {
           {!hasMemories && (
             <div
               style={{
-                color: 'rgba(180,200,240,0.35)',
+                color: '#77756D',
                 fontFamily: '"Inter", sans-serif',
                 fontSize: 10,
                 fontStyle: 'italic',

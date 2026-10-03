@@ -102,7 +102,7 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
         position: 'fixed',
         inset: 0,
         zIndex: 10000,
-        background: 'rgba(2, 6, 14, 0.88)',
+        background: 'rgba(7, 11, 18, 0.88)',
         backdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
@@ -115,25 +115,25 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
       <div
         style={{
           width: 580,
-          background: 'rgba(8, 14, 28, 0.95)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
-          borderRadius: 14,
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.1)',
+          background: '#0C1119',
+          border: '1px solid #292923',
+          borderRadius: 6,
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8)',
           padding: '24px 28px',
           display: 'flex',
           flexDirection: 'column',
           gap: 18,
-          color: '#f8fafc',
+          color: '#E8E3D8',
         }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: '0.1em', color: '#38bdf8' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: '0.1em', color: '#E8E3D8' }}>
               {titleText}
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 3 }}>
+            <div style={{ fontSize: 11, color: '#77756D', marginTop: 3 }}>
               {subtitleText}
             </div>
           </div>
@@ -145,7 +145,7 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
             style={{
               background: 'none',
               border: 'none',
-              color: '#64748b',
+              color: '#77756D',
               cursor: 'pointer',
               fontSize: 18,
               padding: 4,
@@ -159,12 +159,12 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
         {feedbackMsg && (
           <div
             style={{
-              background: 'rgba(16, 185, 129, 0.18)',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
-              borderRadius: 6,
+              background: 'rgba(78, 138, 94, 0.15)',
+              border: '1px solid #4E8A5E',
+              borderRadius: 3,
               padding: '6px 12px',
               fontSize: 11,
-              color: '#34d399',
+              color: '#E8E3D8',
               fontWeight: 700,
               textAlign: 'center',
             }}
@@ -192,18 +192,16 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                 onClick={() => isClickable && handleAction(idx)}
                 style={{
                   background: isSelected
-                    ? 'rgba(56, 189, 248, 0.14)'
+                    ? 'rgba(181, 154, 74, 0.08)'
                     : slot
-                    ? 'rgba(255, 255, 255, 0.03)'
-                    : 'rgba(255, 255, 255, 0.015)',
+                    ? 'rgba(255, 255, 255, 0.02)'
+                    : 'transparent',
                   border: `1px solid ${
                     isSelected
-                      ? '#38bdf8'
-                      : slot
-                      ? 'rgba(255, 255, 255, 0.12)'
-                      : 'rgba(255, 255, 255, 0.05)'
+                      ? '#B59A4A'
+                      : '#292923'
                   }`,
-                  borderRadius: 10,
+                  borderRadius: 4,
                   padding: '14px 16px',
                   display: 'flex',
                   alignItems: 'center',
@@ -211,7 +209,7 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                   cursor: isClickable ? 'pointer' : 'default',
                   opacity: mode === 'load' && !slot ? 0.45 : 1,
                   transition: 'all 0.16s ease',
-                  boxShadow: isSelected ? '0 0 20px rgba(56, 189, 248, 0.2)' : 'none',
+                  boxShadow: 'none',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -220,14 +218,14 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                     style={{
                       width: 36,
                       height: 36,
-                      borderRadius: 8,
-                      background: isSelected ? '#38bdf8' : 'rgba(255, 255, 255, 0.06)',
-                      color: isSelected ? '#040d1a' : '#94a3b8',
+                      borderRadius: 3,
+                      background: isSelected ? '#B59A4A' : 'rgba(255, 255, 255, 0.04)',
+                      color: isSelected ? '#070B12' : '#77756D',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: 14,
-                      fontWeight: 900,
+                      fontSize: 13,
+                      fontWeight: 800,
                     }}
                   >
                     0{slotId}
@@ -236,20 +234,20 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                   {/* Slot Details */}
                   {slot ? (
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc' }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#E8E3D8' }}>
                         {slot.name}
                       </div>
                       <div
                         style={{
                           fontSize: 10,
-                          color: '#94a3b8',
+                          color: '#77756D',
                           marginTop: 3,
                           display: 'flex',
                           gap: 10,
                           alignItems: 'center',
                         }}
                       >
-                        <span style={{ color: '#38bdf8' }}>{slot.summary.branchName}</span>
+                        <span style={{ color: '#B59A4A' }}>{slot.summary.branchName}</span>
                         <span>•</span>
                         <span>{new Date(slot.savedAt).toLocaleDateString()} {new Date(slot.savedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         <span>•</span>
@@ -258,10 +256,10 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                     </div>
                   ) : (
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#77756D' }}>
                         EMPTY CHRONAL SLOT
                       </div>
-                      <div style={{ fontSize: 10, color: '#475569', marginTop: 2 }}>
+                      <div style={{ fontSize: 10, color: '#54524B', marginTop: 2 }}>
                         {mode === 'save' ? 'Click to record current reality' : 'No saved reality found'}
                       </div>
                     </div>
@@ -274,8 +272,8 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                     <span
                       style={{
                         fontSize: 10,
-                        fontWeight: 800,
-                        color: isSelected ? '#38bdf8' : '#64748b',
+                        fontWeight: 700,
+                        color: isSelected ? '#B59A4A' : '#77756D',
                         letterSpacing: '0.05em',
                       }}
                     >
@@ -285,8 +283,8 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                     <span
                       style={{
                         fontSize: 10,
-                        fontWeight: 800,
-                        color: isSelected ? '#38bdf8' : '#64748b',
+                        fontWeight: 700,
+                        color: isSelected ? '#B59A4A' : '#77756D',
                         letterSpacing: '0.05em',
                       }}
                     >
@@ -298,10 +296,10 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
                     <button
                       onClick={(e) => handleDelete(e, slotId)}
                       style={{
-                        background: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.25)',
-                        color: '#f87171',
-                        borderRadius: 6,
+                        background: 'rgba(168, 64, 52, 0.12)',
+                        border: '1px solid rgba(168, 64, 52, 0.3)',
+                        color: '#E8E3D8',
+                        borderRadius: 3,
                         padding: '4px 8px',
                         fontSize: 10,
                         cursor: 'pointer',
@@ -324,8 +322,8 @@ export default function SaveLoadModal({ mode, onClose, onLoaded }: SaveLoadModal
             justifyContent: 'space-between',
             alignItems: 'center',
             fontSize: 10,
-            color: '#64748b',
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            color: '#77756D',
+            borderTop: '1px solid #292923',
             paddingTop: 10,
           }}
         >

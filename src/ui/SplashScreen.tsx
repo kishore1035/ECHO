@@ -66,7 +66,6 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
     }, 400);
 
     // Progressive typing of "ALT F4" with keystroke audio
-    // Characters: 'A' (700ms), 'L' (850ms), 'T' (980ms), ' ' (1180ms), 'F' (1340ms), '4' (1500ms)
     const typingSchedule: { text: string; delay: number; pitch: number }[] = [
       { text: 'A', delay: 720, pitch: 0 },
       { text: 'AL', delay: 880, pitch: 1 },
@@ -154,8 +153,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        background: '#000000',
-        color: '#f8fafc',
+        background: '#070B12',
+        color: '#E8E3D8',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -179,12 +178,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           }
           20% {
             transform: translate(-1px, 0.5px);
-            text-shadow: 1px 0 rgba(148, 163, 184, 0.4), -1px 0 rgba(226, 232, 240, 0.3);
+            text-shadow: 1px 0 rgba(119, 117, 109, 0.4), -1px 0 rgba(232, 227, 216, 0.3);
             opacity: 0.94;
           }
           40% {
             transform: translate(1px, -0.5px);
-            text-shadow: -1px 0 rgba(148, 163, 184, 0.4);
+            text-shadow: -1px 0 rgba(119, 117, 109, 0.4);
             opacity: 1;
           }
           60% {
@@ -194,7 +193,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           }
           80% {
             transform: translate(-0.5px, 0);
-            text-shadow: 0.5px 0 rgba(203, 213, 225, 0.3);
+            text-shadow: 0.5px 0 rgba(181, 154, 74, 0.3);
             opacity: 1;
           }
           100% {
@@ -237,7 +236,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             fontWeight: 700,
             letterSpacing: '0.24em',
             textTransform: 'uppercase',
-            color: '#f8fafc',
+            color: '#E8E3D8',
             display: 'inline-flex',
             alignItems: 'center',
             position: 'relative',
@@ -253,7 +252,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
                 display: 'inline-block',
                 width: '0.55em',
                 height: '2px',
-                background: '#94a3b8',
+                background: '#B59A4A',
                 marginLeft: '6px',
                 verticalAlign: 'middle',
                 animation: 'altCursorBlink 0.75s infinite',
@@ -271,7 +270,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             fontSize: 'clamp(11px, 1.4vw, 13px)',
             fontWeight: 400,
             letterSpacing: '0.42em',
-            color: '#64748b',
+            color: '#77756D',
             textTransform: 'lowercase',
             opacity: showPresents && isAltF4Visible ? 1 : 0,
             transform: showPresents ? 'translateY(0)' : 'translateY(4px)',
@@ -300,7 +299,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           style={{
             width: 48,
             height: 1,
-            background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+            background: 'linear-gradient(90deg, transparent, #B59A4A, transparent)',
             marginBottom: 24,
             opacity: 0.6,
           }}
@@ -312,14 +311,14 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             margin: 0,
             padding: 0,
             fontFamily:
-              '"Cinzel", "Times New Roman", "Outfit", -apple-system, sans-serif',
+              'var(--font-display, "Cinzel", serif)',
             fontSize: 'clamp(42px, 7vw, 76px)',
-            fontWeight: 600,
+            fontWeight: 700,
             letterSpacing: '0.65em',
             textIndent: '0.65em', // optical centering for wide tracking
-            color: '#ffffff',
+            color: '#E8E3D8',
             textShadow:
-              '0 0 45px rgba(255, 255, 255, 0.22), 0 0 90px rgba(232, 200, 74, 0.12)',
+              '0 0 45px rgba(181, 154, 74, 0.22), 0 0 90px rgba(181, 154, 74, 0.1)',
             animation:
               stage === 'echo_reveal'
                 ? 'echoSubtleBloom 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards'
@@ -334,12 +333,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           style={{
             marginTop: 20,
             fontFamily:
-              'ui-monospace, "SF Mono", "Inter", -apple-system, sans-serif',
+              'var(--font-body, "Inter", sans-serif)',
             fontSize: 'clamp(9.5px, 1.2vw, 11.5px)',
             fontWeight: 500,
             letterSpacing: '0.45em',
             textIndent: '0.45em',
-            color: '#94a3b8',
+            color: '#77756D',
             textTransform: 'uppercase',
             opacity: 0.85,
           }}
@@ -352,7 +351,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           style={{
             width: 48,
             height: 1,
-            background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+            background: 'linear-gradient(90deg, transparent, #B59A4A, transparent)',
             marginTop: 24,
             opacity: 0.6,
           }}
@@ -367,8 +366,8 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
           right: 28,
           fontSize: 9.5,
           letterSpacing: '0.22em',
-          color: 'rgba(148, 163, 184, 0.35)',
-          fontFamily: 'ui-monospace, monospace',
+          color: '#54524B',
+          fontFamily: 'var(--font-body, monospace)',
           textTransform: 'uppercase',
         }}
       >

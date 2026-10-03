@@ -46,7 +46,6 @@ export default function TimelinePanel() {
 
   const parentBranch = activeBranch?.parentBranchId ? branches[activeBranch.parentBranchId] : null;
   const forkCheckpoint = activeBranch?.forkCheckpointId ? checkpoints[activeBranch.forkCheckpointId] : null;
-  const branchColor = activeBranch?.color || '#38bdf8';
 
   return (
     <div
@@ -57,10 +56,10 @@ export default function TimelinePanel() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(2, 6, 14, 0.65)',
+        background: 'rgba(7, 11, 18, 0.88)',
         backdropFilter: 'blur(16px)',
         fontFamily: '"Inter", sans-serif',
-        color: '#e2e8f0',
+        color: '#E8E3D8',
         animation: 'fadeIn 0.25s ease forwards',
       }}
     >
@@ -69,10 +68,10 @@ export default function TimelinePanel() {
           width: '90%',
           maxWidth: 680,
           maxHeight: '85vh',
-          background: 'rgba(6, 11, 22, 0.94)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: 12,
-          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.08)',
+          background: '#0C1119',
+          border: '1px solid #292923',
+          borderRadius: 6,
+          boxShadow: '0 24px 60px rgba(0, 0, 0, 0.85)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -82,7 +81,7 @@ export default function TimelinePanel() {
         <div
           style={{
             padding: '20px 24px 16px',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid #292923',
             display: 'flex',
             alignItems: 'flex-start',
             justifyContent: 'space-between',
@@ -95,7 +94,7 @@ export default function TimelinePanel() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 fontWeight: 800,
-                color: branchColor,
+                color: '#8F7836',
                 textTransform: 'uppercase',
                 marginBottom: 4,
               }}
@@ -106,7 +105,7 @@ export default function TimelinePanel() {
               style={{
                 fontSize: 17,
                 fontWeight: 700,
-                color: '#f8fafc',
+                color: '#E8E3D8',
                 letterSpacing: '0.04em',
               }}
             >
@@ -115,7 +114,7 @@ export default function TimelinePanel() {
             <div
               style={{
                 fontSize: 11,
-                color: '#94a3b8',
+                color: '#77756D',
                 marginTop: 2,
                 lineHeight: 1.4,
               }}
@@ -128,9 +127,9 @@ export default function TimelinePanel() {
             onClick={closeInteraction}
             style={{
               background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 6,
-              color: '#cbd5e1',
+              border: '1px solid #292923',
+              borderRadius: 3,
+              color: '#E8E3D8',
               padding: '6px 12px',
               fontSize: 11,
               fontWeight: 600,
@@ -148,8 +147,8 @@ export default function TimelinePanel() {
         <div
           style={{
             padding: '12px 24px',
-            background: 'rgba(0, 0, 0, 0.25)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            background: '#070B12',
+            borderBottom: '1px solid #292923',
             display: 'flex',
             flexDirection: 'column',
             gap: 8,
@@ -160,7 +159,7 @@ export default function TimelinePanel() {
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: '0.12em',
-              color: '#64748b',
+              color: '#77756D',
               textTransform: 'uppercase',
             }}
           >
@@ -182,11 +181,11 @@ export default function TimelinePanel() {
                   key={b.id}
                   onClick={() => TimelineSystem.switchBranch(b.id)}
                   style={{
-                    background: isActive ? `${b.color}22` : 'rgba(255, 255, 255, 0.03)',
-                    border: `1px solid ${isActive ? b.color : 'rgba(255, 255, 255, 0.09)'}`,
-                    borderRadius: 6,
+                    background: isActive ? 'rgba(181, 154, 74, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                    border: `1px solid ${isActive ? '#B59A4A' : '#292923'}`,
+                    borderRadius: 3,
                     padding: '6px 12px',
-                    color: isActive ? '#f8fafc' : '#94a3b8',
+                    color: isActive ? '#E8E3D8' : '#77756D',
                     fontSize: 11,
                     fontWeight: 600,
                     letterSpacing: '0.05em',
@@ -203,8 +202,7 @@ export default function TimelinePanel() {
                       width: 7,
                       height: 7,
                       borderRadius: '50%',
-                      background: b.color,
-                      boxShadow: isActive ? `0 0 6px ${b.color}` : 'none',
+                      background: b.color || '#B59A4A',
                     }}
                   />
                   <span>{b.name}</span>
@@ -218,7 +216,7 @@ export default function TimelinePanel() {
             <div
               style={{
                 fontSize: 11,
-                color: '#ec4899',
+                color: '#8F7836',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
@@ -241,17 +239,17 @@ export default function TimelinePanel() {
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
             gap: 10,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            borderBottom: '1px solid #292923',
           }}
         >
           <button
             onClick={() => TimelineSystem.rewind('last')}
             style={{
-              background: 'rgba(56, 189, 248, 0.08)',
-              border: '1px solid rgba(56, 189, 248, 0.28)',
-              borderRadius: 6,
+              background: 'rgba(181, 154, 74, 0.08)',
+              border: '1px solid #B59A4A',
+              borderRadius: 3,
               padding: '8px 10px',
-              color: '#38bdf8',
+              color: '#B59A4A',
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.06em',
@@ -269,11 +267,11 @@ export default function TimelinePanel() {
           <button
             onClick={() => TimelineSystem.createExplicitBranch()}
             style={{
-              background: 'rgba(236, 72, 153, 0.08)',
-              border: '1px solid rgba(236, 72, 153, 0.28)',
-              borderRadius: 6,
+              background: 'rgba(143, 120, 54, 0.1)',
+              border: '1px solid #8F7836',
+              borderRadius: 3,
               padding: '8px 10px',
-              color: '#f472b6',
+              color: '#8F7836',
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.06em',
@@ -297,11 +295,11 @@ export default function TimelinePanel() {
               })
             }
             style={{
-              background: 'rgba(245, 158, 11, 0.08)',
-              border: '1px solid rgba(245, 158, 11, 0.28)',
-              borderRadius: 6,
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid #292923',
+              borderRadius: 3,
               padding: '8px 10px',
-              color: '#fbbf24',
+              color: '#E8E3D8',
               fontSize: 11,
               fontWeight: 700,
               letterSpacing: '0.06em',
@@ -333,7 +331,7 @@ export default function TimelinePanel() {
               fontSize: 10,
               fontWeight: 700,
               letterSpacing: '0.14em',
-              color: '#64748b',
+              color: '#77756D',
               textTransform: 'uppercase',
               marginBottom: 4,
             }}
@@ -352,9 +350,9 @@ export default function TimelinePanel() {
                   alignItems: 'flex-start',
                   gap: 14,
                   padding: '10px 14px',
-                  borderRadius: 8,
-                  background: isCurrent ? `${branchColor}14` : 'rgba(255, 255, 255, 0.02)',
-                  border: `1px solid ${isCurrent ? branchColor : 'rgba(255, 255, 255, 0.06)'}`,
+                  borderRadius: 4,
+                  background: isCurrent ? 'rgba(181, 154, 74, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                  border: `1px solid ${isCurrent ? '#B59A4A' : '#292923'}`,
                   transition: 'all 0.15s ease',
                 }}
               >
@@ -371,7 +369,7 @@ export default function TimelinePanel() {
                   <span
                     style={{
                       fontSize: 12,
-                      color: isCurrent ? branchColor : '#64748b',
+                      color: isCurrent ? '#B59A4A' : '#77756D',
                     }}
                   >
                     {isCurrent ? '●' : '○'}
@@ -380,7 +378,7 @@ export default function TimelinePanel() {
                     style={{
                       fontSize: 9,
                       fontWeight: 600,
-                      color: isCurrent ? branchColor : '#64748b',
+                      color: isCurrent ? '#B59A4A' : '#77756D',
                       marginTop: 3,
                       fontFamily: 'monospace',
                     }}
@@ -403,7 +401,7 @@ export default function TimelinePanel() {
                       style={{
                         fontSize: 12,
                         fontWeight: 700,
-                        color: isCurrent ? '#f8fafc' : '#cbd5e1',
+                        color: '#E8E3D8',
                         letterSpacing: '0.02em',
                       }}
                     >
@@ -412,12 +410,12 @@ export default function TimelinePanel() {
                     {isCurrent && (
                       <span
                         style={{
-                          background: `${branchColor}30`,
-                          color: branchColor,
-                          border: `1px solid ${branchColor}60`,
+                          background: 'rgba(181, 154, 74, 0.18)',
+                          color: '#B59A4A',
+                          border: '1px solid #B59A4A',
                           fontSize: 9,
                           fontWeight: 800,
-                          borderRadius: 4,
+                          borderRadius: 3,
                           padding: '1px 6px',
                           letterSpacing: '0.06em',
                         }}
@@ -430,7 +428,7 @@ export default function TimelinePanel() {
                   <div
                     style={{
                       fontSize: 11,
-                      color: '#94a3b8',
+                      color: '#77756D',
                       marginTop: 3,
                       lineHeight: 1.4,
                     }}
@@ -443,11 +441,11 @@ export default function TimelinePanel() {
                       <button
                         onClick={() => TimelineSystem.restoreCheckpoint(cp.id)}
                         style={{
-                          background: 'rgba(56, 189, 248, 0.08)',
-                          border: '1px solid rgba(56, 189, 248, 0.25)',
-                          borderRadius: 4,
+                          background: 'rgba(181, 154, 74, 0.08)',
+                          border: '1px solid #B59A4A',
+                          borderRadius: 3,
                           padding: '4px 10px',
-                          color: '#38bdf8',
+                          color: '#B59A4A',
                           fontSize: 10,
                           fontWeight: 700,
                           letterSpacing: '0.05em',
@@ -468,14 +466,14 @@ export default function TimelinePanel() {
         <div
           style={{
             padding: '12px 24px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            borderTop: '1px solid #292923',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(0, 0, 0, 0.25)',
+            background: '#070B12',
           }}
         >
-          <div style={{ fontSize: 10, color: '#64748b', letterSpacing: '0.06em' }}>
+          <div style={{ fontSize: 10, color: '#77756D', letterSpacing: '0.06em' }}>
             PRESS {useControlsStore.getState().getBindingDisplay('timelineBack')} OR CLICK "STEP AWAY" TO EXIT COMMUNION
           </div>
           <button
@@ -483,7 +481,7 @@ export default function TimelinePanel() {
             style={{
               background: 'none',
               border: 'none',
-              color: '#94a3b8',
+              color: '#77756D',
               fontSize: 11,
               fontWeight: 600,
               cursor: 'pointer',

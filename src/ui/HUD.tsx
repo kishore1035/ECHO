@@ -70,11 +70,11 @@ export default function HUD() {
   const strainPercent = Math.min(100, Math.max(0, Math.round(chaosScore)));
   const showStrain = chaosScore > 10;
   const strainColor =
-    strainPercent > 60 ? '#ef4444' : strainPercent > 35 ? '#f59e0b' : '#e8c84a';
+    strainPercent > 60 ? '#A84034' : strainPercent > 35 ? '#8F7836' : '#B59A4A';
 
   // Peripheral tension vignette intensity
   const vignetteAlpha =
-    chaosScore > 15 ? Math.min(0.45, 0.05 + ((chaosScore - 15) / 85) * 0.4) : 0;
+    chaosScore > 15 ? Math.min(0.4, 0.05 + ((chaosScore - 15) / 85) * 0.35) : 0;
   const vignetteBlur = Math.min(130, 40 + chaosScore);
 
   return (
@@ -96,7 +96,6 @@ export default function HUD() {
           }
           50% {
             opacity: 1;
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
           }
         }
         @keyframes tension-breathe {
@@ -117,7 +116,7 @@ export default function HUD() {
             inset: 0,
             zIndex: 40,
             pointerEvents: 'none',
-            boxShadow: `inset 0 0 ${vignetteBlur}px rgba(185, 28, 28, ${vignetteAlpha})`,
+            boxShadow: `inset 0 0 ${vignetteBlur}px rgba(120, 20, 20, ${vignetteAlpha})`,
             animation: chaosScore > 40 ? 'tension-breathe 2.8s ease-in-out infinite' : undefined,
             transition: 'box-shadow 0.6s ease-out',
           }}
@@ -140,12 +139,12 @@ export default function HUD() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(4, 8, 18, 0.88)',
+            background: '#0C1119',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(232, 200, 74, 0.2)',
-            borderRadius: 6,
+            border: '1px solid #292923',
+            borderRadius: 3,
             padding: '5px 12px',
-            color: 'var(--gold)',
+            color: '#B59A4A',
             fontFamily: 'var(--font-ui)',
             fontSize: 10,
             fontWeight: 600,
@@ -160,12 +159,12 @@ export default function HUD() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 6,
-            background: 'rgba(4, 8, 18, 0.88)',
+            background: '#0C1119',
             backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: 6,
+            border: '1px solid #292923',
+            borderRadius: 3,
             padding: '5px 12px',
-            color: 'var(--text-dim)',
+            color: '#77756D',
             fontFamily: 'var(--font-ui)',
             fontSize: 10,
             letterSpacing: '0.06em',
@@ -181,10 +180,10 @@ export default function HUD() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 7,
-              background: 'rgba(20, 6, 8, 0.92)',
+              background: '#0C1119',
               backdropFilter: 'blur(10px)',
               border: `1px solid ${strainColor}55`,
-              borderRadius: 6,
+              borderRadius: 3,
               padding: '5px 12px',
               color: strainColor,
               fontFamily: 'var(--font-ui)',
@@ -199,7 +198,7 @@ export default function HUD() {
               style={{
                 width: 24,
                 height: 4,
-                background: 'rgba(255, 255, 255, 0.1)',
+                background: 'rgba(255, 255, 255, 0.08)',
                 borderRadius: 2,
                 overflow: 'hidden',
               }}
@@ -225,13 +224,13 @@ export default function HUD() {
             bottom: '24%',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(5, 9, 20, 0.92)',
+            background: '#0C1119',
             backdropFilter: 'blur(14px)',
-            border: '1px solid rgba(232, 200, 74, 0.5)',
-            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(232, 200, 74, 0.18)',
-            borderRadius: 6,
-            padding: '9px 18px',
-            color: 'var(--gold)',
+            border: '1px solid #292923',
+            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.7)',
+            borderRadius: 4,
+            padding: '8px 16px',
+            color: '#E8E3D8',
             fontFamily: 'var(--font-ui)',
             fontSize: 11,
             fontWeight: 700,
@@ -247,11 +246,11 @@ export default function HUD() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 3,
-              color: '#f8fafc',
-              background: 'rgba(232, 200, 74, 0.16)',
+              color: '#E8E3D8',
+              background: 'rgba(181, 154, 74, 0.12)',
               padding: '2px 7px',
-              borderRadius: 4,
-              border: '1px solid rgba(232, 200, 74, 0.4)',
+              borderRadius: 3,
+              border: '1px solid #B59A4A',
               fontSize: 10,
               fontWeight: 800,
               letterSpacing: '0.04em',
@@ -259,7 +258,7 @@ export default function HUD() {
           >
             <span
               style={{
-                color: 'var(--gold)',
+                color: '#B59A4A',
                 display: 'inline-block',
                 animation: 'bracket-pulse 1.4s ease-in-out infinite',
               }}
@@ -269,7 +268,7 @@ export default function HUD() {
             {interactKey}
             <span
               style={{
-                color: 'var(--gold)',
+                color: '#B59A4A',
                 display: 'inline-block',
                 animation: 'bracket-pulse 1.4s ease-in-out infinite',
               }}

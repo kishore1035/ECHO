@@ -154,7 +154,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        color: '#e2e8f0',
+        color: '#E8E3D8',
         fontFamily: '"Inter", sans-serif',
       }}
     >
@@ -164,7 +164,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
           display: 'flex',
           gap: 6,
           padding: '4px 0 16px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid #292923',
           marginBottom: 16,
           flexWrap: 'wrap',
         }}
@@ -181,10 +181,10 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
                 setConflictData(null);
               }}
               style={{
-                background: isActive ? 'rgba(56, 189, 248, 0.14)' : 'rgba(255, 255, 255, 0.04)',
-                border: `1px solid ${isActive ? 'rgba(56, 189, 248, 0.4)' : 'rgba(255, 255, 255, 0.08)'}`,
-                borderRadius: 4,
-                color: isActive ? '#38bdf8' : '#94a3b8',
+                background: isActive ? 'rgba(181, 154, 74, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                border: `1px solid ${isActive ? '#B59A4A' : '#292923'}`,
+                borderRadius: 3,
+                color: isActive ? '#B59A4A' : '#77756D',
                 padding: '5px 12px',
                 fontSize: 11,
                 fontWeight: 700,
@@ -226,14 +226,14 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
                 justifyContent: 'space-between',
                 padding: '10px 14px',
                 background: isListening
-                  ? 'rgba(56, 189, 248, 0.08)'
-                  : 'rgba(255, 255, 255, 0.02)',
+                  ? 'rgba(181, 154, 74, 0.08)'
+                  : 'transparent',
                 border: `1px solid ${
                   isListening
-                    ? 'rgba(56, 189, 248, 0.45)'
-                    : 'rgba(255, 255, 255, 0.06)'
+                    ? '#B59A4A'
+                    : '#292923'
                 }`,
-                borderRadius: 6,
+                borderRadius: 4,
                 transition: 'all 0.15s ease',
               }}
             >
@@ -242,7 +242,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
                   style={{
                     fontSize: 13,
                     fontWeight: 600,
-                    color: '#f8fafc',
+                    color: '#E8E3D8',
                     letterSpacing: '0.02em',
                   }}
                 >
@@ -251,7 +251,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
                 <div
                   style={{
                     fontSize: 10,
-                    color: '#64748b',
+                    color: '#77756D',
                     letterSpacing: '0.04em',
                     marginTop: 2,
                     textTransform: 'uppercase',
@@ -268,34 +268,34 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
                   minWidth: 120,
                   padding: '6px 14px',
                   background: isListening
-                    ? 'rgba(56, 189, 248, 0.25)'
-                    : 'rgba(15, 23, 42, 0.75)',
+                    ? 'rgba(181, 154, 74, 0.18)'
+                    : 'rgba(255, 255, 255, 0.04)',
                   border: `1px solid ${
                     isListening
-                      ? '#38bdf8'
-                      : 'rgba(255, 255, 255, 0.16)'
+                      ? '#B59A4A'
+                      : '#292923'
                   }`,
-                  borderRadius: 4,
-                  color: isListening ? '#38bdf8' : '#e2e8f0',
+                  borderRadius: 3,
+                  color: isListening ? '#B59A4A' : '#E8E3D8',
                   fontSize: 12,
                   fontFamily: 'monospace',
                   fontWeight: 700,
                   letterSpacing: '0.08em',
                   cursor: 'pointer',
                   textAlign: 'center',
-                  boxShadow: isListening ? '0 0 14px rgba(56, 189, 248, 0.3)' : 'none',
+                  boxShadow: 'none',
                   transition: 'all 0.15s ease',
                 }}
               >
                 {isListening ? (
-                  <span style={{ color: '#38bdf8', animation: 'pulse 1s infinite' }}>
+                  <span style={{ color: '#B59A4A' }}>
                     PRESS A KEY...
                   </span>
                 ) : (
                   <span>
                     {primaryDisplay}
                     {altDisplay && (
-                      <span style={{ color: '#64748b', marginLeft: 6, fontWeight: 400 }}>
+                      <span style={{ color: '#77756D', marginLeft: 6, fontWeight: 400 }}>
                         / {altDisplay}
                       </span>
                     )}
@@ -313,7 +313,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
           style={{
             position: 'absolute',
             inset: 0,
-            background: 'rgba(2, 6, 14, 0.85)',
+            background: 'rgba(7, 11, 18, 0.88)',
             backdropFilter: 'blur(8px)',
             display: 'flex',
             alignItems: 'center',
@@ -326,18 +326,18 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
             style={{
               width: '100%',
               maxWidth: 420,
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid rgba(239, 68, 68, 0.35)',
-              borderRadius: 8,
+              background: '#0C1119',
+              border: '1px solid #292923',
+              borderRadius: 6,
               padding: 20,
-              boxShadow: '0 16px 36px rgba(0, 0, 0, 0.6)',
+              boxShadow: '0 16px 36px rgba(0, 0, 0, 0.8)',
             }}
           >
             <div
               style={{
                 fontSize: 10,
                 letterSpacing: '0.2em',
-                color: '#f87171',
+                color: '#A84034',
                 fontWeight: 800,
                 textTransform: 'uppercase',
                 marginBottom: 6,
@@ -348,16 +348,16 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
             <div
               style={{
                 fontSize: 14,
-                color: '#f8fafc',
+                color: '#E8E3D8',
                 lineHeight: 1.5,
                 marginBottom: 16,
               }}
             >
-              <span style={{ fontFamily: 'monospace', color: '#38bdf8', fontWeight: 700 }}>
+              <span style={{ fontFamily: 'monospace', color: '#B59A4A', fontWeight: 700 }}>
                 {formatKeyCodeDisplay(conflictData.newCode)}
               </span>{' '}
               is already assigned to{' '}
-              <span style={{ color: '#cbd5e1', fontWeight: 600 }}>
+              <span style={{ color: '#E8E3D8', fontWeight: 600 }}>
                 "{conflictData.conflict.conflictActionName}"
               </span>
               .
@@ -367,10 +367,10 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
               <button
                 onClick={handleCancelConflict}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  borderRadius: 4,
-                  color: '#94a3b8',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid #292923',
+                  borderRadius: 3,
+                  color: '#77756D',
                   padding: '6px 14px',
                   fontSize: 12,
                   fontWeight: 600,
@@ -382,10 +382,10 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
               <button
                 onClick={handleConfirmReplace}
                 style={{
-                  background: 'rgba(239, 68, 68, 0.18)',
-                  border: '1px solid rgba(239, 68, 68, 0.45)',
-                  borderRadius: 4,
-                  color: '#fca5a5',
+                  background: 'rgba(168, 64, 52, 0.15)',
+                  border: '1px solid #A84034',
+                  borderRadius: 3,
+                  color: '#E8E3D8',
                   padding: '6px 16px',
                   fontSize: 12,
                   fontWeight: 700,
@@ -404,7 +404,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
         style={{
           marginTop: 16,
           paddingTop: 12,
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          borderTop: '1px solid #292923',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -415,7 +415,7 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
           style={{
             background: 'none',
             border: 'none',
-            color: '#64748b',
+            color: '#77756D',
             fontSize: 11,
             fontWeight: 600,
             letterSpacing: '0.06em',
@@ -423,8 +423,8 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
             padding: '4px 8px',
             transition: 'color 0.15s ease',
           }}
-          onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#cbd5e1')}
-          onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#64748b')}
+          onMouseEnter={(e) => ((e.target as HTMLElement).style.color = '#E8E3D8')}
+          onMouseLeave={(e) => ((e.target as HTMLElement).style.color = '#77756D')}
         >
           RESET TO DEFAULTS
         </button>
@@ -433,10 +433,10 @@ export default function ControlsSettings({ onBack }: ControlsSettingsProps) {
           <button
             onClick={onBack}
             style={{
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              borderRadius: 4,
-              color: '#e2e8f0',
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid #292923',
+              borderRadius: 3,
+              color: '#E8E3D8',
               padding: '6px 16px',
               fontSize: 11,
               fontWeight: 700,

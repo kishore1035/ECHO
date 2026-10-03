@@ -10,11 +10,11 @@ const STATUS_CONFIG: Record<
   VoiceStatus,
   { label: string; color: string; glow: string; pulse: boolean; spin: boolean }
 > = {
-  idle:       { label: '',                       color: '#8090a8', glow: 'transparent',     pulse: false, spin: false },
-  listening:  { label: 'LISTENING...',           color: '#ff4060', glow: '#ff406040',       pulse: true,  spin: false },
-  processing: { label: 'PROCESSING...',          color: '#f0b820', glow: '#f0b82040',       pulse: false, spin: true  },
-  success:    { label: 'COMMAND EXECUTED',       color: '#40c870', glow: '#40c87040',       pulse: false, spin: false },
-  error:      { label: 'NOT UNDERSTOOD',         color: '#ff4040', glow: '#ff404040',       pulse: false, spin: false },
+  idle:       { label: '',                       color: '#77756D', glow: 'transparent',     pulse: false, spin: false },
+  listening:  { label: 'LISTENING...',           color: '#A84034', glow: 'rgba(168, 64, 52, 0.2)', pulse: true,  spin: false },
+  processing: { label: 'PROCESSING...',          color: '#B59A4A', glow: 'rgba(181, 154, 74, 0.2)', pulse: false, spin: true  },
+  success:    { label: 'COMMAND EXECUTED',       color: '#4E8A5E', glow: 'rgba(78, 138, 94, 0.2)', pulse: false, spin: false },
+  error:      { label: 'NOT UNDERSTOOD',         color: '#A84034', glow: 'rgba(168, 64, 52, 0.2)', pulse: false, spin: false },
 };
 
 // ─── Mic icon (SVG) ───────────────────────────────────────────
@@ -111,19 +111,19 @@ export default function VoiceIndicator() {
       {displayText && (
         <div
           style={{
-            background: 'rgba(6,12,24,0.78)',
+            background: '#0C1119',
             backdropFilter: 'blur(12px)',
-            border: `1px solid ${cfg.color}50`,
-            borderRadius: 10,
+            border: '1px solid #292923',
+            borderRadius: 4,
             padding: '7px 18px',
-            color: '#e8ecf4',
+            color: '#E8E3D8',
             fontFamily: '"Inter", sans-serif',
             fontSize: 13,
             fontStyle: status === 'listening' ? 'italic' : 'normal',
             maxWidth: 420,
             textAlign: 'center',
             lineHeight: 1.5,
-            boxShadow: `0 0 16px ${cfg.glow}`,
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.7)',
             animation: status === 'listening' ? 'vw-fadein 0.2s ease' : 'vw-fadein 0.3s ease',
           }}
         >
@@ -137,27 +137,27 @@ export default function VoiceIndicator() {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          background: 'rgba(6,12,24,0.85)',
+          background: '#0C1119',
           backdropFilter: 'blur(16px)',
-          border: `1px solid ${cfg.color}40`,
-          borderRadius: 999,
-          padding: '8px 22px',
-          boxShadow: `0 0 20px ${cfg.glow}, inset 0 1px 0 rgba(255,255,255,0.06)`,
+          border: '1px solid #292923',
+          borderRadius: 20,
+          padding: '7px 20px',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.7)',
           animation: cfg.pulse ? 'vw-pulse 1.1s ease-in-out infinite' : 'none',
-          transition: 'border-color 0.3s, box-shadow 0.3s',
+          transition: 'border-color 0.3s',
         }}
       >
         {/* Icon or spinner */}
         {cfg.spin ? (
           <Spinner color={cfg.color} />
         ) : (
-          <MicIcon color={status === 'idle' ? 'var(--gold, #e8c84a)' : cfg.color} />
+          <MicIcon color={status === 'idle' ? '#B59A4A' : cfg.color} />
         )}
 
         {/* Status label */}
         <span
           style={{
-            color: status === 'idle' ? '#94a3b8' : cfg.color,
+            color: status === 'idle' ? '#77756D' : cfg.color,
             fontFamily: 'var(--font-ui, "Inter", sans-serif)',
             fontSize: 11,
             fontWeight: 700,

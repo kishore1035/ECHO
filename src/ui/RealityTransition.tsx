@@ -1,7 +1,7 @@
 // ============================================================
 // REALITY TRANSITION (M4) — Time-Warp & Reality Shift FX
 //
-// Fullscreen dramatic distortion, chromatic aberration, and
+// Fullscreen dramatic distortion, subtle chromatic ripple, and
 // chrono-vortex rift effect when rewinding or switching branches.
 // ============================================================
 
@@ -15,8 +15,8 @@ export default function RealityTransition() {
   if (!isTransitioning) return null;
 
   const isRewind = transitionType === 'rewind';
-  const accentColor = isRewind ? '#38bdf8' : '#ec4899';
-  const glowColor = isRewind ? 'rgba(56, 189, 248, 0.45)' : 'rgba(236, 72, 153, 0.45)';
+  const accentColor = isRewind ? '#B59A4A' : '#8F7836';
+  const glowColor = 'rgba(181, 154, 74, 0.25)';
 
   return (
     <div
@@ -69,8 +69,8 @@ export default function RealityTransition() {
         }
 
         @keyframes textGlitchFlash {
-          0%, 100% { text-shadow: 0 0 20px ${accentColor}, 2px 2px 0 #38bdf8, -2px -2px 0 #ec4899; }
-          50% { text-shadow: 0 0 35px #fff, -3px 0 0 #38bdf8, 3px 0 0 #ec4899; }
+          0%, 100% { text-shadow: 0 0 20px ${accentColor}, 1px 1px 0 #8F7836; }
+          50% { text-shadow: 0 0 30px rgba(232, 227, 216, 0.6), -1px 0 0 #B59A4A; }
         }
       `}</style>
 
@@ -79,9 +79,7 @@ export default function RealityTransition() {
         style={{
           position: 'absolute',
           inset: 0,
-          background: isRewind
-            ? 'radial-gradient(circle at center, rgba(14, 28, 56, 0.75) 0%, rgba(2, 6, 16, 0.92) 80%)'
-            : 'radial-gradient(circle at center, rgba(46, 12, 42, 0.75) 0%, rgba(10, 2, 14, 0.92) 80%)',
+          background: 'radial-gradient(circle at center, rgba(12, 17, 25, 0.85) 0%, rgba(7, 11, 18, 0.96) 80%)',
         }}
       />
 
@@ -95,7 +93,7 @@ export default function RealityTransition() {
           height: 520,
           borderRadius: '50%',
           border: `2px dashed ${accentColor}`,
-          boxShadow: `0 0 60px ${glowColor}, inset 0 0 60px ${glowColor}`,
+          boxShadow: `0 0 40px ${glowColor}, inset 0 0 40px ${glowColor}`,
           animation: 'portalVortexSpin 0.75s ease-out forwards',
         }}
       />
@@ -121,10 +119,10 @@ export default function RealityTransition() {
           alignItems: 'center',
           gap: 12,
           padding: '24px 44px',
-          background: 'rgba(5, 10, 22, 0.88)',
+          background: '#0C1119',
           border: `1px solid ${accentColor}`,
           boxShadow: `0 0 45px ${glowColor}, inset 0 0 25px ${glowColor}`,
-          borderRadius: 14,
+          borderRadius: 6,
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -148,9 +146,9 @@ export default function RealityTransition() {
         <div
           style={{
             fontSize: 22,
-            fontFamily: '"Outfit", "Inter", sans-serif',
-            fontWeight: 900,
-            color: '#f8fafc',
+            fontFamily: 'var(--font-display, serif)',
+            fontWeight: 700,
+            color: '#E8E3D8',
             letterSpacing: '0.08em',
             textAlign: 'center',
             maxWidth: 620,
@@ -164,7 +162,7 @@ export default function RealityTransition() {
           style={{
             fontSize: 10,
             fontFamily: '"Inter", monospace',
-            color: 'rgba(203, 213, 225, 0.75)',
+            color: '#77756D',
             letterSpacing: '0.18em',
           }}
         >

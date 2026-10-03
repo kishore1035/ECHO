@@ -112,12 +112,10 @@ export default function MissionHUD() {
         }
         @keyframes obj-flash-glow {
           0% {
-            background: rgba(232, 200, 74, 0.28);
-            box-shadow: 0 0 16px rgba(232, 200, 74, 0.4);
+            background: rgba(181, 154, 74, 0.18);
           }
           100% {
             background: transparent;
-            box-shadow: none;
           }
         }
         @keyframes subtle-gold-pulse {
@@ -141,10 +139,10 @@ export default function MissionHUD() {
             alignItems: 'center',
             textAlign: 'center',
             padding: '16px 36px',
-            background: 'linear-gradient(180deg, rgba(6, 11, 24, 0.94) 0%, rgba(3, 6, 14, 0.96) 100%)',
-            borderTop: '1px solid rgba(232, 200, 74, 0.65)',
-            borderBottom: '1px solid rgba(232, 200, 74, 0.35)',
-            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(232, 200, 74, 0.15)',
+            background: '#0C1119',
+            borderTop: '1px solid #B59A4A',
+            borderBottom: '1px solid #292923',
+            boxShadow: '0 12px 40px rgba(0, 0, 0, 0.8)',
             borderRadius: 4,
             maxWidth: 580,
             animation: 'mission-banner-in 4.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -157,7 +155,7 @@ export default function MissionHUD() {
               fontWeight: 700,
               letterSpacing: '0.24em',
               textTransform: 'uppercase',
-              color: 'var(--gold)',
+              color: '#B59A4A',
               marginBottom: 4,
             }}
           >
@@ -169,7 +167,7 @@ export default function MissionHUD() {
               fontSize: 20,
               fontWeight: 700,
               letterSpacing: '0.08em',
-              color: '#f8fafc',
+              color: '#E8E3D8',
               textTransform: 'uppercase',
               marginBottom: 6,
             }}
@@ -181,7 +179,7 @@ export default function MissionHUD() {
               fontFamily: 'var(--font-body)',
               fontSize: 12,
               lineHeight: 1.5,
-              color: '#94a3b8',
+              color: '#77756D',
               maxWidth: 480,
             }}
           >
@@ -203,17 +201,17 @@ export default function MissionHUD() {
       >
         <div
           style={{
-            background: 'rgba(4, 8, 18, 0.86)',
+            background: '#0C1119',
             backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderLeft: '3px solid var(--gold)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
-            borderRadius: 6,
+            border: '1px solid #292923',
+            borderLeft: '3px solid #B59A4A',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6)',
+            borderRadius: 4,
             padding: '10px 14px',
             display: 'flex',
             flexDirection: 'column',
             gap: 6,
-            color: 'var(--text-hi)',
+            color: '#E8E3D8',
             fontFamily: 'var(--font-body)',
           }}
         >
@@ -226,7 +224,7 @@ export default function MissionHUD() {
                 fontWeight: 700,
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--gold)',
+                color: '#B59A4A',
               }}
             >
               {activeMission.title}
@@ -235,7 +233,7 @@ export default function MissionHUD() {
               style={{
                 fontSize: 10,
                 fontWeight: 600,
-                color: '#94a3b8',
+                color: '#77756D',
                 letterSpacing: '0.06em',
                 fontFamily: 'var(--font-ui)',
               }}
@@ -250,12 +248,12 @@ export default function MissionHUD() {
               style={{
                 fontSize: 12,
                 lineHeight: 1.45,
-                color: currentObj.completed ? '#94a3b8' : '#f1f5f9',
+                color: currentObj.completed ? '#77756D' : '#E8E3D8',
                 fontWeight: currentObj.completed ? 400 : 500,
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: 7,
-                borderRadius: 4,
+                borderRadius: 3,
                 padding: '2px 4px',
                 animation:
                   flashObjId === currentObj.id
@@ -265,7 +263,7 @@ export default function MissionHUD() {
             >
               <span
                 style={{
-                  color: currentObj.completed ? '#4ade80' : 'var(--gold)',
+                  color: currentObj.completed ? '#4E8A5E' : '#B59A4A',
                   fontSize: 10,
                   marginTop: 2,
                   animation: !currentObj.completed ? 'subtle-gold-pulse 2s infinite ease-in-out' : undefined,
@@ -279,7 +277,7 @@ export default function MissionHUD() {
                   <span
                     style={{
                       fontSize: 10,
-                      color: 'var(--cyan-glow, #38bdf8)',
+                      color: '#B59A4A',
                       letterSpacing: '0.03em',
                     }}
                   >

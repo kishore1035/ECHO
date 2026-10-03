@@ -1,8 +1,7 @@
 // ============================================================
 // TOP NAVIGATOR / COMPASS — Action-Adventure Directional Ribbon
-// God of War / Ghost of Tsushima style ribbon compass.
-// Shows dynamic bearings, cardinal points, active quest objective,
-// and contextual landmarks within range.
+// Ribbon compass showing dynamic bearings, cardinal points,
+// active quest objective, and contextual landmarks within range.
 // High-performance canvas-based render loop decoupled from React state.
 // ============================================================
 
@@ -61,7 +60,7 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
 
       // ── 1. Draw subtle horizontal base reference line ──
       const lineY = height - 12;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+      ctx.strokeStyle = '#292923';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(12, lineY);
@@ -77,7 +76,7 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
           const isCardinal = deg % 45 === 0;
 
           if (!isCardinal) {
-            ctx.strokeStyle = `rgba(180, 195, 215, ${0.28 * edgeAlpha})`;
+            ctx.strokeStyle = `rgba(119, 117, 109, ${0.35 * edgeAlpha})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(x, lineY - 4);
@@ -96,10 +95,10 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
 
           // Tick line
           ctx.strokeStyle = card.isNorth
-            ? `rgba(232, 200, 74, ${0.9 * edgeAlpha})`
+            ? `rgba(181, 154, 74, ${0.95 * edgeAlpha})`
             : card.isMajor
-            ? `rgba(240, 244, 250, ${0.65 * edgeAlpha})`
-            : `rgba(160, 175, 195, ${0.45 * edgeAlpha})`;
+            ? `rgba(232, 227, 216, ${0.7 * edgeAlpha})`
+            : `rgba(119, 117, 109, ${0.5 * edgeAlpha})`;
           ctx.lineWidth = card.isNorth ? 2 : card.isMajor ? 1.5 : 1;
           ctx.beginPath();
           ctx.moveTo(x, lineY - (card.isNorth ? 8 : card.isMajor ? 6 : 4));
@@ -114,10 +113,10 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
             : '500 9px "Inter", sans-serif';
           ctx.textAlign = 'center';
           ctx.fillStyle = card.isNorth
-            ? `rgba(232, 200, 74, ${edgeAlpha})`
+            ? `rgba(181, 154, 74, ${edgeAlpha})`
             : card.isMajor
-            ? `rgba(240, 244, 250, ${0.9 * edgeAlpha})`
-            : `rgba(148, 163, 184, ${0.75 * edgeAlpha})`;
+            ? `rgba(232, 227, 216, ${0.9 * edgeAlpha})`
+            : `rgba(119, 117, 109, ${0.75 * edgeAlpha})`;
           ctx.fillText(card.label, x, lineY - 10);
         }
       }
@@ -200,12 +199,12 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
           const edgeAlpha = Math.max(0, 1 - Math.pow(Math.abs(m.diff) / halfFov, 2.0));
 
           if (m.isObjective) {
-            // Emphasized Active Story Objective (Gold Diamond & Distance)
+            // Emphasized Active Story Objective (Antique Gold Diamond & Distance)
             const isNear = m.dist <= 10;
             const markerY = 14;
 
             // Diamond marker ◆
-            ctx.fillStyle = `rgba(232, 200, 74, ${edgeAlpha})`;
+            ctx.fillStyle = `rgba(181, 154, 74, ${edgeAlpha})`;
             ctx.beginPath();
             ctx.moveTo(x, markerY - 5);
             ctx.lineTo(x + 4, markerY);
@@ -217,13 +216,13 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
             // Label with distance
             ctx.font = 'bold 9px "Inter", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillStyle = isNear ? `rgba(255, 230, 100, ${edgeAlpha})` : `rgba(232, 200, 74, ${0.9 * edgeAlpha})`;
+            ctx.fillStyle = isNear ? `rgba(232, 227, 216, ${edgeAlpha})` : `rgba(181, 154, 74, ${0.9 * edgeAlpha})`;
             const labelText = isNear ? `${m.label} (${m.dist}m)` : `${m.label} ${m.dist}m`;
             ctx.fillText(labelText, x, markerY - 7);
           } else {
-            // Subtle Landmark Marker (Silver Diamond & Distance)
+            // Subtle Landmark Marker (Muted Gray Diamond & Distance)
             const markerY = 16;
-            ctx.fillStyle = `rgba(180, 200, 220, ${0.65 * edgeAlpha})`;
+            ctx.fillStyle = `rgba(119, 117, 109, ${0.7 * edgeAlpha})`;
             ctx.beginPath();
             ctx.moveTo(x, markerY - 3.5);
             ctx.lineTo(x + 3, markerY);
@@ -235,14 +234,14 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
             // Short label
             ctx.font = '500 8px "Inter", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillStyle = `rgba(160, 180, 205, ${0.65 * edgeAlpha})`;
+            ctx.fillStyle = `rgba(119, 117, 109, ${0.75 * edgeAlpha})`;
             ctx.fillText(`${m.label} ${m.dist}m`, x, markerY - 5);
           }
         }
       }
 
       // ── 6. Fixed Center Heading Reticle / Notch ──
-      ctx.fillStyle = '#e8c84a';
+      ctx.fillStyle = '#B59A4A';
       ctx.beginPath();
       ctx.moveTo(centerX - 4, 3);
       ctx.lineTo(centerX + 4, 3);
@@ -279,11 +278,11 @@ export default function Compass({ isDialogueOpen = false }: CompassProps) {
           width: 480,
           maxWidth: 'calc(100vw - 32px)',
           height: 40,
-          background: 'rgba(5, 10, 20, 0.76)',
+          background: '#0C1119',
           backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.10)',
-          borderRadius: 20,
-          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.55), 0 0 1px rgba(255, 255, 255, 0.15)',
+          border: '1px solid #292923',
+          borderRadius: 4,
+          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
           overflow: 'hidden',
           position: 'relative',
           maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',

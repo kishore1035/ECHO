@@ -1,7 +1,6 @@
 // ============================================================
 // DIALOGUE BOX — Cinematic Story Dialogue Presentation for ECHO
-// Redesigned with compact rounded pill-tab header layout,
-// clean light alabaster background, dark high-legibility typography,
+// Dark unobtrusive panel, warm ivory text, restrained antique gold accents,
 // typewriter effect, and state-aware choice mechanics.
 // ============================================================
 
@@ -10,30 +9,6 @@ import { useCampaignStore, CampaignSystem } from '../campaign/CampaignSystem';
 import type { DialogueChoice, DialogueLine } from '../campaign/types';
 import { playMenuHover, playMenuSelect } from '../core/soundFX';
 import { matchesAction } from '../core/controls/InputManager';
-
-// Restrained authored color palette for character pill headers
-const SPEAKER_THEMES: Record<string, { bg: string; text: string; border: string }> = {
-  rowan: { bg: '#233d2c', text: '#d8f0dc', border: '#42704f' },
-  mira: { bg: '#2b1b42', text: '#e6d8ff', border: '#5b3c8a' },
-  aldric: { bg: '#1c2d4a', text: '#dbeafe', border: '#3b5f9a' },
-  vorn: { bg: '#481919', text: '#fee2e2', border: '#8b3232' },
-  echo: { bg: '#10333b', text: '#cffafe', border: '#227282' },
-  architect: { bg: '#1e2230', text: '#e2e8f0', border: '#475569' },
-  ancient: { bg: '#0a231f', text: '#a7f3d0', border: '#10b981' },
-  default: { bg: '#1e293b', text: '#f8fafc', border: '#475569' },
-};
-
-function getSpeakerTheme(speaker: string) {
-  const lower = speaker.toLowerCase();
-  if (lower.includes('rowan')) return SPEAKER_THEMES.rowan;
-  if (lower.includes('mira')) return SPEAKER_THEMES.mira;
-  if (lower.includes('aldric')) return SPEAKER_THEMES.aldric;
-  if (lower.includes('vorn')) return SPEAKER_THEMES.vorn;
-  if (lower.includes('architect')) return SPEAKER_THEMES.architect;
-  if (lower.includes('ancient') || lower.includes('root')) return SPEAKER_THEMES.ancient;
-  if (lower.includes('echo')) return SPEAKER_THEMES.echo;
-  return SPEAKER_THEMES.default;
-}
 
 // Per-character typing speed per speaker (ms per character)
 function getTypingSpeed(speaker: string): number {
@@ -226,7 +201,6 @@ export default function DialogueBox() {
 
   if (!activeDialogue || !currentLine) return null;
 
-  const theme = getSpeakerTheme(currentLine.speaker);
   const hasChoices = Boolean(currentLine.choices && currentLine.choices.length > 0 && !isTyping);
 
   return (
@@ -239,13 +213,13 @@ export default function DialogueBox() {
         transform: 'translateX(-50%)',
         zIndex: 9000,
         width: 'min(640px, calc(100vw - 44px))',
-        background: 'rgba(248, 247, 243, 0.97)',
-        border: '1px solid rgba(0, 0, 0, 0.12)',
-        borderRadius: 16,
-        boxShadow: '0 16px 42px rgba(0, 0, 0, 0.42), 0 2px 6px rgba(0, 0, 0, 0.12)',
+        background: '#0C1119',
+        border: '1px solid #292923',
+        borderRadius: 6,
+        boxShadow: '0 16px 42px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6)',
         backdropFilter: 'blur(20px)',
         padding: '24px 28px 18px 28px',
-        color: '#1a2230',
+        color: '#E8E3D8',
         fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
         display: 'flex',
         flexDirection: 'column',
@@ -278,19 +252,19 @@ export default function DialogueBox() {
         }
       `}</style>
 
-      {/* ── Pill-like Speaker Name Label (animates on speaker change) ── */}
+      {/* ── Speaker Name Header ── */}
       <div
         key={speakerKey}
         style={{
           position: 'absolute',
-          top: -14,
+          top: -13,
           left: '50%',
           transform: 'translateX(-50%)',
-          background: theme.bg,
-          border: `1px solid ${theme.border}`,
-          borderRadius: 20,
-          padding: '4px 18px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.28)',
+          background: '#070B12',
+          border: '1px solid #B59A4A',
+          borderRadius: 3,
+          padding: '3px 16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
           display: 'flex',
           alignItems: 'center',
           gap: 6,
@@ -301,11 +275,11 @@ export default function DialogueBox() {
         <span
           style={{
             fontFamily: 'var(--font-ui)',
-            fontSize: 11,
+            fontSize: 10.5,
             fontWeight: 700,
-            letterSpacing: '0.14em',
+            letterSpacing: '0.16em',
             textTransform: 'uppercase',
-            color: theme.text,
+            color: '#B59A4A',
             lineHeight: 1.2,
           }}
         >
@@ -314,11 +288,11 @@ export default function DialogueBox() {
         {currentLine.speakerRole && (
           <span
             style={{
-              fontSize: 9.5,
+              fontSize: 9,
               fontWeight: 500,
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
-              color: 'rgba(255, 255, 255, 0.65)',
+              color: '#77756D',
             }}
           >
             • {currentLine.speakerRole}
@@ -330,11 +304,11 @@ export default function DialogueBox() {
       <div
         style={{
           minHeight: 46,
-          fontSize: 15.5,
-          lineHeight: 1.6,
-          color: '#1e293b',
-          fontWeight: 450,
-          letterSpacing: '-0.005em',
+          fontSize: 15,
+          lineHeight: 1.65,
+          color: '#E8E3D8',
+          fontWeight: 400,
+          letterSpacing: '0.01em',
           paddingTop: 4,
         }}
       >
@@ -345,7 +319,7 @@ export default function DialogueBox() {
               display: 'inline-block',
               width: 2,
               height: 15,
-              background: '#334155',
+              background: '#B59A4A',
               marginLeft: 4,
               verticalAlign: 'middle',
               animation: 'textCursorBlink 0.6s infinite',
@@ -363,7 +337,7 @@ export default function DialogueBox() {
             gap: 6,
             marginTop: 4,
             paddingTop: 10,
-            borderTop: '1px solid rgba(0, 0, 0, 0.08)',
+            borderTop: '1px solid #292923',
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -378,11 +352,11 @@ export default function DialogueBox() {
                 }}
                 onClick={() => handleSelectChoice(choice)}
                 style={{
-                  background: isSelected ? '#1e293b' : 'rgba(0, 0, 0, 0.04)',
-                  border: `1px solid ${isSelected ? '#1e293b' : 'rgba(0, 0, 0, 0.10)'}`,
-                  borderRadius: 8,
+                  background: isSelected ? 'rgba(181, 154, 74, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                  border: `1px solid ${isSelected ? '#B59A4A' : '#292923'}`,
+                  borderRadius: 3,
                   padding: '9px 14px',
-                  color: isSelected ? '#f8fafc' : '#1e293b',
+                  color: isSelected ? '#E8E3D8' : '#77756D',
                   fontFamily: 'inherit',
                   fontSize: 13,
                   fontWeight: 600,
@@ -396,10 +370,10 @@ export default function DialogueBox() {
                 }}
               >
                 <span>
-                  <strong style={{ opacity: 0.7, marginRight: 8 }}>[{cIdx + 1}]</strong>
+                  <strong style={{ color: '#B59A4A', marginRight: 8 }}>[{cIdx + 1}]</strong>
                   {choice.text}
                 </span>
-                {isSelected && <span style={{ opacity: 0.85, fontSize: 11 }}>↵</span>}
+                {isSelected && <span style={{ color: '#B59A4A', fontSize: 11 }}>↵</span>}
               </button>
             );
           })}
@@ -414,18 +388,18 @@ export default function DialogueBox() {
             justifyContent: 'space-between',
             alignItems: 'center',
             paddingTop: 2,
-            borderTop: '1px solid rgba(0, 0, 0, 0.05)',
+            borderTop: '1px solid #292923',
             fontSize: 9.5,
             fontWeight: 600,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: '#64748b',
+            color: '#77756D',
           }}
         >
-          <span style={{ opacity: 0.7 }}>
+          <span style={{ opacity: 0.8 }}>
             {dialogueLineIndex + 1} / {activeDialogue.lines.length}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {/* Skip hint appears only after 1.5s of typing */}
             {isTyping && showSkipHint && (
               <span style={{ animation: 'skip-hint-fade-in 0.4s ease both' }}>CLICK TO SKIP</span>
@@ -438,7 +412,7 @@ export default function DialogueBox() {
                 style={{
                   display: 'inline-block',
                   animation: 'pulseChevron 1.2s infinite ease-in-out',
-                  color: '#1e293b',
+                  color: '#B59A4A',
                   fontSize: 10,
                 }}
               >

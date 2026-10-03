@@ -62,7 +62,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
         position: 'fixed',
         inset: 0,
         zIndex: 10000,
-        background: 'rgba(2, 5, 12, 0.88)',
+        background: 'rgba(7, 11, 18, 0.88)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         display: 'flex',
@@ -70,7 +70,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
         alignItems: 'center',
         justifyContent: 'center',
         padding: '24px 20px',
-        color: 'var(--text-hi)',
+        color: '#E8E3D8',
         fontFamily: 'var(--font-body)',
         animation: 'vw-fadein 0.22s ease',
       }}
@@ -83,10 +83,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
-          background: 'rgba(6, 12, 22, 0.94)',
-          border: '1px solid var(--border)',
-          borderRadius: 4,
-          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.6), 0 0 1px rgba(232, 200, 74, 0.3)',
+          background: '#0C1119',
+          border: '1px solid #292923',
+          borderRadius: 6,
+          boxShadow: '0 24px 64px rgba(0, 0, 0, 0.8)',
           overflow: 'hidden',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -95,11 +95,11 @@ export default function HelpModal({ onClose }: HelpModalProps) {
         <div
           style={{
             padding: '22px 28px 18px',
-            borderBottom: '1px solid rgba(232, 200, 74, 0.14)',
+            borderBottom: '1px solid #292923',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'linear-gradient(180deg, rgba(16, 26, 44, 0.5) 0%, rgba(6, 12, 22, 0.2) 100%)',
+            background: '#0C1119',
           }}
         >
           <div>
@@ -108,7 +108,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 fontFamily: 'var(--font-ui)',
                 fontSize: 9.5,
                 letterSpacing: '0.42em',
-                color: 'var(--gold-dim)',
+                color: '#8F7836',
                 textTransform: 'uppercase',
                 marginBottom: 4,
               }}
@@ -118,10 +118,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             <div
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: 700,
                 letterSpacing: '0.22em',
-                color: 'var(--text-hi)',
+                color: '#E8E3D8',
               }}
             >
               HOW TO PLAY ECHO
@@ -135,24 +135,24 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             }}
             style={{
               background: 'transparent',
-              border: '1px solid rgba(232, 200, 74, 0.22)',
-              color: 'var(--text-mid)',
+              border: '1px solid #292923',
+              color: '#77756D',
               fontFamily: 'var(--font-ui)',
               fontSize: 10.5,
               letterSpacing: '0.2em',
               padding: '6px 14px',
               cursor: 'pointer',
-              borderRadius: 2,
+              borderRadius: 3,
               textTransform: 'uppercase',
               transition: 'all 0.18s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--gold)';
-              e.currentTarget.style.color = 'var(--gold)';
+              e.currentTarget.style.borderColor = '#B59A4A';
+              e.currentTarget.style.color = '#B59A4A';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(232, 200, 74, 0.22)';
-              e.currentTarget.style.color = 'var(--text-mid)';
+              e.currentTarget.style.borderColor = '#292923';
+              e.currentTarget.style.color = '#77756D';
             }}
           >
             RETURN [ESC]
@@ -174,8 +174,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             style={{
               width: 250,
               flexShrink: 0,
-              borderRight: '1px solid rgba(232, 200, 74, 0.12)',
-              background: 'rgba(4, 8, 16, 0.65)',
+              borderRight: '1px solid #292923',
+              background: '#070B12',
               display: 'flex',
               flexDirection: 'column',
               padding: '14px 0',
@@ -187,7 +187,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 fontSize: 8.5,
                 fontFamily: 'var(--font-ui)',
                 letterSpacing: '0.3em',
-                color: '#5a6478',
+                color: '#54524B',
                 padding: '4px 22px 10px',
                 textTransform: 'uppercase',
               }}
@@ -216,8 +216,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                     padding: '10px 20px 10px 24px',
                     cursor: 'pointer',
                     position: 'relative',
-                    color: isSelected ? 'var(--gold)' : '#748096',
-                    background: isSelected ? 'rgba(232, 200, 74, 0.06)' : 'transparent',
+                    color: isSelected ? '#B59A4A' : '#77756D',
+                    background: isSelected ? 'rgba(181, 154, 74, 0.08)' : 'transparent',
                     transition: 'all 0.16s ease',
                   }}
                 >
@@ -229,13 +229,13 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                       top: 0,
                       bottom: 0,
                       width: isSelected ? 3 : 0,
-                      background: 'var(--gold)',
+                      background: '#B59A4A',
                       transition: 'width 0.16s ease',
                     }}
                   />
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {isSelected && (
-                      <span style={{ fontSize: 6.5, color: 'var(--gold)' }}>◆</span>
+                      <span style={{ fontSize: 6.5, color: '#B59A4A' }}>◆</span>
                     )}
                     <span>{section.title}</span>
                   </div>
@@ -254,6 +254,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
               display: 'flex',
               flexDirection: 'column',
               gap: 20,
+              background: '#0C1119',
             }}
           >
             {/* Section Header */}
@@ -263,7 +264,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   fontFamily: 'var(--font-ui)',
                   fontSize: 10,
                   letterSpacing: '0.35em',
-                  color: 'var(--gold-dim)',
+                  color: '#8F7836',
                   textTransform: 'uppercase',
                   marginBottom: 6,
                 }}
@@ -276,7 +277,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   fontSize: 22,
                   fontWeight: 700,
                   letterSpacing: '0.18em',
-                  color: 'var(--text-hi)',
+                  color: '#E8E3D8',
                 }}
               >
                 {activeSection.title}
@@ -285,7 +286,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                 style={{
                   width: 90,
                   height: 1,
-                  background: 'linear-gradient(90deg, var(--gold), transparent)',
+                  background: 'linear-gradient(90deg, #B59A4A, transparent)',
                   marginTop: 10,
                 }}
               />
@@ -299,7 +300,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   style={{
                     fontSize: 13.5,
                     lineHeight: 1.7,
-                    color: '#c8d0de',
+                    color: '#E8E3D8',
                     margin: 0,
                   }}
                 >
@@ -312,9 +313,9 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             {activeSection.bulletPoints && (
               <div
                 style={{
-                  background: 'rgba(8, 14, 26, 0.65)',
-                  border: '1px solid rgba(232, 200, 74, 0.12)',
-                  borderRadius: 2,
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid #292923',
+                  borderRadius: 3,
                   padding: '14px 20px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -329,10 +330,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                       alignItems: 'baseline',
                       gap: 12,
                       fontSize: 13,
-                      color: '#e2e8f0',
+                      color: '#E8E3D8',
                     }}
                   >
-                    <span style={{ color: 'var(--gold)', fontSize: 10 }}>—</span>
+                    <span style={{ color: '#B59A4A', fontSize: 10 }}>—</span>
                     <span>{bp}</span>
                   </div>
                 ))}
@@ -346,8 +347,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   <div
                     key={i}
                     style={{
-                      background: 'rgba(8, 14, 26, 0.75)',
-                      border: '1px solid rgba(232, 200, 74, 0.14)',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid #292923',
                       borderRadius: 3,
                       padding: '14px 18px',
                       display: 'flex',
@@ -361,13 +362,13 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                           fontFamily: 'var(--font-ui)',
                           fontSize: 11,
                           letterSpacing: '0.2em',
-                          color: 'var(--gold)',
+                          color: '#B59A4A',
                           fontWeight: 600,
                         }}
                       >
                         {cat.category}
                       </div>
-                      <div style={{ fontSize: 11, color: '#748096', fontStyle: 'italic' }}>
+                      <div style={{ fontSize: 11, color: '#77756D', fontStyle: 'italic' }}>
                         {cat.description}
                       </div>
                     </div>
@@ -384,13 +385,13 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                         <div
                           key={ei}
                           style={{
-                            background: 'rgba(4, 8, 16, 0.8)',
-                            border: '1px solid rgba(56, 189, 248, 0.18)',
+                            background: '#070B12',
+                            border: '1px solid #292923',
                             padding: '7px 12px',
-                            borderRadius: 2,
+                            borderRadius: 3,
                             fontFamily: '"SFMono-Regular", Consolas, monospace',
                             fontSize: 12,
-                            color: '#7dd3fc',
+                            color: '#E8E3D8',
                             letterSpacing: '0.04em',
                           }}
                         >
@@ -407,8 +408,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             {Boolean(activeSection.controls) && (
               <div
                 style={{
-                  background: 'rgba(8, 14, 26, 0.75)',
-                  border: '1px solid rgba(232, 200, 74, 0.14)',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid #292923',
                   borderRadius: 3,
                   padding: '10px 16px',
                   display: 'flex',
@@ -428,20 +429,20 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                       padding: '8px 4px',
                       borderBottom:
                         i < arr.length - 1
-                          ? '1px solid rgba(255, 255, 255, 0.05)'
+                          ? '1px solid #292923'
                           : 'none',
                     }}
                   >
                     <div
                       style={{
-                        background: 'rgba(232, 200, 74, 0.08)',
-                        border: '1px solid rgba(232, 200, 74, 0.28)',
-                        color: 'var(--gold)',
+                        background: 'rgba(181, 154, 74, 0.08)',
+                        border: '1px solid #B59A4A',
+                        color: '#B59A4A',
                         fontFamily: 'var(--font-ui)',
                         fontSize: 10.5,
                         letterSpacing: '0.14em',
                         padding: '4px 10px',
-                        borderRadius: 2,
+                        borderRadius: 3,
                         minWidth: 120,
                         textAlign: 'center',
                       }}
@@ -453,7 +454,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                         flex: 1,
                         marginLeft: 20,
                         fontSize: 12.5,
-                        color: '#c2cad8',
+                        color: '#E8E3D8',
                       }}
                     >
                       {ctrl.action}
@@ -467,8 +468,8 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             {activeSection.callout && (
               <div
                 style={{
-                  background: 'rgba(30, 22, 10, 0.55)',
-                  border: '1px solid rgba(232, 200, 74, 0.4)',
+                  background: 'rgba(181, 154, 74, 0.06)',
+                  border: '1px solid #B59A4A',
                   borderRadius: 3,
                   padding: '16px 20px',
                   display: 'flex',
@@ -481,7 +482,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                     fontFamily: 'var(--font-ui)',
                     fontSize: 11,
                     letterSpacing: '0.24em',
-                    color: 'var(--gold)',
+                    color: '#B59A4A',
                     fontWeight: 700,
                   }}
                 >
@@ -491,7 +492,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   style={{
                     fontSize: 13,
                     lineHeight: 1.65,
-                    color: '#f0ece0',
+                    color: '#E8E3D8',
                   }}
                 >
                   {activeSection.callout.text}
@@ -505,19 +506,19 @@ export default function HelpModal({ onClose }: HelpModalProps) {
         <div
           style={{
             padding: '12px 28px',
-            borderTop: '1px solid rgba(232, 200, 74, 0.12)',
+            borderTop: '1px solid #292923',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            background: 'rgba(4, 8, 16, 0.75)',
+            background: '#070B12',
             fontSize: 9.5,
             fontFamily: 'var(--font-ui)',
             letterSpacing: '0.18em',
-            color: '#606b80',
+            color: '#77756D',
           }}
         >
           <div>↑↓ SELECT SECTION · ENTER CONFIRM · ESC BACK</div>
-          <div style={{ color: 'var(--gold-dim)' }}>EVERY WORD CHANGES THE WORLD</div>
+          <div style={{ color: '#8F7836' }}>EVERY WORD CHANGES THE WORLD</div>
         </div>
       </div>
     </div>

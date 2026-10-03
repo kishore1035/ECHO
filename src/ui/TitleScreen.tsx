@@ -192,11 +192,11 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
             fontSize: 86,
             fontWeight: 700,
             lineHeight: 0.9,
-            color: '#f5f0e8',
+            color: '#E8E3D8',
             letterSpacing: '0.35em',
             textShadow: [
-              '0 0 60px rgba(232, 200, 74, 0.28)',
-              '0 0 120px rgba(232, 200, 74, 0.12)',
+              '0 0 60px rgba(181, 154, 74, 0.22)',
+              '0 0 120px rgba(181, 154, 74, 0.08)',
               '0 4px 32px rgba(0,0,0,0.8)',
             ].join(', '),
             animation: mounted ? 'echo-title-in 1.2s 0.2s ease both' : 'none',
@@ -208,7 +208,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
           <div style={{
             width: 220,
             height: 1,
-            background: 'linear-gradient(90deg, var(--gold) 0%, rgba(232,200,74,0.12) 100%)',
+            background: 'linear-gradient(90deg, var(--gold) 0%, rgba(181,154,74,0.12) 100%)',
             marginTop: 18,
             marginBottom: 16,
             animation: mounted ? 'vw-fadein 0.6s 0.9s ease both' : 'none',
@@ -222,7 +222,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
             fontWeight: 300,
             fontStyle: 'italic',
             letterSpacing: '0.11em',
-            color: 'rgba(220, 210, 190, 0.72)',
+            color: 'rgba(232, 227, 216, 0.72)',
             animation: mounted ? 'echo-tagline-in 0.8s 1.1s ease both' : 'none',
             opacity: 0,
           }}>
@@ -257,7 +257,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
                   padding: '10px 0 10px 28px',
                   cursor: isDisabled ? 'default' : 'pointer',
                   position: 'relative',
-                  color: isDisabled ? '#404858' : isSelected ? 'var(--gold)' : '#8a94a8',
+                  color: isDisabled ? '#54524B' : isSelected ? 'var(--gold)' : '#77756D',
                   transition: 'color 0.2s, letter-spacing 0.25s',
                   animation: mounted ? `echo-menu-in 0.5s ${0.9 + idx * 0.06}s ease both` : 'none',
                   opacity: 0,
@@ -302,7 +302,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
             paddingLeft: 28,
             fontSize: 10.5,
             fontFamily: 'var(--font-body)',
-            color: '#4a5568',
+            color: '#77756D',
             fontStyle: 'italic',
             letterSpacing: '0.06em',
             minHeight: 16,
@@ -326,12 +326,12 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
             gap: 20,
             fontFamily: 'var(--font-body)',
             fontSize: 10,
-            color: '#2e3848',
+            color: '#77756D',
             letterSpacing: '0.1em',
           }}>
             {[['↑↓', 'NAVIGATE'], ['ENTER', 'SELECT'], ['ESC', 'BACK']].map(([key, label]) => (
               <span key={label}>
-                <span style={{ color: '#485060', marginRight: 5 }}>{key}</span>
+                <span style={{ color: 'var(--gold)', marginRight: 5 }}>{key}</span>
                 {label}
               </span>
             ))}
@@ -341,7 +341,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
           <div style={{
             fontFamily: 'var(--font-body)',
             fontSize: 9.5,
-            color: '#252f3f',
+            color: '#54524B',
             letterSpacing: '0.12em',
           }}>
             ECHO v1.0 · M0–M5 · TIMELINE ENGINE

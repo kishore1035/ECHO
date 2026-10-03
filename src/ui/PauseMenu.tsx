@@ -78,27 +78,27 @@ export default function PauseMenu({ onResume, onReturnToTitle }: PauseMenuProps)
           position: 'fixed',
           inset: 0,
           zIndex: 9999,
-          background: 'rgba(2, 5, 12, 0.82)',
+          background: 'rgba(7, 11, 18, 0.88)',
           backdropFilter: 'blur(18px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           fontFamily: 'var(--font-body)',
-          color: 'var(--text-hi)',
+          color: '#E8E3D8',
           animation: 'vw-fadein 0.22s ease',
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32, minWidth: 300 }}>
           {/* Pause Header */}
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9.5, letterSpacing: '0.45em', color: 'var(--gold-dim)', textTransform: 'uppercase', marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 9.5, letterSpacing: '0.45em', color: '#8F7836', textTransform: 'uppercase', marginBottom: 8 }}>
               SIMULATION SUSPENDED
             </div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 34, fontWeight: 700, letterSpacing: '0.28em', color: 'var(--text-hi)', textShadow: '0 0 40px rgba(232,200,74,0.18)' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 34, fontWeight: 700, letterSpacing: '0.28em', color: '#E8E3D8', textShadow: '0 0 40px rgba(181, 154, 74, 0.18)' }}>
               PAUSED
             </div>
-            <div style={{ width: 160, height: 1, background: 'linear-gradient(90deg, transparent, var(--gold-dim), transparent)', margin: '12px auto 0' }} />
+            <div style={{ width: 160, height: 1, background: 'linear-gradient(90deg, transparent, #8F7836, transparent)', margin: '12px auto 0' }} />
           </div>
           {/* Menu Items */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
@@ -106,20 +106,19 @@ export default function PauseMenu({ onResume, onReturnToTitle }: PauseMenuProps)
               const isSelected = selectedIndex === idx;
               return (
                 <div key={item.label} onMouseEnter={() => { setSelectedIndex(idx); playMenuHover(); }} onClick={() => { playMenuSelect(); item.action(); }}
-                  style={{ fontFamily: 'var(--font-ui)', fontSize: 11.5, letterSpacing: isSelected ? '0.24em' : '0.18em', textTransform: 'uppercase' as const, padding: '10px 0 10px 26px', cursor: 'pointer', position: 'relative', color: isSelected ? 'var(--gold)' : '#6a7488', transition: 'color 0.18s, letter-spacing 0.22s' }}>
-                  <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', width: isSelected ? 16 : 0, height: 1, background: 'var(--gold)', transition: 'width 0.18s ease' }} />
-                  {isSelected && <span style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 7, color: 'var(--gold)' }}>◆</span>}
+                  style={{ fontFamily: 'var(--font-ui)', fontSize: 11.5, letterSpacing: isSelected ? '0.24em' : '0.18em', textTransform: 'uppercase' as const, padding: '10px 0 10px 26px', cursor: 'pointer', position: 'relative', color: isSelected ? '#B59A4A' : '#77756D', transition: 'color 0.18s, letter-spacing 0.22s' }}>
+                  <div style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', width: isSelected ? 16 : 0, height: 1, background: '#B59A4A', transition: 'width 0.18s ease' }} />
+                  {isSelected && <span style={{ position: 'absolute', left: 18, top: '50%', transform: 'translateY(-50%)', fontSize: 7, color: '#B59A4A' }}>◆</span>}
                   <span style={{ paddingLeft: isSelected ? 12 : 0, transition: 'padding 0.18s' }}>{item.label}</span>
                 </div>
               );
             })}
           </div>
-          <div style={{ fontSize: 9.5, color: '#2a3040', letterSpacing: '0.14em', fontFamily: 'var(--font-body)' }}>
+          <div style={{ fontSize: 9.5, color: '#77756D', letterSpacing: '0.14em', fontFamily: 'var(--font-body)' }}>
             ↑↓ NAVIGATE · ENTER SELECT · ESC RESUME
           </div>
         </div>
       </div>
-
 
       {/* Sub-modals */}
       {activeModal === 'save' && (

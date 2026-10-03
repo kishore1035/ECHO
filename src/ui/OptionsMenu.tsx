@@ -155,7 +155,7 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
         position: 'fixed',
         inset: 0,
         zIndex: 10000,
-        background: 'rgba(2, 6, 14, 0.88)',
+        background: 'rgba(7, 11, 18, 0.88)',
         backdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
@@ -169,15 +169,15 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
         style={{
           width: 580,
           maxHeight: '90vh',
-          background: 'rgba(8, 14, 28, 0.96)',
-          border: '1px solid rgba(56, 189, 248, 0.35)',
-          borderRadius: 14,
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.12)',
+          background: '#0C1119',
+          border: '1px solid #292923',
+          borderRadius: 6,
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6)',
           padding: '24px 28px',
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
-          color: '#f8fafc',
+          color: '#E8E3D8',
           overflowY: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
@@ -185,10 +185,10 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: '0.12em', color: '#38bdf8' }}>
+            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: '0.12em', color: '#E8E3D8' }}>
               SETTINGS & CONFIGURATION
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: '#77756D', marginTop: 2 }}>
               Fine-tune audiovisual rendering, audio mixes, and controls
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
             style={{
               background: 'none',
               border: 'none',
-              color: '#64748b',
+              color: '#77756D',
               cursor: 'pointer',
               fontSize: 18,
               padding: 4,
@@ -215,7 +215,7 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
           style={{
             display: 'flex',
             gap: 8,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid #292923',
             paddingBottom: 10,
           }}
         >
@@ -225,10 +225,10 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
               setActiveTab('preferences');
             }}
             style={{
-              background: activeTab === 'preferences' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(255, 255, 255, 0.04)',
-              border: `1px solid ${activeTab === 'preferences' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(255, 255, 255, 0.08)'}`,
-              borderRadius: 4,
-              color: activeTab === 'preferences' ? '#38bdf8' : '#94a3b8',
+              background: activeTab === 'preferences' ? 'rgba(181, 154, 74, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+              border: `1px solid ${activeTab === 'preferences' ? '#B59A4A' : '#292923'}`,
+              borderRadius: 3,
+              color: activeTab === 'preferences' ? '#B59A4A' : '#77756D',
               padding: '6px 16px',
               fontSize: 11,
               fontWeight: 700,
@@ -245,10 +245,10 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
               setActiveTab('controls');
             }}
             style={{
-              background: activeTab === 'controls' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(255, 255, 255, 0.04)',
-              border: `1px solid ${activeTab === 'controls' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(255, 255, 255, 0.08)'}`,
-              borderRadius: 4,
-              color: activeTab === 'controls' ? '#38bdf8' : '#94a3b8',
+              background: activeTab === 'controls' ? 'rgba(181, 154, 74, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+              border: `1px solid ${activeTab === 'controls' ? '#B59A4A' : '#292923'}`,
+              borderRadius: 3,
+              color: activeTab === 'controls' ? '#B59A4A' : '#77756D',
               padding: '6px 16px',
               fontSize: 11,
               fontWeight: 700,
@@ -393,8 +393,8 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: 10,
-                color: '#64748b',
-                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                color: '#77756D',
+                borderTop: '1px solid #292923',
                 paddingTop: 12,
               }}
             >
@@ -407,7 +407,7 @@ export default function OptionsMenu({ onClose, initialTab = 'preferences' }: Opt
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#94a3b8',
+                  color: '#77756D',
                   fontSize: 10,
                   textDecoration: 'underline',
                   cursor: 'pointer',
@@ -453,17 +453,17 @@ function OptionRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '8px 12px',
-        borderRadius: 8,
-        background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.02)',
-        border: `1px solid ${isSelected ? '#38bdf8' : 'rgba(255, 255, 255, 0.06)'}`,
+        borderRadius: 4,
+        background: isSelected ? 'rgba(181, 154, 74, 0.08)' : 'transparent',
+        border: `1px solid ${isSelected ? '#B59A4A' : '#292923'}`,
         transition: 'all 0.14s ease',
       }}
     >
       <div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? '#f8fafc' : '#cbd5e1' }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#E8E3D8' }}>
           {label}
         </div>
-        <div style={{ fontSize: 9, color: '#64748b', marginTop: 1 }}>{hint}</div>
+        <div style={{ fontSize: 9, color: '#77756D', marginTop: 1 }}>{hint}</div>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -473,10 +473,10 @@ function OptionRow({
             onLeft();
           }}
           style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: 'none',
-            color: '#cbd5e1',
-            borderRadius: 4,
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid #292923',
+            color: '#E8E3D8',
+            borderRadius: 3,
             width: 20,
             height: 20,
             cursor: 'pointer',
@@ -491,8 +491,8 @@ function OptionRow({
             minWidth: 64,
             textAlign: 'center',
             fontSize: 11,
-            fontWeight: 800,
-            color: isSelected ? '#38bdf8' : '#e2e8f0',
+            fontWeight: 700,
+            color: isSelected ? '#B59A4A' : '#E8E3D8',
             letterSpacing: '0.05em',
           }}
         >
@@ -505,10 +505,10 @@ function OptionRow({
             onRight();
           }}
           style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: 'none',
-            color: '#cbd5e1',
-            borderRadius: 4,
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid #292923',
+            color: '#E8E3D8',
+            borderRadius: 3,
             width: 20,
             height: 20,
             cursor: 'pointer',
@@ -546,13 +546,13 @@ function SliderOptionRow({
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '8px 12px',
-        borderRadius: 8,
-        background: isSelected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.02)',
-        border: `1px solid ${isSelected ? '#38bdf8' : 'rgba(255, 255, 255, 0.06)'}`,
+        borderRadius: 4,
+        background: isSelected ? 'rgba(181, 154, 74, 0.08)' : 'transparent',
+        border: `1px solid ${isSelected ? '#B59A4A' : '#292923'}`,
         transition: 'all 0.14s ease',
       }}
     >
-      <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? '#f8fafc' : '#cbd5e1' }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#E8E3D8' }}>
         {label}
       </div>
 
@@ -566,7 +566,7 @@ function SliderOptionRow({
           onChange={(e) => onChange(parseInt(e.target.value, 10))}
           style={{
             width: 120,
-            accentColor: '#38bdf8',
+            accentColor: '#B59A4A',
             cursor: 'pointer',
           }}
         />
@@ -575,8 +575,8 @@ function SliderOptionRow({
             minWidth: 32,
             textAlign: 'right',
             fontSize: 11,
-            fontWeight: 800,
-            color: isSelected ? '#38bdf8' : '#e2e8f0',
+            fontWeight: 700,
+            color: isSelected ? '#B59A4A' : '#E8E3D8',
           }}
         >
           {value}%

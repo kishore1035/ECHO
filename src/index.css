@@ -2,20 +2,20 @@
 
 /* ── Design Tokens ───────────────────────────────────────────── */
 :root {
-  --gold:       #e8c84a;
-  --gold-dim:   #a88e30;
-  --gold-glow:  rgba(232, 200, 74, 0.35);
-  --void:       #04080f;
-  --surface:    rgba(6, 12, 22, 0.92);
-  --surface-2:  rgba(10, 18, 32, 0.78);
-  --border:     rgba(232, 200, 74, 0.18);
-  --border-hi:  rgba(232, 200, 74, 0.5);
-  --text-hi:    #f0ecd8;
-  --text-mid:   #a0a8b8;
-  --text-dim:   #5a6070;
-  --red-accent: #e85040;
-  --blue-accent:#4aa0e8;
-  --green-accent:#40c870;
+  --gold:       #B59A4A; /* muted antique gold */
+  --gold-dim:   #8F7836; /* darker aged gold */
+  --gold-glow:  rgba(181, 154, 74, 0.2);
+  --void:       #070B12; /* near-black charcoal */
+  --surface:    #0C1119; /* panels/background surfaces */
+  --surface-2:  #0C1119;
+  --border:     #292923; /* subtle dark gray */
+  --border-hi:  rgba(181, 154, 74, 0.4);
+  --text-hi:    #E8E3D8; /* warm ivory/parchment */
+  --text-mid:   #77756D; /* muted gray */
+  --text-dim:   #54524B; /* darker muted gray */
+  --red-accent: #A84034;
+  --blue-accent:#8F7836;
+  --green-accent:#4E8A5E;
 
   /* Typography scale */
   --font-display: 'Cinzel Decorative', 'Cinzel', serif;
@@ -23,9 +23,9 @@
   --font-body:    'Inter', sans-serif;
 
   /* Spatial scale */
-  --radius-sm:   4px;
-  --radius-md:   8px;
-  --radius-lg:   14px;
+  --radius-sm:   3px;
+  --radius-md:   5px;
+  --radius-lg:   8px;
 }
 
 /* ── Reset ───────────────────────────────────────────────────── */
