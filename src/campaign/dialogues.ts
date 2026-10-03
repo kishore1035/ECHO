@@ -896,7 +896,10 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
 
   const isRowanDead = !rowan || rowan.health <= 0 || campaign.storyFlags['rowan_fate'] === 'dead';
   const isRowanWounded = rowan && rowan.health < 60;
+  const method = String(campaign.storyFlags['resolution_method'] || 'echo');
+  const hasRewound = Boolean(campaign.storyFlags['timeline_rewound']) || world.timelineRestoreVersion > 0;
 
+  // ── Outcome A: Rowan is Dead ───────────────────────────────
   if (isRowanDead) {
     return {
       id: 'diag_m3_complete_dead',
@@ -907,32 +910,35 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           avatarIcon: '🔮',
-          text: 'The raiders broke... but Rowan lies lifeless upon the mill stones. His blood is already soaking into the soil.',
+          shotType: 'closeUp',
+          emotion: 'solemn',
+          pauseDurationMs: 250,
+          text: '...The wind is dying down. Listen. There is no sound from the wheel.',
         },
         {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           avatarIcon: '🔮',
-          text: 'Look at him, Voice. This is the reality you allowed. Or will you run across the river to the Echo Tree, and try to undo what cannot naturally be undone?',
+          shotType: 'closeUp',
+          emotion: 'solemn',
+          text: 'Rowan is dead. His blood is on the stones. He was just a miller who ground flour for both sides of the river.',
+        },
+        {
+          speaker: 'Mira the Seer',
+          speakerRole: 'Chronal Scholar',
+          speakerColor: '#a855f7',
+          avatarIcon: '🔮',
+          shotType: 'closeUp',
+          emotion: 'warning',
+          pauseDurationMs: 180,
+          text: hasRewound
+            ? 'I feel the tremor in your chest. You want to speak again—to reach back and drag him out of the dark. But look at him, Voice. This is what happened.'
+            : 'No heroic farewell. Death in the valley is brief and cold. The river keeps flowing, indifferent to the life it just lost.',
           choices: [
             {
-              text: '"I will find a way to bring him back."',
-              onSelectFlag: 'vowed_to_rewind_rowan',
-              bondDelta: { character: 'mira', amount: -10 },
-              followUpLines: [
-                {
-                  speaker: 'Mira the Seer',
-                  speakerRole: 'Chronal Scholar',
-                  speakerColor: '#a855f7',
-                  avatarIcon: '🔮',
-                  text: 'And so you step onto the Architect\'s road. Come then. The Echo Tree awaits across the river bridge.',
-                },
-              ],
-            },
-            {
-              text: '"His death is part of this world now. I must live with it."',
-              onSelectFlag: 'accepted_rowan_death',
+              text: '[Close Rowan\'s eyes in silence]',
+              onSelectFlag: 'mourned_rowan_silently',
               bondDelta: { character: 'mira', amount: 15 },
               followUpLines: [
                 {
@@ -940,7 +946,25 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
                   speakerRole: 'Chronal Scholar',
                   speakerColor: '#a855f7',
                   avatarIcon: '🔮',
-                  text: 'A profound and bitter wisdom. You possess the restraint the Architect lacked.',
+                  shotType: 'closeUp',
+                  emotion: 'solemn',
+                  text: 'Rest your hands. Even the Echo cannot erase pain without tearing the weave elsewhere. But our journey is not finished. We must walk to the ancient Echo Tree.',
+                },
+              ],
+            },
+            {
+              text: '"I couldn\'t reach him in time. I should have spoken sooner."',
+              onSelectFlag: 'regretted_rowan_loss',
+              bondDelta: { character: 'mira', amount: 10 },
+              followUpLines: [
+                {
+                  speaker: 'Mira the Seer',
+                  speakerRole: 'Chronal Scholar',
+                  speakerColor: '#a855f7',
+                  avatarIcon: '🔮',
+                  shotType: 'closeUp',
+                  emotion: 'solemn',
+                  text: 'You have a voice that bends reality, Voice, but you are not all-knowing. Grief is what reminds you that you are still human. Come. The glade awaits.',
                 },
               ],
             },
@@ -951,7 +975,19 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
     };
   }
 
+  // ── Outcome B: Rowan is Wounded ─────────────────────────────
   if (isRowanWounded) {
+    const methodLine =
+      method === 'shield'
+        ? 'That barrier... it deflected the worst of their steel, though the shock bruised my ribs deep. If you hadn’t cast it, I would be lying cold on this porch.'
+        : method === 'rain'
+        ? 'The downpour drowned their torches right as they reached the porch. The sudden dark gave me just enough room to scramble back. I’ll bleed for weeks, but I’m alive.'
+        : method === 'bridge'
+        ? 'You ripped the bridge apart! The roar shook the rafters. One of them caught my side with a spear before retreating, but they couldn’t cross the gorge.'
+        : method === 'retreat'
+        ? 'You spoke, and terror took them like a sickness. They turned and ran. I took a stray gash in the confusion, but the mill stands.'
+        : 'You drove them back with cold iron. I took a blade to the ribs before they fell, but your intervention saved my life.';
+
     return {
       id: 'diag_m3_complete_wounded',
       cameraFocusEntity: rowan?.id,
@@ -961,28 +997,58 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speakerRole: 'Wounded Miller',
           speakerColor: '#4ade80',
           avatarIcon: '🌾',
-          text: 'The raiders broke... gods, my side burns where their blade caught me. But I am breathing, thanks to your voice.',
+          cameraFocusEntity: rowan?.id,
+          shotType: 'closeUp',
+          emotion: 'wincing',
+          text: methodLine,
         },
         {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           avatarIcon: '🔮',
-          text: 'The mill stands, and Rowan breathes. Every scar bears testimony to living history.',
+          cameraFocusEntity: mira?.id,
+          shotType: 'closeUp',
+          emotion: 'solemn',
+          text: 'The raid has broken. Rowan breathes, though the soil here will carry the memory of blood spilled.',
         },
         {
           speaker: 'Rowan the Miller',
           speakerRole: 'Wounded Miller',
           speakerColor: '#4ade80',
           avatarIcon: '🌾',
-          text: 'Whatever shadows gather across Suncrest and Shadowfang, Rowan the Miller is your sworn ally.',
+          cameraFocusEntity: rowan?.id,
+          shotType: 'closeUp',
+          emotion: 'solemn',
+          text: 'Whatever shadows gather across Suncrest and Shadowfang, Voice... Rowan owes you his life. I will not forget this.',
+        },
+        {
+          speaker: 'Mira the Seer',
+          speakerRole: 'Chronal Scholar',
+          speakerColor: '#a855f7',
+          avatarIcon: '🔮',
+          cameraFocusEntity: mira?.id,
+          shotType: 'closeUp',
+          emotion: 'warning',
+          text: 'Rest now, Rowan. Voice—walk with me across to the ancient glade. The Echo Tree is stirring.',
         },
       ],
       onCompleteFlag: 'slice_completed',
     };
   }
 
-  // Rowan saved unscathed
+  // ── Outcome C: Rowan is Saved Unscathed ─────────────────────
+  const methodLineSaved =
+    method === 'shield'
+      ? 'A shimmering barrier of light... their blades struck empty air and rang like cracked bells! Not a single splinter touched me!'
+      : method === 'rain'
+      ? 'The heavens opened at your command! The torrential rain choked out their torches in an instant. Blind in the mud and flood, the vanguard broke!'
+      : method === 'bridge'
+      ? 'The crossing... you shattered the stone bridge into the river! They were stranded on the western bank, helpless to reach the mill!'
+      : method === 'retreat'
+      ? 'Your voice carried command over their very bones. Seasoned legionnaires turned and ran in blind terror. I have never seen men flee like that.'
+      : 'You repelled the entire vanguard before they could lay a finger on the mill stones or me.';
+
   return {
     id: 'diag_m3_complete_saved',
     cameraFocusEntity: rowan?.id,
@@ -992,28 +1058,40 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
         avatarIcon: '🌾',
-        text: 'The raiders broke and fled! The mill stands, and not a single hair on my head was touched! By the gods, your voice truly bent reality!',
+        cameraFocusEntity: rowan?.id,
+        shotType: 'closeUp',
+        emotion: 'intense',
+        text: methodLineSaved,
       },
       {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
         avatarIcon: '🔮',
-        text: 'You wielded the Echo with purpose, Voice. The Architect fractured this valley trying to bend it to his will, but today, you preserved it.',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'The mill stands intact, and Rowan is untouched. You wielded the Echo with restraint and purpose today, Voice.',
       },
       {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
         avatarIcon: '🌾',
-        text: 'Whatever shadows gather across Suncrest and Shadowfang in the days to come, Rowan the Miller is your sworn ally.',
+        cameraFocusEntity: rowan?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'From this day on, Rowan the Miller is your sworn friend. Whatever storm sweeps through this realm, my door is open to you.',
       },
       {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
         avatarIcon: '🔮',
-        text: 'The Meadowlands have found their Voice. Now come with me across the river bridge—it is time you saw the ancient anchor.',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'warning',
+        text: 'The immediate crisis is quelled. But the shockwave of your voice has resonated into the earth. Come with me west of the river—it is time you saw the ancient Echo Tree.',
       },
     ],
     onCompleteFlag: 'slice_completed',

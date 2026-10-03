@@ -22,6 +22,7 @@ import { getTerrainHeight, isWater } from '../core/terrain';
 import { getWaterDepth } from '../core/physicsWorld';
 import type { Entity } from '../core/types';
 import StructureMesh from './StructureMesh';
+import { triggerCameraCue } from './CameraSystem';
 import {
   getStylizedFaceTexture,
   getToonGradient3,
@@ -61,6 +62,7 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
   const toonRamp = useMemo(() => getToonGradient3(), []);
   const faceTexture = useMemo(() => getStylizedFaceTexture('#4a8838', 'kind'), []);
   const outlineMat = useMemo(() => getInvertedHullOutlineMaterial('#16101c'), []);
+  const isShielded = useCampaignStore((s) => Boolean(s.storyFlags['rowan_shielded']));
 
   useFrame((state) => {
     const s = Math.sin(aiRef.current.walkPhase * 6.5) * 0.45;
@@ -209,6 +211,30 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
           <meshToonMaterial color="#2d1c10" gradientMap={toonRamp} />
         </mesh>
       </group>
+
+      {/* ── Chronal Shield Barrier VFX (Active when protected by Echo) ── */}
+      {isShielded && (
+        <group position={[0, 0.45, 0]}>
+          <mesh>
+            <sphereGeometry args={[1.25, 20, 16]} />
+            <meshStandardMaterial
+              color="#38bdf8"
+              emissive="#0284c7"
+              emissiveIntensity={0.65}
+              transparent
+              opacity={0.38}
+              roughness={0.1}
+              metalness={0.8}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[1.12, 1.26, 28]} />
+            <meshBasicMaterial color="#fbbf24" transparent opacity={0.7} side={THREE.DoubleSide} />
+          </mesh>
+          <pointLight color="#38bdf8" intensity={1.6} distance={5} />
+        </group>
+      )}
     </group>
   );
 }
@@ -806,6 +832,12 @@ function SoldierMesh({
   const steelMetal = useMemo(() => getStylizedMetalTexture(faction.metal, '#ffffff'), [faction.metal]);
   const outlineMat = useMemo(() => getInvertedHullOutlineMaterial('#16101c'), []);
 
+  const isShadowfang = factionId === 'shadowfang';
+  const weatherType = useWorldStore((s) => s.weather.type);
+  const torchesExtinguished = useCampaignStore((s) => Boolean(s.storyFlags['torches_extinguished']));
+  const isRainActive = weatherType === 'rain' || weatherType === 'storm';
+  const isTorchBurning = isShadowfang && !torchesExtinguished && !isRainActive;
+
   useFrame(() => {
     const s = Math.sin(aiRef.current.walkPhase * 6.5) * 0.45;
     if (leftArmRef.current) leftArmRef.current.rotation.x = -s * 0.5;
@@ -872,23 +904,60 @@ function SoldierMesh({
           </group>
         </group>
 
-        {/* ── Left Arm with Shield ── */}
+        {/* ── Left Arm with Shield OR Shadowfang Raid Torch ── */}
         <group ref={leftArmRef} position={[-0.34, 0.36, 0]}>
           <mesh position={[0, -0.16, 0]} castShadow>
             <cylinderGeometry args={[0.1, 0.09, 0.26, 6]} />
             <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
           </mesh>
-          {/* Heater / Kite Shield */}
-          <group position={[-0.14, -0.22, 0.1]} rotation={[0, 0.3, 0]}>
-            <mesh castShadow>
-              <boxGeometry args={[0.34, 0.55, 0.04]} />
-              <meshToonMaterial color={faction.primary} gradientMap={toonRamp} />
-            </mesh>
-            <mesh position={[0, 0, 0.03]}>
-              <boxGeometry args={[0.16, 0.28, 0.02]} />
-              <meshToonMaterial color={faction.accent} gradientMap={toonRamp} />
-            </mesh>
-          </group>
+
+          {/* Shadowfang Raid Torch */}
+          {isShadowfang && (
+            <group position={[-0.08, -0.32, 0.12]} rotation={[-0.3, 0, 0.2]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.038, 0.045, 0.85, 6]} />
+                <meshToonMaterial color="#3a2212" gradientMap={toonRamp} />
+              </mesh>
+              <mesh position={[0, 0.42, 0]} castShadow>
+                <cylinderGeometry args={[0.075, 0.06, 0.2, 6]} />
+                <meshToonMaterial color={isTorchBurning ? '#261b14' : '#141414'} gradientMap={toonRamp} />
+              </mesh>
+              {isTorchBurning ? (
+                <group position={[0, 0.58, 0]}>
+                  <mesh>
+                    <coneGeometry args={[0.12, 0.32, 6]} />
+                    <meshBasicMaterial color="#ff7700" />
+                  </mesh>
+                  <mesh position={[0, 0.06, 0]}>
+                    <coneGeometry args={[0.07, 0.22, 6]} />
+                    <meshBasicMaterial color="#ffea40" />
+                  </mesh>
+                  <pointLight color="#ff8822" intensity={1.8} distance={7} />
+                </group>
+              ) : (
+                <group position={[0, 0.54, 0]}>
+                  <mesh>
+                    <sphereGeometry args={[0.05, 5, 4]} />
+                    <meshBasicMaterial color="#333333" transparent opacity={0.6} />
+                  </mesh>
+                </group>
+              )}
+            </group>
+          )}
+
+          {/* Standard Shield for Knights & Non-Shadowfang */}
+          {!isShadowfang && (
+            <group position={[-0.14, -0.22, 0.1]} rotation={[0, 0.3, 0]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.34, 0.55, 0.04]} />
+                <meshToonMaterial color={faction.primary} gradientMap={toonRamp} />
+              </mesh>
+              <mesh position={[0, 0, 0.03]}>
+                <boxGeometry args={[0.16, 0.28, 0.02]} />
+                <meshToonMaterial color={faction.accent} gradientMap={toonRamp} />
+              </mesh>
+            </group>
+          )}
         </group>
 
         {/* ── Right Arm with Steel Sword / Spear ── */}
@@ -1312,6 +1381,7 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
     idleTimer: Math.random() * 3,
     walkPhase: 0,
     heading: entity.rotationY,
+    lastAttackTime: 0,
   });
 
   const isStructure = entity.category === 'structure';
@@ -1357,21 +1427,145 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
     const gameHours = store.time.hours;
     const isNight = gameHours < 5.5 || gameHours > 20.5;
 
-    if (ai.idleTimer <= 0) {
-      if (entity.aiState === 'wandering' || entity.aiState === 'advancing') {
-        // NPC schedule: tighter resting radius at night, wider activity radius by day
+    const isShadowfang = entity.factionId === 'shadowfang';
+    const isAdvancing = entity.aiState === 'advancing';
+    const isFleeing = entity.aiState === 'fleeing';
+
+    // ── 1. Weather Reaction: Rain / Storm extinguishes torches and routes raiders ──
+    const weatherType = store.weather.type;
+    const isRainHostile = weatherType === 'rain' || weatherType === 'storm';
+    if (isShadowfang && isAdvancing && isRainHostile) {
+      useCampaignStore.getState().setStoryFlag('torches_extinguished', true);
+      useCampaignStore.getState().setStoryFlag('resolution_method', 'rain');
+      store.updateEntity(entity.id, {
+        aiState: 'fleeing',
+        dialogBark: 'The downpour killed our fire! The river is rising—fall back!',
+      });
+      ai.targetPos = { x: -24, y: 0, z: 2 };
+      ai.idleTimer = 0;
+    }
+
+    // ── 2. Shadowfang Raiders: Directed Advance on Old Mill & Rowan ──
+    if (isShadowfang && isAdvancing && !isRainHostile) {
+      const rowan = Object.values(store.entities).find((e) => e.name.toLowerCase().includes('rowan'));
+      const rowanPos = rowan ? rowan.position : { x: 5, y: 0, z: 5 };
+      const distToRowan = Math.hypot(ai.currentPos.x - rowanPos.x, ai.currentPos.z - rowanPos.z);
+      const isOnWestBank = ai.currentPos.x < -6.5;
+
+      if (isOnWestBank && bridgeDestroyed) {
+        // Bridge is destroyed — raiders cannot cross deep water
+        useCampaignStore.getState().setStoryFlag('bridge_cut', true);
+        ai.targetPos = { x: -7.5, y: 0, z: 5 };
+        const distToStump = Math.hypot(ai.currentPos.x - (-7.5), ai.currentPos.z - 5);
+        if (distToStump < 1.2) {
+          ai.walkPhase = 0;
+          ai.heading = Math.PI * 0.5;
+          if (entity.dialogBark !== "The bridge is shattered! We're cut off!") {
+            store.updateEntity(entity.id, {
+              dialogBark: "The bridge is shattered! We're cut off!",
+            });
+          }
+        }
+      } else if (isOnWestBank) {
+        // Bridge is intact: approach bridge entrance
+        if (Math.hypot(ai.currentPos.x - (-8), ai.currentPos.z - 5) > 1.2) {
+          ai.targetPos = { x: -8, y: 0, z: 5 };
+        } else {
+          // Cross bridge to eastern bank
+          ai.targetPos = { x: -2.5, y: 0, z: 5 };
+        }
+      } else {
+        // On eastern bank: march to Rowan
+        if (distToRowan > 2.4) {
+          ai.targetPos = { x: rowanPos.x, y: 0, z: rowanPos.z };
+        } else {
+          // In combat range of Rowan
+          ai.targetPos = { x: ai.currentPos.x, y: 0, z: ai.currentPos.z };
+          ai.walkPhase = 0;
+          ai.heading = Math.atan2(rowanPos.x - ai.currentPos.x, rowanPos.z - ai.currentPos.z);
+
+          const isRowanShielded = Boolean(useCampaignStore.getState().storyFlags['rowan_shielded']);
+          const now = performance.now();
+          if (now - (ai as any).lastAttackTime > 2000 && rowan && rowan.health > 0) {
+            (ai as any).lastAttackTime = now;
+
+            if (isRowanShielded) {
+              // Chronal shield repels strike
+              store.updateEntity(entity.id, {
+                dialogBark: 'An unseen chronal barrier shields him! The blade cannot pierce!',
+              });
+              ai.currentPos.x -= 0.3; // recoil knockback
+            } else {
+              // Real simulation damage to Rowan
+              const newHealth = Math.max(0, rowan.health - 15);
+              const isCollapsed = newHealth <= 0;
+              store.updateEntity(rowan.id, {
+                health: newHealth,
+                isStaggered: true,
+                isCollapsed,
+                dialogBark: newHealth > 0 ? 'Gah! My arm! Voice, help me!' : 'The mill... forgive me...',
+              });
+              setTimeout(() => {
+                const s = useWorldStore.getState();
+                if (s.entities[rowan.id]) {
+                  s.updateEntity(rowan.id, { isStaggered: false });
+                }
+              }, 400);
+
+              // Camera danger cue if Rowan is in danger (<60 HP)
+              if (newHealth < 60 && !useCampaignStore.getState().storyFlags['rowan_danger_cue_triggered']) {
+                useCampaignStore.getState().setStoryFlag('rowan_danger_cue_triggered', true);
+                triggerCameraCue({
+                  id: 'rowan_danger',
+                  duration: 2.2,
+                  camPos: { x: rowan.position.x - 2.5, y: 2.2, z: rowan.position.z + 3 },
+                  lookAt: { x: rowan.position.x, y: 1.2, z: rowan.position.z },
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (isFleeing) {
+      // ── 3. Fleeing raiders retreat towards western pass ──
+      const escapeX = -24;
+      const escapeZ = 2;
+      const toEscapeX = escapeX - ai.currentPos.x;
+      const toEscapeZ = escapeZ - ai.currentPos.z;
+      const distToEscape = Math.hypot(toEscapeX, toEscapeZ);
+      if (distToEscape > 0.5) {
+        const step = 2.8 * delta;
+        ai.currentPos.x += (toEscapeX / distToEscape) * step;
+        ai.currentPos.z += (toEscapeZ / distToEscape) * step;
+        ai.walkPhase += delta * 9;
+        ai.heading = Math.atan2(toEscapeX, toEscapeZ);
+      }
+      if (ai.currentPos.x <= -19) {
+        store.removeEntity(entity.id);
+      }
+    } else if (entity.type === 'villager' && useCampaignStore.getState().storyFlags['raid_begun']) {
+      // ── 4. Villagers flee eastward when raid begins ──
+      const raider = Object.values(store.entities).find((e) => e.factionId === 'shadowfang');
+      if (raider) {
+        const distToRaider = Math.hypot(ai.currentPos.x - raider.position.x, ai.currentPos.z - raider.position.z);
+        if (distToRaider < 12) {
+          ai.targetPos = { x: 14, y: 0, z: -2 }; // eastern village shelter
+          if (entity.dialogBark !== 'Raiders from the ridge! Run!') {
+            store.updateEntity(entity.id, { dialogBark: 'Raiders from the ridge! Run!' });
+          }
+        }
+      }
+    } else if (ai.idleTimer <= 0) {
+      if (entity.aiState === 'wandering') {
         const radius = isNight && !isAldric && !isVorn ? 2.5 : 6;
         let candX = entity.position.x + (Math.random() - 0.5) * radius * 2;
         let candZ = entity.position.z + (Math.random() - 0.5) * radius * 2;
 
-        // 1. NPC Water Awareness: If bridge is destroyed, avoid deep river water
         if (bridgeDestroyed && isWater(candX, candZ) && getWaterDepth(candX, candZ) > 0.8) {
-          // Divert towards shallow ford crossing or stay near banks
           candX = -8;
-          candZ = 17; // shallow river ford
+          candZ = 17;
         }
 
-        // 2. NPC Fire Awareness: Avoid active burning campfire
         if (isCampfireBurning) {
           const distToFire = Math.hypot(candX - 14.0, candZ - 16.0);
           if (distToFire < 3.2) {
@@ -1381,7 +1575,6 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
         }
 
         ai.targetPos = { x: candX, y: 0, z: candZ };
-        // Night routines rest longer between movements
         ai.idleTimer = isNight ? 6 + Math.random() * 6 : 3 + Math.random() * 4;
       }
     }
@@ -1391,18 +1584,17 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
     const dist = Math.hypot(dx, dz);
 
     if (dist > 0.3) {
-      const speed = entity.moveSpeed || 1.8;
+      const speed = isFleeing ? 2.8 : entity.moveSpeed || 1.8;
       const step = Math.min(speed * delta, dist);
       const nextX = ai.currentPos.x + (dx / dist) * step;
       const nextZ = ai.currentPos.z + (dz / dist) * step;
 
-      // NPCs halt before entering deep water if bridge is destroyed
       if (bridgeDestroyed && isWater(nextX, nextZ) && getWaterDepth(nextX, nextZ) > 1.0) {
-        ai.idleTimer = 0; // Trigger repath
+        ai.idleTimer = 0;
       } else {
         ai.currentPos.x = nextX;
         ai.currentPos.z = nextZ;
-        ai.walkPhase += delta * 6;
+        ai.walkPhase += delta * (isFleeing ? 9 : 6);
         ai.heading = Math.atan2(dx, dz);
       }
     } else {

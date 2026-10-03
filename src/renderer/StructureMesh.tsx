@@ -367,6 +367,53 @@ function BridgeMesh() {
   );
 }
 
+// ─── Destroyed Collapsed Bridge (Fractured Piers & Submerged Rubble) ───
+
+function DestroyedBridgeMesh() {
+  const toonRamp = useMemo(() => getToonGradient3(), []);
+  const stoneTex = useMemo(() => getStylizedStoneTexture('#5a6068', '#383d44'), []);
+  const woodTex = useMemo(() => getStylizedWoodTexture('#442512', '#221105'), []);
+
+  return (
+    <group>
+      {/* Fractured West Pier & Jagged Deck Stump */}
+      <mesh position={[-1.7, -0.6, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.9, 2.0, 2.4]} />
+        <meshToonMaterial map={stoneTex} gradientMap={toonRamp} />
+      </mesh>
+      <mesh position={[-1.5, 0.1, 0]} rotation={[0, 0, -0.35]} castShadow>
+        <boxGeometry args={[1.6, 0.3, 3.8]} />
+        <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
+      </mesh>
+
+      {/* Fractured East Pier & Jagged Deck Stump */}
+      <mesh position={[1.7, -0.6, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.9, 2.0, 2.4]} />
+        <meshToonMaterial map={stoneTex} gradientMap={toonRamp} />
+      </mesh>
+      <mesh position={[1.5, 0.1, 0]} rotation={[0, 0, 0.35]} castShadow>
+        <boxGeometry args={[1.6, 0.3, 3.8]} />
+        <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
+      </mesh>
+
+      {/* Collapsed Center Timbers Submerged in River */}
+      <group position={[0, -0.7, 0]} rotation={[0.2, 0.15, -0.1]}>
+        <mesh castShadow>
+          <boxGeometry args={[2.2, 0.25, 4.2]} />
+          <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
+        </mesh>
+        {/* Splintered Support Beams Floating / Anchored in Riverbed */}
+        {[-0.8, 0, 0.8].map((px, i) => (
+          <mesh key={i} position={[px, -0.2, i * 0.4]} rotation={[0.4, 0, 0.5 * (i - 1)]}>
+            <cylinderGeometry args={[0.08, 0.1, 1.8, 5]} />
+            <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
 // ─── Suncrest Stronghold Citadel (Majestic Mountain Fortress) ─
 
 function CastleMesh() {
@@ -594,6 +641,7 @@ export default function StructureMesh({ entity }: { entity: Entity }) {
       {entity.type === 'castle' && <CastleMesh />}
       {entity.type === 'village' && <VillageMesh />}
       {entity.type === 'bridge' && !bridgeDestroyed && <BridgeMesh />}
+      {entity.type === 'bridge' && bridgeDestroyed && <DestroyedBridgeMesh />}
     </group>
   );
 }

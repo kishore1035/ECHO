@@ -6,6 +6,7 @@
 // ============================================================
 
 import { useWorldStore } from '../core/WorldState';
+import { useCampaignStore } from '../campaign/CampaignSystem';
 import type { InteractEntityCommand } from '../core/types';
 import { record } from './MemorySystem';
 import { TimelineSystem } from './TimelineSystem';
@@ -17,6 +18,43 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
   const target = Object.values(store.entities).find(
     (e) => e.name.toLowerCase().includes(cmd.entityName.toLowerCase())
   );
+
+  if (cmd.action === 'shield') {
+    const shieldTarget = target || Object.values(store.entities).find((e) => e.name.toLowerCase().includes('rowan'));
+    if (!shieldTarget) {
+      store.addStoryLog(`❓ No target found to shield.`);
+      return;
+    }
+
+    store.updateEntity(shieldTarget.id, {
+      health: shieldTarget.maxHealth,
+      dialogBark: 'The air around me... it holds! The strikes cannot touch me!',
+      aiState: 'cheering',
+    });
+
+    useCampaignStore.getState().setStoryFlag('rowan_shielded', true);
+    useCampaignStore.getState().setStoryFlag('resolution_method', 'shield');
+
+    record({
+      type: 'player_helped',
+      actorId: 'player',
+      actorName: 'The Voice',
+      targetId: shieldTarget.id,
+      targetName: shieldTarget.name,
+      factionId: shieldTarget.factionId ?? undefined,
+      description: `The Voice manifested an impenetrable chronal shield around ${shieldTarget.name}.`,
+      significance: 3,
+    });
+
+    store.addStoryLog(`🛡️ A shimmering chronal barrier envelops ${shieldTarget.name}! The Echo repels all harm.`);
+
+    TimelineSystem.createCheckpoint({
+      name: `Shielded ${shieldTarget.name}`,
+      description: `Player manifested an impenetrable chronal barrier around ${shieldTarget.name}.`,
+      significance: 'story',
+    });
+    return;
+  }
 
   if (cmd.action === 'retreat' || cmd.action === 'flee') {
     const isSoldiersGeneral =
@@ -47,8 +85,11 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
       });
       setTimeout(() => {
         useWorldStore.getState().removeEntity(ent.id);
-      }, 2500);
+      }, 3500);
     });
+
+    useCampaignStore.getState().setStoryFlag('raiders_retreated', true);
+    useCampaignStore.getState().setStoryFlag('resolution_method', 'retreat');
 
     store.addStoryLog(`⚡ The soldiers broke ranks and fled in terror from the Echo command!`);
     TimelineSystem.createCheckpoint({

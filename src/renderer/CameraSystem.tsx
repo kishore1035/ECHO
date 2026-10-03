@@ -51,6 +51,22 @@ function getEntityHeadHeight(entity: any): number {
 
 export type CameraMode = 'orbit' | 'firstPerson';
 
+export interface CameraCue {
+  id: string;
+  duration: number; // in seconds
+  camPos: { x: number; y: number; z: number };
+  lookAt: { x: number; y: number; z: number };
+}
+
+export const activeCameraCue: { current: (CameraCue & { startTime: number }) | null } = { current: null };
+
+export function triggerCameraCue(cue: CameraCue) {
+  activeCameraCue.current = {
+    ...cue,
+    startTime: performance.now(),
+  };
+}
+
 interface CameraSystemProps {
   onModeChange?: (mode: CameraMode) => void;
   isCinematic?: boolean;
@@ -971,6 +987,19 @@ export default function CameraSystem({
         camera.position.lerp(_scratchTargetCam, 0.082);
         currentLookAt.current.lerp(_scratchLookTarget, 0.095);
         camera.lookAt(currentLookAt.current);
+      } else if (activeCameraCue.current) {
+        const cue = activeCameraCue.current;
+        const elapsed = (performance.now() - cue.startTime) / 1000;
+        if (elapsed > cue.duration || activeKeys.current.size > 0 || playerPhys.current.isDragging) {
+          activeCameraCue.current = null;
+        } else {
+          dialogueExitBlendRef.current = 1.0;
+          _scratchTargetCam.set(cue.camPos.x, cue.camPos.y, cue.camPos.z);
+          _scratchLookTarget.set(cue.lookAt.x, cue.lookAt.y, cue.lookAt.z);
+          camera.position.lerp(_scratchTargetCam, 0.075);
+          currentLookAt.current.lerp(_scratchLookTarget, 0.085);
+          camera.lookAt(currentLookAt.current);
+        }
       } else {
         // Normal chase follow
         const chaseDist = 5.2;

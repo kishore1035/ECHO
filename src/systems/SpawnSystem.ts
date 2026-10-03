@@ -5,6 +5,7 @@
 
 import type { SpawnEntityCommand, DespawnEntityCommand, EntityType } from '../core/types';
 import { useWorldStore } from '../core/WorldState';
+import { useCampaignStore } from '../campaign/CampaignSystem';
 import { getTerrainHeight } from '../core/terrain';
 import { record } from './MemorySystem';
 import { TimelineSystem } from './TimelineSystem';
@@ -126,6 +127,11 @@ export function handleDespawnEntity(cmd: DespawnEntityCommand): void {
   }
 
   if (cmd.entityName) {
+    if (cmd.entityName.toLowerCase().includes('bridge')) {
+      store.setBridgeDestroyed(true);
+      useCampaignStore.getState().setStoryFlag('bridge_cut', true);
+      useCampaignStore.getState().setStoryFlag('resolution_method', 'bridge');
+    }
     store.removeEntityByName(cmd.entityName);
     console.log(`[SpawnSystem] Removed entity name="${cmd.entityName}"`);
     TimelineSystem.createCheckpoint({

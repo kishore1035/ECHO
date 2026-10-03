@@ -105,8 +105,16 @@ export interface CampaignStoryFlags {
 
   // Mission 3: The Battle for the Mill
   raiders_spawned?: boolean;
+  raid_begun?: boolean;
+  rowan_shielded?: boolean;
+  torches_extinguished?: boolean;
+  bridge_cut?: boolean;
+  raiders_retreated?: boolean;
   crisis_resolved?: boolean;
   rowan_fate?: 'saved' | 'wounded' | 'dead';
+  rowan_saved?: boolean;
+  rowan_wounded?: boolean;
+  rowan_dead?: boolean;
   resolution_method?: 'shield' | 'rain' | 'bridge' | 'retreat' | 'violence';
   m3_completed?: boolean;
   m3_start_dialogue_triggered?: boolean;

@@ -184,9 +184,18 @@ function convertToCommand(obj: Record<string, unknown>): GameCommand | null {
   }
 
   if (obj.command === 'INTERACT_ENTITY') {
+    const rawAction = String(obj.action || '').toLowerCase();
+    const action =
+      rawAction === 'attack'
+        ? 'attack'
+        : rawAction === 'shield'
+        ? 'shield'
+        : rawAction === 'retreat' || rawAction === 'flee'
+        ? 'retreat'
+        : 'help';
     return {
       type: 'INTERACT_ENTITY',
-      action: (obj.action as string) === 'attack' ? 'attack' : 'help',
+      action,
       entityName: String(obj.entityName || ''),
     };
   }
@@ -446,6 +455,14 @@ function fallbackParse(transcript: string): GameCommand | null {
     else if (t.includes('raider')) name = 'raider';
     else if (t.includes('vorn')) name = 'vorn';
     return { type: 'INTERACT_ENTITY', action: 'retreat', entityName: name };
+  }
+
+  // Shield / Protect Rowan specifically
+  if (
+    (t.includes('shield') || t.includes('barrier') || t.includes('protect') || t.includes('guard')) &&
+    (t.includes('rowan') || t.includes('miller') || t.includes('him'))
+  ) {
+    return { type: 'INTERACT_ENTITY', action: 'shield', entityName: 'rowan' };
   }
 
   // M3: Help / Attack named entity (fallback)

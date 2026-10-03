@@ -19,6 +19,7 @@ import type { CampaignAct, CampaignState, DialogueSequence, Mission } from './ty
 import { playMenuSelect } from '../core/soundFX';
 import { registerCampaignTimelineHooks } from '../systems/TimelineSystem';
 import { useEchoTreeStore } from '../core/echoTreeState';
+import { triggerCameraCue } from '../renderer/CameraSystem';
 
 interface CampaignStore extends CampaignState {
   missions: Mission[];
@@ -303,9 +304,14 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
     // ── MISSION 3: Shadows Over the Meadowlands (Act I) ───────
     if (activeMission.id === 'm3_shadows_meadowlands') {
-      // 1. Spawn vanguard raiders if not spawned yet
-      if (!get().storyFlags['raiders_spawned']) {
+      const distToMill = Math.hypot(playerPos.x - 5, playerPos.z - 5);
+
+      // 1. Trigger raid start when approaching mill or immediately if near
+      if (!get().storyFlags['raiders_spawned'] && (distToMill <= 16 || !get().storyFlags['m3_setup_complete'])) {
         get().setStoryFlag('raiders_spawned', true);
+        get().setStoryFlag('raid_begun', true);
+        get().setStoryFlag('m3_setup_complete', true);
+
         world.addEntity({
           name: 'Shadowfang Raider',
           type: 'knight',
@@ -320,6 +326,19 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           dialogBark: 'Burn the mill! Seize the crossing!',
         });
         world.addEntity({
+          name: 'Shadowfang Berserker',
+          type: 'knight',
+          category: 'character',
+          factionId: 'shadowfang',
+          position: { x: -15, y: 0, z: 6 },
+          rotationY: 1.5,
+          health: 90,
+          maxHealth: 90,
+          aiState: 'advancing',
+          moveSpeed: 1.7,
+          dialogBark: 'No quarter! Feed the flames!',
+        });
+        world.addEntity({
           name: 'Shadowfang Scout',
           type: 'wolf',
           category: 'creature',
@@ -332,6 +351,15 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           moveSpeed: 2.2,
           dialogBark: 'Grrr... forward!',
         });
+
+        // Brief cinematic establishing shot of the raid across the bridge
+        triggerCameraCue({
+          id: 'raid_start',
+          duration: 3.2,
+          camPos: { x: -3.5, y: 6.5, z: -3 },
+          lookAt: { x: -11, y: 1.5, z: 4 },
+        });
+
         world.addStoryLog('⚔️ Shadowfang Raiders have crossed the ridge and are advancing toward Rowan\'s Mill!');
 
         if (!get().storyFlags['m3_start_dialogue_triggered'] && !get().activeDialogue) {
@@ -342,22 +370,43 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
       const objProtectRowan = activeMission.objectives.find((o) => o.id === 'obj_protect_rowan');
       const objStopRaid = activeMission.objectives.find((o) => o.id === 'obj_stop_raid');
-
-      // Check Rowan survival
       const rowan = Object.values(world.entities).find((e) => e.name.includes('Rowan'));
 
-      // Check if raid is repelled / stopped by any Echo interference
+      // 2. Evaluate Echo Interventions & Resolution Methods
       const raiders = Object.values(world.entities).filter(
-        (e) => e.name.includes('Shadowfang Raider') || e.name.includes('Shadowfang Scout')
+        (e) => e.factionId === 'shadowfang' && (e.name.includes('Shadowfang') || e.name.includes('Raider') || e.name.includes('Scout'))
       );
       const bridgeExists = Object.values(world.entities).some((e) => e.type === 'bridge');
-      const isBridgeDestroyed = !bridgeExists;
+      const isBridgeDestroyed = world.bridgeDestroyed || !bridgeExists;
       const isWeatherHostile = world.weather.type === 'rain' || world.weather.type === 'storm';
       const isAllied = world.relations['suncrest']?.['shadowfang'] === 'allied';
       const raidersSpawned = Boolean(get().storyFlags['raiders_spawned']);
       const raidersRouted = raiders.length > 0 && raiders.every((r) => r.aiState === 'fleeing');
+      const raidersDefeated = raidersSpawned && (raiders.length === 0 || raiders.every((r) => r.health <= 0 || r.isCollapsed));
+      const raidersRetreated = Boolean(get().storyFlags['raiders_retreated']);
 
-      const raidStopped = raidersSpawned && (isBridgeDestroyed || isWeatherHostile || isAllied || raidersRouted);
+      // Update resolution method flag dynamically
+      if (get().storyFlags['rowan_shielded'] && !get().storyFlags['resolution_method']) {
+        get().setStoryFlag('resolution_method', 'shield');
+      }
+      if (isWeatherHostile) {
+        get().setStoryFlag('torches_extinguished', true);
+        if (!get().storyFlags['resolution_method']) get().setStoryFlag('resolution_method', 'rain');
+      }
+      if (isBridgeDestroyed) {
+        get().setStoryFlag('bridge_cut', true);
+        if (!get().storyFlags['resolution_method']) get().setStoryFlag('resolution_method', 'bridge');
+      }
+      if (raidersRetreated && !get().storyFlags['resolution_method']) {
+        get().setStoryFlag('resolution_method', 'retreat');
+      }
+      if (raidersDefeated && !get().storyFlags['resolution_method']) {
+        get().setStoryFlag('resolution_method', 'violence');
+      }
+
+      const raidStopped =
+        raidersSpawned &&
+        (isBridgeDestroyed || isWeatherHostile || isAllied || raidersRouted || raidersDefeated || raidersRetreated);
 
       if (objStopRaid && !objStopRaid.completed && raidStopped) {
         objStopRaid.completed = true;
@@ -365,9 +414,9 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         world.addStoryLog('✨ Mission Objective Complete: Repelled the Shadowfang raid using the Echo!');
       }
 
-      // Track Rowan's fate dynamically (saved, wounded, or dead)
+      // 3. Track Rowan's fate dynamically from actual simulation state
       if (raidStopped && !get().storyFlags['rowan_fate']) {
-        if (!rowan || rowan.health <= 0) {
+        if (!rowan || rowan.health <= 0 || rowan.isCollapsed) {
           get().setStoryFlag('rowan_fate', 'dead');
           get().setStoryFlag('rowan_dead', true);
           get().adjustBond('rowan', -100);
@@ -389,16 +438,24 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         missionModified = true;
       }
 
-      // Check Mission 3 completion
-      if (activeMission.objectives.every((o) => o.completed || o.optional)) {
+      // 4. Check Mission 3 completion
+      if (activeMission.objectives.every((o) => o.completed || o.optional) && raidStopped) {
         activeMission.status = 'completed';
+        const method = String(get().storyFlags['resolution_method'] || 'echo');
+        const fate = String(get().storyFlags['rowan_fate'] || 'saved');
+
         activeMission.consequences.push({
-          id: 'c_valley_fate_sealed',
-          description: isAllied
-            ? 'By your Echo, eternal brotherhood was sworn between Suncrest and Shadowfang.'
-            : isBridgeDestroyed
-            ? 'By your Echo, the river crossing was severed, safeguarding the valley from invasion.'
-            : 'By your Echo, the Shadowfang vanguard was broken and forced to retreat.',
+          id: `c_m3_${method}_${fate}`,
+          description:
+            method === 'shield'
+              ? `You shielded Rowan in a chronal sanctuary, defying the raid.`
+              : method === 'rain'
+              ? `You summoned torrential rains that doused the vanguard torches, forcing them to retreat.`
+              : method === 'bridge'
+              ? `You shattered the river bridge, isolating the western crossing.`
+              : method === 'retreat'
+              ? `You commanded the vanguard soldiers to flee in sheer panic.`
+              : `You repelled the raid through force of arms.`,
           echoUsed: true,
         });
 
