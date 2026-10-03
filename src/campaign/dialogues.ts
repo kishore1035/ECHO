@@ -40,14 +40,14 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       text: 'Rowan lies lifeless by the river grass... The Echo brought ruin before wisdom could take root.',
     });
     lines.push({
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       text: 'Do not despair yet, Voice. The Architect fractured this realm into braided timelines. You can rewind reality (Press R or speak "Rewind").',
       choices: [
         {
@@ -59,7 +59,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Mira the Seer',
               speakerRole: 'Chronal Scholar',
               speakerColor: '#a855f7',
-              avatarIcon: '🔮',
+
               text: 'Time is malleable to the Echo. Press R or command the timeline to restore Rowan before death took him.',
             },
           ],
@@ -73,7 +73,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Mira the Seer',
               speakerRole: 'Chronal Scholar',
               speakerColor: '#a855f7',
-              avatarIcon: '🔮',
+
               text: 'A dangerous path. Every timeline that bleeds draws the Architect\'s shadow closer.',
             },
           ],
@@ -94,21 +94,21 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       text: 'Stay back! I saw the lightning crackle when you spoke earlier... you struck me without remorse!',
     });
     lines.push({
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       text: 'Lower your pitch, Rowan. The Voice carries power beyond our reckoning, though they wield it recklessly.',
     });
     lines.push({
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       text: 'Traveler, if you truly possess the Echo, mend what you broke. Speak words of healing or peace.',
       choices: [
         {
@@ -120,7 +120,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Rowan the Miller',
               speakerRole: 'Meadowlands Miller',
               speakerColor: '#4ade80',
-              avatarIcon: '🌾',
+
               text: '...Then speak words that mend, not words that harm. Prove it to me.',
             },
           ],
@@ -135,7 +135,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Mira the Seer',
               speakerRole: 'Chronal Scholar',
               speakerColor: '#a855f7',
-              avatarIcon: '🔮',
+
               text: 'Pride brought down the first Shaper. Mind that history does not repeat itself.',
             },
           ],
@@ -156,14 +156,14 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       text: 'Traveler! You returned! When you spoke earlier, a soothing warmth chased the aches from my bones.',
     });
     lines.push({
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       text: 'A benevolent resonance. The river currents slowed as if acknowledging their master.',
     });
   } else {
@@ -175,7 +175,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       shotType: 'closeUp',
       text: 'Hold there, friend... easy now. You climbed out of the river like a ghost in the morning mist. Are you hurt?',
     });
@@ -184,7 +184,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       shotType: 'closeUp',
       text: 'Your hands are empty, but the air around you... it hums. Like before a summer thunderstorm. Can you speak, traveler? Do you remember your name?',
       choices: [
@@ -197,7 +197,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Rowan the Miller',
               speakerRole: 'Meadowlands Miller',
               speakerColor: '#4ade80',
-              avatarIcon: '🌾',
+
               shotType: 'closeUp',
               text: 'Malleable? A strange word for cold river water. Here, lean on the mill step. Rest your legs.',
             },
@@ -212,7 +212,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Rowan the Miller',
               speakerRole: 'Meadowlands Miller',
               speakerColor: '#4ade80',
-              avatarIcon: '🌾',
+
               shotType: 'closeUp',
               text: 'A bold tone for someone soaking wet. If you have words that carry weight, speak them softly. The valley is tense enough.',
             },
@@ -227,7 +227,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
               speaker: 'Rowan the Miller',
               speakerRole: 'Meadowlands Miller',
               speakerColor: '#4ade80',
-              avatarIcon: '🌾',
+
               shotType: 'closeUp',
               text: 'You stand in the Meadowlands. Suncrest holds the castle to the east; Shadowfang prowls the western ridges. We just grind flour and pray they leave us in peace.',
             },
@@ -241,7 +241,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         shotType: 'closeUp',
         text: 'Listen to him, Rowan. The resonance around his throat is not a fever. Reality itself is waiting for his voice.',
       });
@@ -254,7 +254,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       shotType: 'closeUp',
       text: 'You have basalt dust on your boots... you went near the Whispering Stones? People say those who linger there hear voices of things that haven\'t happened yet.',
     });
@@ -266,7 +266,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Meadowlands Miller',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       shotType: 'closeUp',
       text: 'Have we... stood here before? For a moment, looking at you, I felt a strange shiver in my chest. Like remembering a dream I never had.',
     });
@@ -277,7 +277,7 @@ export function buildRowanAndMiraDialogue(): DialogueSequence {
     speaker: 'Rowan the Miller',
     speakerRole: 'Meadowlands Miller',
     speakerColor: '#4ade80',
-    avatarIcon: '🌾',
+
     shotType: 'closeUp',
     text: 'If there is truth to what you claim, demonstrate it. Speak a word to the sky, the river, or this old miller. Let\'s see what happens.',
   });
@@ -305,7 +305,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         shotType: 'closeUp',
         text: 'Gods above... you spoke, and the very air bent around your words.',
       },
@@ -313,7 +313,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         shotType: 'closeUp',
         text: 'The sky shifted. You didn\'t chant an incantation or draw a circle. You just... spoke. And the world obeyed.',
         choices: [
@@ -326,7 +326,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
                 speaker: 'Rowan the Miller',
                 speakerRole: 'Meadowlands Miller',
                 speakerColor: '#4ade80',
-                avatarIcon: '🌾',
+
                 shotType: 'closeUp',
                 text: 'Frightened? Aye, a little. But grateful, too. My grandfather told stories of the ancient Shapers... I thought they were tavern tales.',
               },
@@ -341,7 +341,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
                 speaker: 'Rowan the Miller',
                 speakerRole: 'Meadowlands Miller',
                 speakerColor: '#4ade80',
-                avatarIcon: '🌾',
+
                 shotType: 'closeUp',
                 text: 'Then tread with care, friend. A word that can alter the weather can just as easily break it.',
               },
@@ -356,7 +356,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
                 speaker: 'Rowan the Miller',
                 speakerRole: 'Meadowlands Miller',
                 speakerColor: '#4ade80',
-                avatarIcon: '🌾',
+
                 shotType: 'closeUp',
                 text: 'Careful with that pride. Power without restraint draws cold steel in this valley.',
               },
@@ -368,7 +368,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         shotType: 'closeUp',
         text: 'Listen to me: across the river shallows, near the ancient basalt monoliths, dwells a woman named Mira.',
       },
@@ -376,7 +376,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         shotType: 'closeUp',
         text: 'She has spent her life studying legends of the Echo. If anyone in this valley can help you understand what you are... it is her.',
       },
@@ -384,7 +384,7 @@ export function buildMission1CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         shotType: 'closeUp',
         text: 'Find Mira at the Whispering Stones before the shadows stretch across the grass. And traveler... thank you.',
       },
@@ -422,7 +422,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'discomfort',
       pauseDurationMs: 160,
@@ -432,7 +432,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'discomfort',
       pauseDurationMs: 120,
@@ -442,7 +442,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'warning',
       text: 'You pulled the thread backward. And I am the one who felt it tear.',
@@ -452,7 +452,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'solemn',
       pauseDurationMs: 140,
@@ -462,7 +462,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'solemn',
       text: 'Step into the circle, stranger. Keep your hands off the basalt pillars. The stone is already under too much strain.',
@@ -475,7 +475,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'mournful',
       pauseDurationMs: 180,
@@ -486,7 +486,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'warning',
       text: 'Rowan trembles when the wind shifts. He felt violence in your voice. Power wielded like a weapon leaves scarred earth.',
@@ -496,7 +496,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'solemn',
       text: 'I smelled blood on the river breeze. Rowan is injured. Pain was carved into his life today.',
@@ -506,7 +506,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'solemn',
       text: 'Rowan speaks of you with awe. He thinks your voice is a blessing from the heavens. But Rowan only understands grain and summer rain.',
@@ -518,7 +518,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'solemn',
       text: 'You were here earlier, wandering between the basalt pillars. Did you feel the rock groaning? It was waiting for your return.',
@@ -530,7 +530,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'discomfort',
       text: 'We are standing in an offshoot. A severed branch. The light here is too thin... the shadows do not fall where they should.',
@@ -542,7 +542,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'intense',
     text: 'There is an unbearable pressure around your throat. It is not magic. It is not a prayer or incantation.',
@@ -552,7 +552,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'intense',
     pauseDurationMs: 120,
@@ -564,7 +564,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'solemn',
     text: 'The villagers call me a "seer." They think I peer through tomorrow\'s veil. They think I predict what is to come.',
@@ -574,7 +574,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'discomfort',
     pauseDurationMs: 200,
@@ -585,7 +585,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'solemn',
     text: 'Two autumns ago, the southern fields burned to the roots. I choked on the smoke. I held a child\'s hand while she starved in the dust. I smelled the rotting cattle.',
@@ -595,7 +595,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'discomfort',
     pauseDurationMs: 180,
@@ -606,7 +606,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'intense',
     text: 'The tragedy was erased from the world. But the ash never left my mouth. The memory remains lodged in my skull like an iron nail.',
@@ -620,7 +620,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
             speaker: 'Mira the Seer',
             speakerRole: 'Chronal Scholar',
             speakerColor: '#a855f7',
-            avatarIcon: '🔮',
+
             shotType: 'closeUp',
             emotion: 'solemn',
             text: 'Yes. Every edit leaves a corpse of a world that should have been. The universe forgets. My head bears the cemetery.',
@@ -636,7 +636,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
             speaker: 'Mira the Seer',
             speakerRole: 'Chronal Scholar',
             speakerColor: '#a855f7',
-            avatarIcon: '🔮',
+
             shotType: 'closeUp',
             emotion: 'solemn',
             text: 'An ancient Voice. The records call him "The Architect." Long before our kings carved borders, he believed the world was flawed... and that his Echo could force it into perfection.',
@@ -652,7 +652,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
             speaker: 'Mira the Seer',
             speakerRole: 'Chronal Scholar',
             speakerColor: '#a855f7',
-            avatarIcon: '🔮',
+
             shotType: 'closeUp',
             emotion: 'warning',
             text: 'Mercy? You cannot cut a thread without fraying the weave. When you rewrite what is broken, you don\'t destroy the pain. You merely displace it.',
@@ -667,7 +667,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'warning',
     text: 'The Architect rewrote reality over and over. He tried to craft a world without sorrow. And in doing so, he cracked the foundations of time into bleeding branches.',
@@ -677,7 +677,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'solemn',
     text: 'The Whispering Stones were raised to anchor the fracture. But they can barely hold.',
@@ -687,7 +687,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'warning',
     pauseDurationMs: 150,
@@ -698,7 +698,7 @@ export function buildMission2StartDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'solemn',
     text: 'Reach out your hand to the stones. Anchor yourself (or speak "Save checkpoint"). Feel how reality resists before you ever try to bend it.',
@@ -730,7 +730,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'solemn',
     text: 'The basalt monoliths hummed. You felt that tension in your chest, didn\'t you? A chronal anchor has set into the earth.',
@@ -742,7 +742,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'warning',
       pauseDurationMs: 180,
@@ -752,7 +752,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
       speaker: 'Mira the Seer',
       speakerRole: 'Chronal Scholar',
       speakerColor: '#a855f7',
-      avatarIcon: '🔮',
+
       shotType: 'closeUp',
       emotion: 'warning',
       text: 'With Rowan dead, the mill stands undefended. They are coming to burn what remains and seize the crossing.',
@@ -762,7 +762,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Wounded Villager',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       cameraFocusEntity: rowan?.id,
       shotType: 'closeUp',
       emotion: 'wincing',
@@ -773,7 +773,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
       speaker: 'Rowan the Miller',
       speakerRole: 'Terrified Villager',
       speakerColor: '#4ade80',
-      avatarIcon: '🌾',
+
       cameraFocusEntity: rowan?.id,
       shotType: 'closeUp',
       emotion: 'intense',
@@ -785,7 +785,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'warning',
     text: 'The border standoff has broken. Warlord Vorn is marching on the crossing. Go, Voice—intervene before the valley burns.',
@@ -795,7 +795,7 @@ export function buildMission2CompleteDialogue(): DialogueSequence {
     speaker: 'Mira the Seer',
     speakerRole: 'Chronal Scholar',
     speakerColor: '#a855f7',
-    avatarIcon: '🔮',
+
     shotType: 'closeUp',
     emotion: 'warning',
     pauseDurationMs: 160,
@@ -825,14 +825,14 @@ export function buildMission3StartDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Terrified Villager',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         text: 'They are descending the ridge! Vorn\'s vanguard raiders will slaughter us and burn my mill to ash! Please, Voice... do something!',
       },
       {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         text: 'Remember your Echo! Call down torrential rain to extinguish torches, destroy the river bridge, protect Rowan, or command the soldiers to flee!',
         choices: [
           {
@@ -844,7 +844,7 @@ export function buildMission3StartDialogue(): DialogueSequence {
                 speaker: 'Rowan the Miller',
                 speakerRole: 'Terrified Villager',
                 speakerColor: '#4ade80',
-                avatarIcon: '🌾',
+
                 text: 'May the ancients guard you, Voice! I am trusting you with my life!',
               },
             ],
@@ -858,7 +858,7 @@ export function buildMission3StartDialogue(): DialogueSequence {
                 speaker: 'Mira the Seer',
                 speakerRole: 'Chronal Scholar',
                 speakerColor: '#a855f7',
-                avatarIcon: '🔮',
+
                 text: 'A noble resolve. Speak the command and break their resolve!',
               },
             ],
@@ -873,7 +873,7 @@ export function buildMission3StartDialogue(): DialogueSequence {
                 speaker: 'Rowan the Miller',
                 speakerRole: 'Terrified Villager',
                 speakerColor: '#4ade80',
-                avatarIcon: '🌾',
+
                 text: 'Just keep that wrath away from my flour sacks... please!',
               },
             ],
@@ -909,7 +909,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
-          avatarIcon: '🔮',
+
           shotType: 'closeUp',
           emotion: 'solemn',
           pauseDurationMs: 250,
@@ -919,7 +919,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
-          avatarIcon: '🔮',
+
           shotType: 'closeUp',
           emotion: 'solemn',
           text: 'Rowan is dead. His blood is on the stones. He was just a miller who ground flour for both sides of the river.',
@@ -928,7 +928,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
-          avatarIcon: '🔮',
+
           shotType: 'closeUp',
           emotion: 'warning',
           pauseDurationMs: 180,
@@ -945,7 +945,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
                   speaker: 'Mira the Seer',
                   speakerRole: 'Chronal Scholar',
                   speakerColor: '#a855f7',
-                  avatarIcon: '🔮',
+
                   shotType: 'closeUp',
                   emotion: 'solemn',
                   text: 'Rest your hands. Even the Echo cannot erase pain without tearing the weave elsewhere. But our journey is not finished. We must walk to the ancient Echo Tree.',
@@ -961,7 +961,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
                   speaker: 'Mira the Seer',
                   speakerRole: 'Chronal Scholar',
                   speakerColor: '#a855f7',
-                  avatarIcon: '🔮',
+
                   shotType: 'closeUp',
                   emotion: 'solemn',
                   text: 'You have a voice that bends reality, Voice, but you are not all-knowing. Grief is what reminds you that you are still human. Come. The glade awaits.',
@@ -996,7 +996,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Rowan the Miller',
           speakerRole: 'Wounded Miller',
           speakerColor: '#4ade80',
-          avatarIcon: '🌾',
+
           cameraFocusEntity: rowan?.id,
           shotType: 'closeUp',
           emotion: 'wincing',
@@ -1006,7 +1006,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
-          avatarIcon: '🔮',
+
           cameraFocusEntity: mira?.id,
           shotType: 'closeUp',
           emotion: 'solemn',
@@ -1016,7 +1016,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Rowan the Miller',
           speakerRole: 'Wounded Miller',
           speakerColor: '#4ade80',
-          avatarIcon: '🌾',
+
           cameraFocusEntity: rowan?.id,
           shotType: 'closeUp',
           emotion: 'solemn',
@@ -1026,7 +1026,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
-          avatarIcon: '🔮',
+
           cameraFocusEntity: mira?.id,
           shotType: 'closeUp',
           emotion: 'warning',
@@ -1057,7 +1057,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         cameraFocusEntity: rowan?.id,
         shotType: 'closeUp',
         emotion: 'intense',
@@ -1067,7 +1067,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1077,7 +1077,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
         speaker: 'Rowan the Miller',
         speakerRole: 'Meadowlands Miller',
         speakerColor: '#4ade80',
-        avatarIcon: '🌾',
+
         cameraFocusEntity: rowan?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1087,7 +1087,7 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'warning',
@@ -1114,7 +1114,7 @@ export function buildMission4StartDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1124,7 +1124,7 @@ export function buildMission4StartDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'warning',
@@ -1165,7 +1165,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Ancient Roots',
         speakerRole: 'Residual Resonance',
         speakerColor: '#38bdf8',
-        avatarIcon: '🌲',
+
         shotType: 'closeUp',
         emotion: 'solemn',
         text: 'The weathered bark is cold beneath your palm. A faint, low oscillation travels up your arm—the quiet vibration of a thousand vanished moments.',
@@ -1174,7 +1174,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1184,7 +1184,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Architect Echo',
         speakerRole: 'Memory Fragment • Ancient Valley',
         speakerColor: '#cbd5e1',
-        avatarIcon: '👤',
+
         shotType: 'closeUp',
         emotion: 'solemn',
         text: 'She was smiling that dawn by the river. By evening, the marsh fever took her breath. I refused to let the earth have her. I spoke... and reality pulled apart.',
@@ -1193,7 +1193,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'warning',
@@ -1203,7 +1203,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Architect Echo',
         speakerRole: 'Memory Fragment • The Revisions',
         speakerColor: '#cbd5e1',
-        avatarIcon: '👤',
+
         shotType: 'closeUp',
         emotion: 'solemn',
         text: 'So I spoke again. I broke the drought. But the flood drowned the pass. Every time I reached out to fix a consequence, two new wounds opened in the fabric.',
@@ -1212,7 +1212,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'wincing',
@@ -1222,7 +1222,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Architect Echo',
         speakerRole: 'Memory Fragment • The Reckoning',
         speakerColor: '#cbd5e1',
-        avatarIcon: '👤',
+
         shotType: 'closeUp',
         emotion: 'solemn',
         text: 'You stop seeing their faces. You only see branching lines. Pruning one life to preserve another... until the entire world is just kindling for what you think it should be.',
@@ -1231,7 +1231,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1246,7 +1246,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
                 speaker: 'Mira the Seer',
                 speakerRole: 'Chronal Scholar',
                 speakerColor: '#a855f7',
-                avatarIcon: '🔮',
+
                 cameraFocusEntity: mira?.id,
                 shotType: 'closeUp',
                 emotion: 'solemn',
@@ -1263,7 +1263,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
                 speaker: 'Mira the Seer',
                 speakerRole: 'Chronal Scholar',
                 speakerColor: '#a855f7',
-                avatarIcon: '🔮',
+
                 cameraFocusEntity: mira?.id,
                 shotType: 'closeUp',
                 emotion: 'warning',
@@ -1280,7 +1280,7 @@ export function buildMission4CommunionDialogue(): DialogueSequence {
                 speaker: 'Mira the Seer',
                 speakerRole: 'Chronal Scholar',
                 speakerColor: '#a855f7',
-                avatarIcon: '🔮',
+
                 cameraFocusEntity: mira?.id,
                 shotType: 'closeUp',
                 emotion: 'solemn',
@@ -1310,7 +1310,7 @@ export function buildMission4CompleteDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'solemn',
@@ -1320,7 +1320,7 @@ export function buildMission4CompleteDialogue(): DialogueSequence {
         speaker: 'Mira the Seer',
         speakerRole: 'Chronal Scholar',
         speakerColor: '#a855f7',
-        avatarIcon: '🔮',
+
         cameraFocusEntity: mira?.id,
         shotType: 'closeUp',
         emotion: 'warning',

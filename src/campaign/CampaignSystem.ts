@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // CAMPAIGN SYSTEM — Reactive Story Engine for ECHO
 // Evaluates real simulation state against mission objectives
 // Updates character bonds, dialogue scenes, and story acts
@@ -129,7 +129,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       const distToStones = Math.hypot(playerPos.x - (-4), playerPos.z - 9);
       if (distToStones <= 6.5) {
         get().setStoryFlag('discovered_whispering_stones', true);
-        world.addStoryLog('🔍 Discovered: The Whispering Stones (ancient basalt chronal monoliths)');
+        world.addStoryLog('Discovered: The Whispering Stones (ancient basalt chronal monoliths)');
       }
     }
 
@@ -138,7 +138,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       const distToTree = Math.hypot(playerPos.x - (-13.0), playerPos.z - (-1.5));
       if (distToTree <= 7.0) {
         get().setStoryFlag('discovered_echo_tree', true);
-        world.addStoryLog('🔍 Discovered: The Echo Tree (ancient chronal anchor of the Architect)');
+        world.addStoryLog('Discovered: The Echo Tree (ancient chronal anchor of the Architect)');
       }
     }
 
@@ -157,7 +157,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           missionModified = true;
           get().setStoryFlag('rowan_found', true);
           get().adjustBond('rowan', 15);
-          world.addStoryLog('📜 Mission Objective Complete: Approached Rowan the Miller.');
+          world.addStoryLog('Mission Objective Complete: Approached Rowan the Miller.');
 
           // Trigger state-aware dialogue between Rowan and Mira if not conversed yet
           if (!get().storyFlags['rowan_conversed'] && !get().activeDialogue) {
@@ -187,7 +187,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           missionModified = true;
           get().setStoryFlag('echo_demonstrated', true);
           get().adjustBond('rowan', 20);
-          world.addStoryLog('✨ Mission Objective Complete: Demonstrated the Echo.');
+          world.addStoryLog('Mission Objective Complete: Demonstrated the Echo.');
 
           // Trigger awe-struck reaction dialogue
           if (!get().storyFlags['m1_reaction_triggered'] && !get().activeDialogue) {
@@ -223,7 +223,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
             activeMissionId: 'm2_whispering_stones',
           });
         }
-        world.addStoryLog('🏆 Mission Complete: The First Resonance!');
+        world.addStoryLog('Mission Complete: The First Resonance!');
       }
     }
 
@@ -242,7 +242,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           missionModified = true;
           get().setStoryFlag('mira_found', true);
           get().adjustBond('mira', 15);
-          world.addStoryLog('📜 Mission Objective Complete: Located Mira the Seer at the Whispering Stones.');
+          world.addStoryLog('Mission Objective Complete: Located Mira the Seer at the Whispering Stones.');
 
           // Trigger state-aware start dialogue with Mira
           if (!get().storyFlags['m2_start_dialogue_triggered'] && !get().activeDialogue) {
@@ -273,7 +273,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         if (hasUsedTimeline) {
           objScar.completed = true;
           missionModified = true;
-          world.addStoryLog('✨ Mission Objective Complete: Communed with the Echo Tree.');
+          world.addStoryLog('Mission Objective Complete: Communed with the Echo Tree.');
 
           if (!get().storyFlags['m2_complete_dialogue_triggered'] && !get().activeDialogue) {
             get().setStoryFlag('m2_complete_dialogue_triggered', true);
@@ -300,7 +300,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
             activeMissionId: 'm3_shadows_meadowlands',
           });
         }
-        world.addStoryLog('🏆 Act Complete: Prologue • Beginning Act I: The Gathering Clouds!');
+        world.addStoryLog('Act Complete: Prologue — Beginning Act I: The Gathering Clouds!');
       }
     }
 
@@ -362,7 +362,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           lookAt: { x: -11, y: 1.5, z: 4 },
         });
 
-        world.addStoryLog('⚔️ Shadowfang Raiders have crossed the ridge and are advancing toward Rowan\'s Mill!');
+        world.addStoryLog('Shadowfang Raiders have crossed the ridge and are advancing toward Rowan\'s Mill!');
 
         if (!get().storyFlags['m3_start_dialogue_triggered'] && !get().activeDialogue) {
           get().setStoryFlag('m3_start_dialogue_triggered', true);
@@ -413,7 +413,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
       if (objStopRaid && !objStopRaid.completed && raidStopped) {
         objStopRaid.completed = true;
         missionModified = true;
-        world.addStoryLog('✨ Mission Objective Complete: Repelled the Shadowfang raid using the Echo!');
+        world.addStoryLog('Mission Objective Complete: Repelled the Shadowfang raid using the Echo!');
       }
 
       // 3. Track Rowan's fate dynamically from actual simulation state
@@ -422,19 +422,19 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           get().setStoryFlag('rowan_fate', 'dead');
           get().setStoryFlag('rowan_dead', true);
           get().adjustBond('rowan', -100);
-          world.addStoryLog('💀 Rowan the Miller has fallen in the raid on the mill.');
+          world.addStoryLog('Rowan the Miller has fallen in the raid on the mill.');
           if (objProtectRowan) objProtectRowan.completed = false;
         } else if (rowan.health < 60) {
           get().setStoryFlag('rowan_fate', 'wounded');
           get().setStoryFlag('rowan_wounded', true);
           get().adjustBond('rowan', -15);
-          world.addStoryLog('🩹 Rowan the Miller survived, but sustained serious wounds.');
+          world.addStoryLog('Rowan the Miller survived, but sustained serious wounds.');
           if (objProtectRowan) objProtectRowan.completed = true;
         } else {
           get().setStoryFlag('rowan_fate', 'saved');
           get().setStoryFlag('rowan_saved', true);
           get().adjustBond('rowan', 30);
-          world.addStoryLog('🛡️ Rowan the Miller was saved unscathed by your Echo!');
+          world.addStoryLog('Rowan the Miller was saved unscathed by your Echo!');
           if (objProtectRowan) objProtectRowan.completed = true;
         }
         missionModified = true;
@@ -476,7 +476,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           });
         }
 
-        world.addStoryLog('🏆 Mission Complete: The Battle for the Mill!');
+        world.addStoryLog('Mission Complete: The Battle for the Mill!');
       }
     }
 
@@ -503,7 +503,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         if (playerPos.x <= -7.0) {
           objBridge.completed = true;
           missionModified = true;
-          world.addStoryLog('📜 Mission Objective Complete: Crossed into the western river hollow.');
+          world.addStoryLog('Mission Objective Complete: Crossed into the western river hollow.');
 
           // Establishing camera pull toward the silent glade
           if (!get().storyFlags['m4_glade_cam_triggered']) {
@@ -530,7 +530,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           objDiscover.completed = true;
           missionModified = true;
           get().setStoryFlag('echo_tree_discovered', true);
-          world.addStoryLog('🌲 Mission Objective Complete: Discovered the ancient Echo Tree.');
+          world.addStoryLog('Mission Objective Complete: Discovered the ancient Echo Tree.');
         }
       }
 
@@ -540,7 +540,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         if (get().storyFlags['architect_revelation_learned']) {
           objCommune.completed = true;
           missionModified = true;
-          world.addStoryLog('✨ Mission Objective Complete: Communed with the Timeline Anchor.');
+          world.addStoryLog('Mission Objective Complete: Communed with the Timeline Anchor.');
         }
       }
 
@@ -555,7 +555,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         if (hasChosenConviction || get().storyFlags['architect_revelation_learned']) {
           objConfront.completed = true;
           missionModified = true;
-          world.addStoryLog('🪞 Mission Objective Complete: Confronted the tragedy of the Architect.');
+          world.addStoryLog('Mission Objective Complete: Confronted the tragedy of the Architect.');
 
           if (!get().storyFlags['m4_complete_dialogue_triggered'] && !get().activeDialogue) {
             get().setStoryFlag('m4_complete_dialogue_triggered', true);
@@ -584,7 +584,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         });
 
         get().setStoryFlag('vertical_slice_completed', true);
-        world.addStoryLog('🌟 Vertical Slice Complete: The Anchor of the Architect!');
+        world.addStoryLog('Vertical Slice Complete: The Anchor of the Architect!');
 
         // Organically reveal the timeline lineage interface for the first time
         if (!useEchoTreeStore.getState().isInteracting) {

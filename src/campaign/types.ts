@@ -54,7 +54,7 @@ export interface DialogueLine {
   speakerRole?: string;
   speakerColor?: string;
   text: string;
-  avatarIcon?: string;
+
   portraitBg?: string;
   cameraFocusEntity?: string; // e.g. 'Rowan', 'Mira', 'Aldric', 'player'
   shotType?: DialogueShotType; // 'closeUp' | 'listenerCloseUp' | 'twoShot' | 'overTheShoulder'

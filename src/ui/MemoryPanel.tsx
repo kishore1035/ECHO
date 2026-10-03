@@ -8,10 +8,10 @@ import { useWorldStore } from '../core/WorldState';
 import { useShallow } from 'zustand/react/shallow';
 import { getFactionTrust } from '../systems/MemorySystem';
 
-const FACTION_CONFIG: Record<string, { name: string; icon: string; color: string }> = {
-  suncrest: { name: 'Suncrest', icon: '☀️', color: '#3878e8' },
-  shadowfang: { name: 'Shadowfang', icon: '🐺', color: '#c82828' },
-  neutral: { name: 'Meadowlands', icon: '🌿', color: '#40a858' },
+const FACTION_CONFIG: Record<string, { name: string; abbr: string; color: string }> = {
+  suncrest: { name: 'Suncrest', abbr: 'SC', color: '#3878e8' },
+  shadowfang: { name: 'Shadowfang', abbr: 'SF', color: '#c82828' },
+  neutral: { name: 'Meadowlands', abbr: 'ML', color: '#40a858' },
 };
 
 function TrustBar({ score }: { score: number }) {
@@ -149,7 +149,21 @@ export default function MemoryPanel() {
           transition: 'all 0.2s',
         }}
       >
-        <span>📖</span>
+        <span style={{
+          width: 18,
+          height: 18,
+          borderRadius: 3,
+          background: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 8,
+          fontWeight: 800,
+          color: 'rgba(180,200,240,0.7)',
+          letterSpacing: '0.02em',
+          flexShrink: 0,
+        }}>MEM</span>
         <span>WORLD'S MEMORY</span>
         {hasMemories && (
           <span
@@ -196,7 +210,7 @@ export default function MemoryPanel() {
               paddingBottom: 8,
             }}
           >
-            📖 The World Remembers
+            The World Remembers
           </div>
 
           {/* Reputation section */}
@@ -218,7 +232,21 @@ export default function MemoryPanel() {
               const score = factionScores[fid] ?? 0;
               return (
                 <div key={fid} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 12 }}>{cfg.icon}</span>
+                  <span style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 4,
+                    background: `${cfg.color}22`,
+                    border: `1px solid ${cfg.color}55`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 7,
+                    fontWeight: 800,
+                    color: cfg.color,
+                    letterSpacing: '0.02em',
+                    flexShrink: 0,
+                  }}>{cfg.abbr}</span>
                   <span
                     style={{
                       color: cfg.color,
@@ -262,14 +290,14 @@ export default function MemoryPanel() {
                   : ev.significance === 2 ? '#818cf8'
                   : '#64748b';
 
-                const sigIcon =
-                  ev.type === 'malice_summoned' ? '⚫'
-                  : ev.type === 'player_helped' ? '🤝'
-                  : ev.type === 'player_attacked' ? '⚔️'
-                  : ev.type === 'faction_shift' ? '⚖️'
-                  : ev.type === 'vip_witnessed' ? '👁️'
-                  : ev.type === 'structure_built' ? '🏗️'
-                  : '📌';
+                const sigTag =
+                  ev.type === 'malice_summoned' ? 'MAL'
+                  : ev.type === 'player_helped' ? 'AID'
+                  : ev.type === 'player_attacked' ? 'ATK'
+                  : ev.type === 'faction_shift' ? 'POL'
+                  : ev.type === 'vip_witnessed' ? 'WIT'
+                  : ev.type === 'structure_built' ? 'BLD'
+                  : 'EVT';
 
                 return (
                   <div
@@ -280,7 +308,19 @@ export default function MemoryPanel() {
                       alignItems: 'flex-start',
                     }}
                   >
-                    <span style={{ fontSize: 11, flexShrink: 0, marginTop: 1 }}>{sigIcon}</span>
+                    <span style={{
+                      fontSize: 7,
+                      fontWeight: 800,
+                      letterSpacing: '0.08em',
+                      color: sigColor,
+                      background: `${sigColor}18`,
+                      border: `1px solid ${sigColor}44`,
+                      borderRadius: 3,
+                      padding: '1px 4px',
+                      flexShrink: 0,
+                      marginTop: 1,
+                      fontFamily: '"Inter", sans-serif',
+                    }}>{sigTag}</span>
                     <span
                       style={{
                         color: 'rgba(210, 225, 245, 0.8)',

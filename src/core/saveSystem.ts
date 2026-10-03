@@ -93,7 +93,7 @@ export function saveToSlot(slotId: 1 | 2 | 3, customName?: string): boolean {
     };
 
     localStorage.setItem(`${STORAGE_PREFIX}${slotId}`, JSON.stringify(saveData));
-    worldStore.addStoryLog(`💾 Game saved to Slot ${slotId}: "${slotName}".`);
+    worldStore.addStoryLog(`Game saved to Slot ${slotId}: "${slotName}".`);
     console.log(`[SaveSystem] Successfully saved to Slot ${slotId}`);
     return true;
   } catch (err) {
@@ -130,7 +130,7 @@ export function loadFromSlot(slotId: 1 | 2 | 3): boolean {
     }
 
     useWorldStore.getState().addStoryLog(
-      `💾 Loaded Save Slot ${slotId}: "${data.name}" [${data.summary.actTitle}]`
+      `Loaded Save Slot ${slotId}: "${data.name}" [${data.summary.actTitle}]`
     );
 
     console.log(`[SaveSystem] Successfully loaded Slot ${slotId}`);

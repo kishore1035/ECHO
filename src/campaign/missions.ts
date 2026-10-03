@@ -52,7 +52,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Subconscious',
           speakerColor: '#38bdf8',
           text: 'Where are you...? The air feels malleable. If you speak, the world will listen.',
-          avatarIcon: '✨',
+
         },
       ],
     },
@@ -64,14 +64,14 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Meadowlands Miller',
           speakerColor: '#4ade80',
           text: 'Gods above... you spoke, and the very air bent to your command! Who... WHAT are you?',
-          avatarIcon: '🌾',
+
         },
         {
           speaker: 'Rowan the Miller',
           speakerRole: 'Meadowlands Miller',
           speakerColor: '#4ade80',
           text: 'You must speak with Mira the Seer by the river stones. She has spent her life studying legends of the Echo.',
-          avatarIcon: '🌾',
+
         },
       ],
     },
@@ -114,7 +114,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           shotType: 'closeUp',
           emotion: 'solemn',
           text: 'I heard you crossing the shallows. The river currents went dead quiet the moment your boots touched the water.',
-          avatarIcon: '🔮',
+
         },
       ],
     },
@@ -128,7 +128,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           shotType: 'closeUp',
           emotion: 'solemn',
           text: 'The basalt monoliths hummed. You felt that tension in your chest, didn’t you? A chronal anchor has set into the earth.',
-          avatarIcon: '🔮',
+
         },
         {
           speaker: 'Mira the Seer',
@@ -137,7 +137,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           shotType: 'closeUp',
           emotion: 'warning',
           text: 'Listen. Warhorns on the western ridge. Whatever words you choose to speak at the mill... remember: you cannot outrun what you change.',
-          avatarIcon: '🔮',
+
         },
       ],
     },
@@ -181,7 +181,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Terrified Villager',
           speakerColor: '#4ade80',
           text: 'They are descending the ridge! Vorn’s vanguard will burn my mill to ash! Please, Voice... do something!',
-          avatarIcon: '🌾',
+
         },
       ],
     },
@@ -193,14 +193,14 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           text: 'The raid has broken... but feel the air. The consequences of your words have hardened into living history.',
-          avatarIcon: '🔮',
+
         },
         {
           speaker: 'Rowan the Miller',
           speakerRole: 'Meadowlands Miller',
           speakerColor: '#4ade80',
           text: 'You saved me... or you broke them. I do not know which frightens me more. But I owe you my life, Voice.',
-          avatarIcon: '🌾',
+
         },
       ],
     },
@@ -246,7 +246,7 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           text: 'Cross the river bridge, Voice. There is a place where reality does not heal—it only gathers. The Architect left his anchor there.',
-          avatarIcon: '🔮',
+
         },
       ],
     },
@@ -258,14 +258,14 @@ export const CAMPAIGN_MISSIONS: Mission[] = [
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           text: 'Now you see it. The branches above are not just wood—they are the bleeding scars of every reality the Architect abandoned trying to save one life.',
-          avatarIcon: '🔮',
+
         },
         {
           speaker: 'Mira the Seer',
           speakerRole: 'Chronal Scholar',
           speakerColor: '#a855f7',
           text: 'How much of this world are you willing to destroy to create the world you want, traveler? The choice will always be yours.',
-          avatarIcon: '🔮',
+
         },
       ],
     },

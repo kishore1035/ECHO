@@ -22,7 +22,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
   if (cmd.action === 'shield') {
     const shieldTarget = target || Object.values(store.entities).find((e) => e.name.toLowerCase().includes('rowan'));
     if (!shieldTarget) {
-      store.addStoryLog(`❓ No target found to shield.`);
+      store.addStoryLog(`No target found to shield.`);
       return;
     }
 
@@ -46,7 +46,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
       significance: 3,
     });
 
-    store.addStoryLog(`🛡️ A shimmering chronal barrier envelops ${shieldTarget.name}! The Echo repels all harm.`);
+    store.addStoryLog(`A chronal barrier envelops ${shieldTarget.name}. The Echo holds.`);
 
     TimelineSystem.createCheckpoint({
       name: `Shielded ${shieldTarget.name}`,
@@ -74,7 +74,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
       : target ? [target] : [];
 
     if (targets.length === 0) {
-      store.addStoryLog(`❓ No soldiers found to retreat.`);
+      store.addStoryLog(`No soldiers found to retreat.`);
       return;
     }
 
@@ -91,7 +91,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
     useCampaignStore.getState().setStoryFlag('raiders_retreated', true);
     useCampaignStore.getState().setStoryFlag('resolution_method', 'retreat');
 
-    store.addStoryLog(`⚡ The soldiers broke ranks and fled in terror from the Echo command!`);
+    store.addStoryLog(`The soldiers broke ranks and fled from the Echo command.`);
     TimelineSystem.createCheckpoint({
       name: 'Soldiers Retreated',
       description: 'Player commanded the Shadowfang vanguard to retreat.',
@@ -102,7 +102,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
 
   if (!target) {
     console.warn(`[InteractionSystem] No entity found matching "${cmd.entityName}"`);
-    store.addStoryLog(`❓ No one named "${cmd.entityName}" could be found.`);
+    store.addStoryLog(`No one named "${cmd.entityName}" could be found.`);
     return;
   }
 
@@ -126,7 +126,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
       significance: target.isVIP ? 2 : 1,
     });
 
-    store.addStoryLog(`🤝 You aided ${target.name}. They will remember this.`);
+    store.addStoryLog(`You aided ${target.name}. They will remember this.`);
 
   } else if (cmd.action === 'attack') {
     const damage = target.isVIP ? 20 : 35;
@@ -152,7 +152,7 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
     });
 
     store.addStoryLog(
-      `⚔️ You attacked ${target.name}. ${target.factionId ? `The ${target.factionId} will remember this.` : 'They will not forget.'}`
+      `You attacked ${target.name}. ${target.factionId ? `The ${target.factionId} will remember this.` : 'They will not forget.'}`
     );
   }
 

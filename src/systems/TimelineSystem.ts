@@ -237,7 +237,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       targetBranchId = newBranchId;
 
       useWorldStore.getState().addStoryLog(
-        `🌀 Reality diverged! Alternate timeline established: ${forkedName}`
+        `Reality diverged. Alternate timeline established: ${forkedName}`
       );
       console.log(`[TimelineSystem] Auto-branched into ${forkedName} (${newBranchId})`);
     } else {
@@ -380,7 +380,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
 
     if (!branch) {
       console.warn(`[TimelineSystem] Branch "${branchIdOrName}" not found`);
-      useWorldStore.getState().addStoryLog(`❓ Timeline branch "${branchIdOrName}" could not be found.`);
+      useWorldStore.getState().addStoryLog(`Timeline branch "${branchIdOrName}" could not be found.`);
       return false;
     }
 
@@ -443,7 +443,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       activeCheckpointId: cpId,
     });
 
-    useWorldStore.getState().addStoryLog(`🌀 New reality fork forged: "${name}".`);
+    useWorldStore.getState().addStoryLog(`New reality fork forged: "${name}".`);
     return newBranchId;
   },
 }));

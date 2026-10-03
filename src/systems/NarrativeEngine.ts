@@ -61,7 +61,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       });
 
       store.addStoryLog(
-        '⚫ The Malice stirs. An ancient shadow answers your voice. The world watches.'
+        'The Malice stirs. An ancient shadow answers your voice. The world watches.'
       );
 
       // VIPs near the player react
@@ -117,7 +117,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       });
 
       store.addStoryLog(
-        '⚔️ Word spreads: the voice that walks the land strikes without allegiance. The crowns consider a joint response.'
+        'Word spreads: the voice that walks the land strikes without allegiance. The crowns consider a joint response.'
       );
 
       // Each faction's leader is now hostile toward the player
@@ -160,7 +160,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       );
 
       useWorldStore.getState().addStoryLog(
-        '🌿 Rowan the Miller: "You helped us before you brokered peace. The Meadowlands remembers its friends."'
+        'Rowan the Miller: "You helped us before you brokered peace. The Meadowlands remembers its friends."'
       );
 
       console.log('[NarrativeEngine] Trigger fired: rowan_remembers');
@@ -186,7 +186,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       );
 
       useWorldStore.getState().addStoryLog(
-        '👑 King Aldric: "I will uphold this treaty. But I have not forgotten what you did to my men."'
+        'King Aldric: "I will uphold this treaty. But I have not forgotten what you did to my men."'
       );
 
       console.log('[NarrativeEngine] Trigger fired: aldric_remembers_betrayal');
@@ -209,7 +209,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       );
 
       useWorldStore.getState().addStoryLog(
-        '⚫ Warlord Vorn: "War AND shadow? This voice courts total annihilation."'
+        'Warlord Vorn: "War AND shadow? This voice courts total annihilation."'
       );
 
       console.log('[NarrativeEngine] Trigger fired: war_shadow_recognized');
