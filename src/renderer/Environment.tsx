@@ -18,6 +18,7 @@ import { useWorldStore } from '../core/WorldState';
 import {
   getStylizedWaterTexture,
   getStylizedWaterFoamTexture,
+  getStylizedCausticsTexture,
   getStylizedStoneTexture,
   getStylizedWoodTexture,
   getToonGradient3,
@@ -168,13 +169,40 @@ function MountainBackdrop() {
   );
 }
 
-// ─── Cel-Shaded Flowing River Surface ──────────────────────────
+// ─── Cel-Shaded Flowing River Surface with Wave Displacement ───
+
+// Sine-wave vertex shader — displaces Y based on world position + time.
+// Keeps the cel-shaded look while giving the river visible life.
+const waterVertexShader = /* glsl */`
+  uniform float uTime;
+  uniform float uStormMult;
+  varying vec2 vUv;
+  void main() {
+    vUv = uv;
+    vec3 pos = position;
+    float wave1 = sin(pos.x * 0.18 + uTime * 1.1) * 0.055;
+    float wave2 = sin(pos.y * 0.22 + uTime * 0.85 + 1.4) * 0.035;
+    float wave3 = cos((pos.x + pos.y) * 0.14 + uTime * 0.65) * 0.025;
+    pos.z += (wave1 + wave2 + wave3) * (1.0 + uStormMult * 1.6);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  }
+`;
+
+const waterFragmentShader = /* glsl */`
+  uniform sampler2D uMap;
+  uniform vec3 uColor;
+  uniform float uOpacity;
+  varying vec2 vUv;
+  void main() {
+    vec4 texColor = texture2D(uMap, vUv);
+    gl_FragColor = vec4(mix(uColor, texColor.rgb, 0.55), uOpacity);
+  }
+`;
 
 function AnimatedWater() {
-  const waterMatRef = useRef<THREE.MeshToonMaterial>(null!);
+  const waveMatRef = useRef<THREE.ShaderMaterial>(null!);
   const foamMatRef = useRef<THREE.MeshBasicMaterial>(null!);
-  const timeRef = useRef(0);
-  const toonRamp = useMemo(() => getToonGradient3(), []);
+  const causticsMatRef = useRef<THREE.MeshBasicMaterial>(null!);
   const weatherType = useWorldStore((s) => s.weather.type);
   const isStormOrRain = weatherType === 'rain' || weatherType === 'storm';
 
@@ -186,13 +214,34 @@ function AnimatedWater() {
 
   const foamTex = useMemo(() => {
     const t = getStylizedWaterFoamTexture();
-    t.repeat.set(16, 16);
+    t.repeat.set(12, 12);
     return t;
   }, []);
 
+  const causticsTex = useMemo(() => {
+    const t = getStylizedCausticsTexture();
+    t.repeat.set(8, 8);
+    return t;
+  }, []);
+
+  const waterUniforms = useMemo(() => ({
+    uTime: { value: 0 },
+    uStormMult: { value: 0 },
+    uMap: { value: waterTex },
+    uColor: { value: new THREE.Color('#2274b8') },
+    uOpacity: { value: 0.88 },
+  }), [waterTex]);
+
   useFrame((_, delta) => {
-    timeRef.current += delta;
     const speedMult = isStormOrRain ? 2.4 : 1.0;
+    waterUniforms.uTime.value += delta;
+    waterUniforms.uStormMult.value = THREE.MathUtils.lerp(
+      waterUniforms.uStormMult.value,
+      isStormOrRain ? 1.0 : 0.0,
+      delta * 1.5
+    );
+    waterUniforms.uColor.value.set(isStormOrRain ? '#1a5c95' : '#2274b8');
+
     if (waterTex) {
       waterTex.offset.x += delta * 0.025 * speedMult;
       waterTex.offset.y += delta * 0.015 * speedMult;
@@ -201,37 +250,145 @@ function AnimatedWater() {
       foamTex.offset.x -= delta * 0.012 * speedMult;
       foamTex.offset.y += delta * 0.018 * speedMult;
     }
+    if (causticsTex) {
+      // Caustics scroll perpendicular to flow — gives shimmering dapple
+      causticsTex.offset.x += delta * 0.018 * speedMult;
+      causticsTex.offset.y -= delta * 0.022 * speedMult;
+    }
   });
 
   return (
     <group position={[0, -0.05, 0]}>
-      {/* ── Main Flowing Caustic Water Surface ── */}
+      {/* ── Main Flowing Wave-Displaced River Surface ── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
-        <planeGeometry args={[250, 250, 1, 1]} />
-        <meshToonMaterial
-          ref={waterMatRef}
-          map={waterTex}
-          gradientMap={toonRamp}
-          color={isStormOrRain ? '#1a5c95' : '#2274b8'}
+        <planeGeometry args={[250, 250, 32, 32]} />
+        <shaderMaterial
+          ref={waveMatRef}
+          vertexShader={waterVertexShader}
+          fragmentShader={waterFragmentShader}
+          uniforms={waterUniforms}
           transparent
-          opacity={0.88}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* ── Riverbed Caustics Projector (y = -0.5, additive) ── */}
+      <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={0}>
+        <planeGeometry args={[250, 250, 1, 1]} />
+        <meshBasicMaterial
+          ref={causticsMatRef}
+          map={causticsTex}
+          color="#60c8f8"
+          transparent
+          opacity={isStormOrRain ? 0.08 : 0.14}
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
 
       {/* ── Shoreline Foam Shimmer Layer ── */}
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
+      <mesh position={[0, 0.04, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
         <planeGeometry args={[250, 250, 1, 1]} />
         <meshBasicMaterial
           ref={foamMatRef}
           map={foamTex}
           color="#d8f8ff"
           transparent
-          opacity={isStormOrRain ? 0.55 : 0.35}
+          opacity={isStormOrRain ? 0.60 : 0.38}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
       </mesh>
+    </group>
+  );
+}
+
+// ─── Player Water Wake ──────────────────────────────────────────
+// Spawns expanding ring meshes when player wades or swims.
+// Each ring grows outward and fades over ~1.2s, then resets.
+
+const WAKE_RINGS = 3;
+
+function PlayerWake() {
+  const ringRefs = useRef<(THREE.Mesh | null)[]>(Array(WAKE_RINGS).fill(null));
+  const ringStates = useRef(
+    Array.from({ length: WAKE_RINGS }, (_, i) => ({
+      active: false,
+      x: 0,
+      z: 0,
+      age: 0,
+      delay: i * 0.4,
+      nextSpawn: i * 0.4,
+    }))
+  );
+
+  useFrame((_, delta) => {
+    const player = useWorldStore.getState().player;
+    const waterState = player.waterState || 'none';
+    const inWater = waterState === 'swimming' || waterState === 'shallow' || waterState === 'underwater';
+    const px = player.position.x;
+    const pz = player.position.z;
+    const WATER_Y = 0.04;
+
+    for (let i = 0; i < WAKE_RINGS; i++) {
+      const st = ringStates.current[i];
+      const mesh = ringRefs.current[i];
+      if (!mesh) continue;
+
+      if (!st.active) {
+        if (inWater) {
+          st.nextSpawn -= delta;
+          if (st.nextSpawn <= 0) {
+            st.active = true;
+            st.x = px;
+            st.z = pz;
+            st.age = 0;
+            st.nextSpawn = 1.2;
+          }
+        }
+        mesh.visible = false;
+        continue;
+      }
+
+      st.age += delta;
+      const life = 1.2;
+      const t = Math.min(st.age / life, 1.0);
+      const scale = 0.3 + t * 2.8;
+      const opacity = (1 - t) * 0.55;
+
+      mesh.position.set(st.x, WATER_Y, st.z);
+      mesh.scale.set(scale, 1, scale);
+      mesh.visible = true;
+      (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+
+      if (t >= 1.0) {
+        st.active = false;
+        st.nextSpawn = inWater ? 0 : 1.2;
+        mesh.visible = false;
+      }
+    }
+  });
+
+  return (
+    <group>
+      {Array.from({ length: WAKE_RINGS }, (_, i) => (
+        <mesh
+          key={i}
+          ref={(el) => { ringRefs.current[i] = el; }}
+          rotation={[-Math.PI / 2, 0, 0]}
+          visible={false}
+        >
+          <ringGeometry args={[0.85, 1.0, 24]} />
+          <meshBasicMaterial
+            color="#b8eeff"
+            transparent
+            opacity={0}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -787,6 +944,7 @@ export default function Environment() {
       <MountainGeology />
       <MountainCascade />
       <AnimatedWater />
+      <PlayerWake />
       <RiverGlow />
       <RiverDetails />
       <Landmarks />

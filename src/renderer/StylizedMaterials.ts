@@ -481,3 +481,43 @@ export function getInvertedHullOutlineMaterial(color = '#181420'): THREE.MeshBas
   return mat;
 }
 
+// ─── 13. Stylized River Caustics Texture ──────────────────────
+// Concentric ring-pattern with radial brightness falloff,
+// used as an additive scrolling projector on the riverbed.
+export function getStylizedCausticsTexture(): THREE.CanvasTexture {
+  return getOrCreateTexture('stylized_caustics', (ctx, w, h) => {
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, w, h);
+
+    // Multiple offset caustic rings for organic look
+    const centers = [
+      { cx: w * 0.30, cy: h * 0.35 },
+      { cx: w * 0.65, cy: h * 0.28 },
+      { cx: w * 0.50, cy: h * 0.68 },
+      { cx: w * 0.20, cy: h * 0.72 },
+      { cx: w * 0.80, cy: h * 0.60 },
+    ];
+
+    for (const { cx, cy } of centers) {
+      for (let r = 6; r < 48; r += 10) {
+        const alpha = Math.max(0, 0.85 - r / 52);
+        ctx.strokeStyle = `rgba(100, 220, 255, ${alpha})`;
+        ctx.lineWidth = 2.5;
+        ctx.globalAlpha = alpha * 0.9;
+        ctx.beginPath();
+        for (let a = 0; a <= Math.PI * 2; a += 0.12) {
+          const wobble = r + Math.sin(a * 5.5 + r * 0.3) * 3.5;
+          const px = cx + Math.cos(a) * wobble * 1.6;
+          const py = cy + Math.sin(a) * wobble;
+          if (a < 0.01) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+
+    ctx.globalAlpha = 1.0;
+  }, 256);
+}
