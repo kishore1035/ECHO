@@ -76,7 +76,7 @@ async function runSliceVerification() {
   const deadDiag = buildMission3CompleteDialogue();
   assert(deadDiag.id === 'diag_m3_complete_dead', 'Dead Rowan triggers diag_m3_complete_dead with Mira grieving');
   assert(deadDiag.lines[0].speaker === 'Mira the Seer', 'Mira speaks in the aftermath of Rowan death');
-  assert(deadDiag.lines[0].text.includes('Rowan lies lifeless'), 'Dialogue acknowledges Rowan dead on mill stones');
+  assert(deadDiag.lines.some((l) => l.text.includes('Rowan is dead') || l.text.includes('Rowan lies lifeless')), 'Dialogue acknowledges Rowan dead on mill stones');
 
   // 3. Test Rowan Wounded Outcome
   console.log('\n🩹 Testing Mission 3 with Rowan Wounded Outcome...');

@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // CAMPAIGN SYSTEM — Reactive Story Engine for ECHO
 // Evaluates real simulation state against mission objectives
 // Updates character bonds, dialogue scenes, and story acts
@@ -301,6 +301,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
           });
         }
         world.addStoryLog('Act Complete: Prologue — Beginning Act I: The Gathering Clouds!');
+        return;
       }
     }
 
@@ -372,19 +373,20 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
       const objProtectRowan = activeMission.objectives.find((o) => o.id === 'obj_protect_rowan');
       const objStopRaid = activeMission.objectives.find((o) => o.id === 'obj_stop_raid');
-      const rowan = Object.values(world.entities).find((e) => e.name.includes('Rowan'));
 
       // 2. Evaluate Echo Interventions & Resolution Methods
-      const raiders = Object.values(world.entities).filter(
+      const currentWorld = useWorldStore.getState();
+      const rowan = Object.values(currentWorld.entities).find((e) => e.name.includes('Rowan'));
+      const raiders = Object.values(currentWorld.entities).filter(
         (e) => e.factionId === 'shadowfang' && (e.name.includes('Shadowfang') || e.name.includes('Raider') || e.name.includes('Scout'))
       );
-      const bridgeExists = Object.values(world.entities).some((e) => e.type === 'bridge');
-      const isBridgeDestroyed = world.bridgeDestroyed || !bridgeExists;
-      const isWeatherHostile = world.weather.type === 'rain' || world.weather.type === 'storm';
-      const isAllied = world.relations['suncrest']?.['shadowfang'] === 'allied';
+      const bridgeExists = Object.values(currentWorld.entities).some((e) => e.type === 'bridge');
+      const isBridgeDestroyed = currentWorld.bridgeDestroyed || !bridgeExists;
+      const isWeatherHostile = currentWorld.weather.type === 'rain' || currentWorld.weather.type === 'storm';
+      const isAllied = currentWorld.relations['suncrest']?.['shadowfang'] === 'allied';
       const raidersSpawned = Boolean(get().storyFlags['raiders_spawned']);
       const raidersRouted = raiders.length > 0 && raiders.every((r) => r.aiState === 'fleeing');
-      const raidersDefeated = raidersSpawned && (raiders.length === 0 || raiders.every((r) => r.health <= 0 || r.isCollapsed));
+      const raidersDefeated = raidersSpawned && raiders.length > 0 && raiders.every((r) => r.health <= 0 || r.isCollapsed);
       const raidersRetreated = Boolean(get().storyFlags['raiders_retreated']);
 
       // Update resolution method flag dynamically
