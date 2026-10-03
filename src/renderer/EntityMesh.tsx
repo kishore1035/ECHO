@@ -64,12 +64,49 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
   const outlineMat = useMemo(() => getInvertedHullOutlineMaterial('#16101c'), []);
   const isShielded = useCampaignStore((s) => Boolean(s.storyFlags['rowan_shielded']));
 
-  useFrame((state) => {
-    const s = Math.sin(aiRef.current.walkPhase * 6.5) * 0.45;
+  const spineRef = useRef<THREE.Group>(null!);
+  const idleBreathPhase = useRef(0);
+  const isInDanger = useCampaignStore((s) => Boolean(s.storyFlags['rowan_in_danger']));
+
+  useFrame((state, delta) => {
+    const walkPhase = aiRef.current.walkPhase;
+    const isWalking = Math.abs(Math.sin(walkPhase * 6.5)) > 0.05 || aiRef.current.idleTimer < 0.2;
+    const s = Math.sin(walkPhase * 6.5) * 0.45;
     if (leftArmRef.current) leftArmRef.current.rotation.x = -s * 0.6;
     if (rightArmRef.current) rightArmRef.current.rotation.x = s * 0.6;
     if (leftLegRef.current) leftLegRef.current.rotation.x = s * 0.65;
     if (rightLegRef.current) rightLegRef.current.rotation.x = -s * 0.65;
+
+    // Idle breathing: 18 BPM subtle torso Y-bob
+    if (!isWalking && spineRef.current) {
+      idleBreathPhase.current += delta * 1.88; // ~18 breaths/min
+      const breath = Math.sin(idleBreathPhase.current) * 0.013;
+      spineRef.current.position.y = THREE.MathUtils.lerp(
+        spineRef.current.position.y,
+        0.08 + breath,
+        0.08
+      );
+    } else if (spineRef.current) {
+      spineRef.current.position.y = THREE.MathUtils.lerp(spineRef.current.position.y, 0.08, 0.12);
+    }
+
+    // M3 Raid danger flinch: Rowan cowers — head tucks, arms raise defensively
+    if (isInDanger && !isWalking) {
+      const flinch = Math.sin(state.clock.elapsedTime * 2.8) * 0.018;
+      if (headRef.current) {
+        headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, 0.22 + flinch, 0.08);
+        headRef.current.rotation.z = THREE.MathUtils.lerp(headRef.current.rotation.z, -0.05, 0.08);
+      }
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.65, 0.08);
+        leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.3, 0.08);
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.55, 0.08);
+        rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.3, 0.08);
+      }
+      return;
+    }
 
     // Conversational speaking head gesture during dialogue
     const activeDiag = useCampaignStore.getState().activeDialogue;
@@ -80,8 +117,8 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
       headRef.current.rotation.x = talkPulse;
       headRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 2.2) * 0.02;
     } else if (headRef.current) {
-      headRef.current.rotation.x = 0;
-      headRef.current.rotation.z = 0;
+      headRef.current.rotation.x = THREE.MathUtils.lerp(headRef.current.rotation.x, 0, 0.1);
+      headRef.current.rotation.z = THREE.MathUtils.lerp(headRef.current.rotation.z, 0, 0.1);
     }
   });
 
@@ -98,8 +135,9 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
         <meshToonMaterial color="#eae2d4" gradientMap={toonRamp} />
       </mesh>
 
-      {/* ── Torso: Rolled-sleeve Linen Shirt + Heavy Leather Apron ── */}
-      <group position={[0, 0.08, 0]}>
+      {/* ── Torso with breathing spine group ── */}
+      <group ref={spineRef} position={[0, 0.08, 0]}>
+
         {/* Linen shirt with subtle outline */}
         <group position={[0, 0.25, 0]}>
           <mesh castShadow>
@@ -248,15 +286,54 @@ function MiraMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
   const leftArmRef = useRef<THREE.Group>(null!);
   const rightArmRef = useRef<THREE.Group>(null!);
   const headRef = useRef<THREE.Group>(null!);
+  const spineRef = useRef<THREE.Group>(null!);
+  const idleBreathPhase = useRef(0);
+  const blinkTimer = useRef(Math.random() * 3.0 + 2.0); // First blink 2-5s after spawn
+  const isBlinking = useRef(false);
+  const blinkAge = useRef(0);
 
   const toonRamp = useMemo(() => getToonGradient3(), []);
   const faceTexture = useMemo(() => getStylizedFaceTexture('#38f0d8', 'wise'), []);
   const outlineMat = useMemo(() => getInvertedHullOutlineMaterial('#16101c'), []);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
+    // ── Staff Crystal Pulse ──
     if (staffCrystalRef.current) {
       staffCrystalRef.current.rotation.y += 1.8 * 0.016;
       staffCrystalRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 2.0) * 0.2;
+    }
+
+    // ── Idle Breathing (18 BPM, only when still) ──
+    const walkPhase = aiRef.current.walkPhase;
+    const isWalking = Math.abs(Math.sin(walkPhase * 5.0)) > 0.05;
+    if (!isWalking && spineRef.current) {
+      idleBreathPhase.current += delta * 1.88;
+      const breath = Math.sin(idleBreathPhase.current) * 0.011;
+      spineRef.current.position.y = THREE.MathUtils.lerp(
+        spineRef.current.position.y, 0.08 + breath, 0.07
+      );
+    }
+
+    // ── Slow Eye Blink (every 3-6s) ──
+    blinkTimer.current -= delta;
+    if (blinkTimer.current <= 0 && !isBlinking.current) {
+      isBlinking.current = true;
+      blinkAge.current = 0;
+      blinkTimer.current = 3.0 + Math.random() * 3.0;
+    }
+    if (isBlinking.current) {
+      blinkAge.current += delta;
+      const blinkDuration = 0.22;
+      if (blinkAge.current >= blinkDuration) {
+        isBlinking.current = false;
+      }
+      // Head lowers very slightly during blink
+      if (headRef.current) {
+        const blinkProgress = Math.sin((blinkAge.current / blinkDuration) * Math.PI);
+        headRef.current.rotation.x = THREE.MathUtils.lerp(
+          headRef.current.rotation.x, 0.06 * blinkProgress, 0.18
+        );
+      }
     }
 
     const activeDiag = useCampaignStore.getState().activeDialogue;
@@ -370,8 +447,9 @@ function MiraMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
   return (
     <group position={[0, 0.72, 0]}>
-      {/* ── Mystical Flowing Robes (Midnight Violet with Cyan Chronal Trim) ── */}
-      <group position={[0, 0.08, 0]}>
+      {/* ── Mystical Flowing Robes ── */}
+      <group ref={spineRef} position={[0, 0.08, 0]}>
+
         <group position={[0, 0.1, 0]}>
           <mesh castShadow>
             <cylinderGeometry args={[0.26, 0.42, 0.78, 8]} />
