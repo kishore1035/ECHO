@@ -12,7 +12,6 @@ import { useEffect, useRef } from 'react';
 import {
   EffectComposer,
   Bloom,
-  Vignette,
   DepthOfField,
   ChromaticAberration,
   HueSaturation,
@@ -96,9 +95,6 @@ export default function PostFX() {
   const bloomIntensity = isNight ? 0.20 : isStorm ? 0.12 : 0.06;
   const bloomThreshold = isNight ? 0.72 : 0.85;
 
-  // ── Vignette ──
-  const vignetteBase = isNight ? 0.50 : isStorm ? 0.46 : 0.32;
-  const vignetteFinal = isDialogueActive ? Math.min(0.66, vignetteBase + 0.10) : vignetteBase;
 
   // ── Depth of Field (dialogue / Echo Tree — tuned for smooth performance) ──
   // Only activate in dialogue/Echo Tree if effects setting is high, with lightweight buffer
@@ -113,7 +109,7 @@ export default function PostFX() {
     chromaPeak * 0.0020
   );
 
-  // ── HueSaturation color grade ──
+  // ── HueSaturation color grade (only when values differ from identity) ──
   let hue = 0;
   let saturation = 0;
   if (isStorm)       { saturation = -0.28; hue = 0.02; }
@@ -122,8 +118,9 @@ export default function PostFX() {
   else if (isNight)  { saturation = -0.08; hue = -0.03; }
   else if (isDawn)   { saturation =  0.06; hue =  0.015; }
   else if (isDusk)   { saturation =  0.04; hue =  0.020; }
+  const hasColorGrade = isHighEnd && (Math.abs(hue) > 0.005 || Math.abs(saturation) > 0.005);
 
-  // ── BrightnessContrast ──
+  // ── BrightnessContrast (only when values differ from identity) ──
   let brightness = 0;
   let contrast = 0;
   if (isStorm)          { brightness = -0.08; contrast = 0.12; }
@@ -131,6 +128,7 @@ export default function PostFX() {
   else if (isNight)     { brightness = -0.05; contrast = 0.08; }
   else if (isDawn)      { brightness =  0.02; }
   if (isDialogueActive) { contrast   += 0.06; }
+  const hasContrastGrade = isHighEnd && (Math.abs(brightness) > 0.005 || Math.abs(contrast) > 0.005);
 
   return (
     <EffectComposer multisampling={0}>
@@ -142,7 +140,7 @@ export default function PostFX() {
         radius={0.3}
       />
 
-      {isHighEnd && (
+      {hasColorGrade && (
         <HueSaturation
           blendFunction={BlendFunction.NORMAL}
           hue={hue}
@@ -150,7 +148,7 @@ export default function PostFX() {
         />
       )}
 
-      {isHighEnd && (
+      {hasContrastGrade && (
         <BrightnessContrast
           blendFunction={BlendFunction.NORMAL}
           brightness={brightness}
@@ -175,12 +173,6 @@ export default function PostFX() {
           modulationOffset={0.15}
         />
       )}
-
-      <Vignette
-        offset={0.32}
-        darkness={vignetteFinal}
-        eskil={false}
-      />
     </EffectComposer>
   );
 }

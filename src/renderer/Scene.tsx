@@ -29,13 +29,13 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
       case 'low':
         return 1;
       case 'medium':
-        return [1, Math.min(maxDeviceDpr, 1.10)];
+        return [1, Math.min(maxDeviceDpr, 1.0)];
       case 'high':
-        return [1, Math.min(maxDeviceDpr, 1.25)];
+        return [1, Math.min(maxDeviceDpr, 1.15)];
       case 'ultra':
-        return [1, Math.min(maxDeviceDpr, 1.5)];
+        return [1, Math.min(maxDeviceDpr, 1.35)];
       default:
-        return [1, Math.min(maxDeviceDpr, 1.25)];
+        return [1, Math.min(maxDeviceDpr, 1.15)];
     }
   }, [graphicsQuality]);
 
@@ -47,6 +47,7 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
 
   return (
     <Canvas
+      frameloop={isPaused ? 'never' : 'always'}
       dpr={dpr}
       shadows={shadowConfig}
       camera={{ position: [0, 26, 42], fov: 52, near: 0.2, far: 600 }}

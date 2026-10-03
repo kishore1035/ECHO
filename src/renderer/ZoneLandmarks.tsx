@@ -101,7 +101,7 @@ function VillageZone() {
 
       {/* ── Village Resting Bench near Well ── */}
       <group position={[3.2, getTerrainHeight(3.2, 5.5), 5.5]} rotation={[0, 0.4, 0]}>
-        <mesh position={[0, 0.42, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.42, 0]} castShadow>
           <boxGeometry args={[1.3, 0.08, 0.42]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
@@ -116,7 +116,7 @@ function VillageZone() {
       {/* ── Village Market Stall with Striped Awning ── */}
       <group position={[1.8, getTerrainHeight(1.8, 6.2), 6.2]} rotation={[0, 0.65, 0]}>
         {/* Stall Counter Table */}
-        <mesh position={[0, 0.65, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.65, 0]} castShadow>
           <boxGeometry args={[2.0, 0.14, 0.95]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
@@ -142,7 +142,7 @@ function VillageZone() {
           <meshToonMaterial map={marketAwningTex} gradientMap={toonRamp} />
         </mesh>
         {/* Produce Crates & Baskets on Counter */}
-        <mesh position={[-0.55, 0.82, 0]} castShadow receiveShadow>
+        <mesh position={[-0.55, 0.82, 0]} castShadow>
           <boxGeometry args={[0.55, 0.22, 0.45]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
@@ -153,7 +153,7 @@ function VillageZone() {
             <meshToonMaterial color="#d43828" gradientMap={toonRamp} />
           </mesh>
         ))}
-        <mesh position={[0.45, 0.82, 0.05]} castShadow receiveShadow>
+        <mesh position={[0.45, 0.82, 0.05]} castShadow>
           <cylinderGeometry args={[0.22, 0.18, 0.22, 7]} />
           <meshToonMaterial color="#baa068" gradientMap={toonRamp} />
         </mesh>
@@ -247,15 +247,15 @@ function VillageZone() {
 
       {/* ── Village Crates & Barrels near Cottage ── */}
       <group position={[2.2, getTerrainHeight(2.2, 8.8), 8.8]}>
-        <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.35, 0]} castShadow>
           <boxGeometry args={[0.7, 0.7, 0.7]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
-        <mesh position={[0.55, 0.25, 0.2]} castShadow receiveShadow>
+        <mesh position={[0.55, 0.25, 0.2]} castShadow>
           <boxGeometry args={[0.5, 0.5, 0.5]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
-        <mesh position={[-0.45, 0.35, 0.15]} castShadow receiveShadow>
+        <mesh position={[-0.45, 0.35, 0.15]} castShadow>
           <cylinderGeometry args={[0.3, 0.28, 0.7, 7]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
@@ -264,7 +264,7 @@ function VillageZone() {
       {/* ── Wooden Farm Handcart near Cottage ── */}
       <group position={[5.2, getTerrainHeight(5.2, 9.2), 9.2]} rotation={[0, 0.35, 0]}>
         {/* Cart Bed */}
-        <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <mesh position={[0, 0.35, 0]} castShadow>
           <boxGeometry args={[1.1, 0.15, 1.8]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>
@@ -295,11 +295,11 @@ function VillageZone() {
 
       {/* ── Golden Hay Bales near Mill ── */}
       <group position={[8.5, getTerrainHeight(8.5, 7.5), 7.5]} rotation={[0, 0.4, 0]}>
-        <mesh position={[0, 0.3, 0]} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+        <mesh position={[0, 0.3, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
           <cylinderGeometry args={[0.45, 0.45, 0.9, 8]} />
           <meshToonMaterial map={strawTex} gradientMap={toonRamp} />
         </mesh>
-        <mesh position={[0.3, 0.3, 0.7]} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow>
+        <mesh position={[0.3, 0.3, 0.7]} rotation={[0, 0, Math.PI / 2]} castShadow>
           <cylinderGeometry args={[0.45, 0.45, 0.9, 8]} />
           <meshToonMaterial map={strawTex} gradientMap={toonRamp} />
         </mesh>
@@ -688,7 +688,7 @@ function CastleZone() {
 
         {/* Stepped Stone Approach Apron (linking switchback road to portal) */}
         {[0, 1, 2].map((st) => (
-          <mesh key={`gate-step-${st}`} position={[0, 0.1 + st * 0.16, 0.9 + st * 0.45]} receiveShadow>
+          <mesh key={`gate-step-${st}`} position={[0, 0.1 + st * 0.16, 0.9 + st * 0.45]}>
             <boxGeometry args={[2.5 - st * 0.2, 0.18, 0.5]} />
             <meshToonMaterial map={darkStoneTex} gradientMap={toonRamp} />
           </mesh>
@@ -770,13 +770,13 @@ function CastleZone() {
           { x: -0.8, y: 0.65, z: -0.2 },
           { x: -0.1, y: 0.25, z: -0.3 },
         ].map((hb, i) => (
-          <mesh key={`hay-${i}`} position={[hb.x, hb.y, hb.z]} castShadow receiveShadow>
+          <mesh key={`hay-${i}`} position={[hb.x, hb.y, hb.z]} castShadow>
             <boxGeometry args={[0.7, 0.4, 0.5]} />
             <meshToonMaterial map={strawTex} gradientMap={toonRamp} />
           </mesh>
         ))}
         {/* Water Trough & Supply Barrels */}
-        <mesh position={[0.7, 0.25, -0.2]} castShadow receiveShadow>
+        <mesh position={[0.7, 0.25, -0.2]} castShadow>
           <boxGeometry args={[0.9, 0.4, 0.45]} />
           <meshToonMaterial map={woodTex} gradientMap={toonRamp} />
         </mesh>

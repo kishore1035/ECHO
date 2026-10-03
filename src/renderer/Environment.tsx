@@ -52,7 +52,7 @@ function RockField() {
   const rocks = useScatter(11111, 140, 0.5, 14, 5);
   const toonRamp = useMemo(() => getToonGradient4(), []);
   return (
-    <Instances limit={150} castShadow receiveShadow>
+    <Instances limit={150}>
       <dodecahedronGeometry args={[0.5, 0]} />
       <meshToonMaterial color="#7a7468" gradientMap={toonRamp} />
       {rocks.map((r, i) => (
@@ -73,7 +73,7 @@ function SmallRocks() {
   const rocks = useScatter(22222, 220, 0, 12, 4);
   const toonRamp = useMemo(() => getToonGradient4(), []);
   return (
-    <Instances limit={240} receiveShadow>
+    <Instances limit={240}>
       <dodecahedronGeometry args={[0.22, 0]} />
       <meshToonMaterial color="#6b645e" gradientMap={toonRamp} />
       {rocks.map((r, i) => (

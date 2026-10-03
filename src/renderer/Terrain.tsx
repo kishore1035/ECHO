@@ -138,7 +138,7 @@ function surfaceToColor(h: number, x: number, z: number, ny: number, rngJitter: 
 export default function Terrain() {
   const geometry = useMemo(() => {
     // Total boundary 250x250 game units (playable core ~200x200)
-    const SEGMENTS = 160;
+    const SEGMENTS = 96;
     const SIZE = 250;
 
     const geo = new THREE.PlaneGeometry(SIZE, SIZE, SEGMENTS, SEGMENTS);

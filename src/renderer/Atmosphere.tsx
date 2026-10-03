@@ -72,7 +72,7 @@ function StylizedClouds({ weatherType }: { weatherType: string }) {
 export default function Atmosphere() {
   const weatherType = useWorldStore((s) => s.weather.type);
   const shadowQuality = useSettingsStore((s) => s.shadows);
-  const shadowMapSize = shadowQuality === 'high' ? 2048 : 1024;
+  const shadowMapSize = shadowQuality === 'high' ? 1024 : 512;
 
   const sunLightRef = useRef<THREE.DirectionalLight>(null!);
   const moonLightRef = useRef<THREE.DirectionalLight>(null!);
@@ -137,11 +137,13 @@ export default function Atmosphere() {
       sunLightRef.current.position.set(sunX, Math.max(sunY, 1), sunZ);
       sunLightRef.current.color.set(sunHex);
       sunLightRef.current.intensity = sunIntensity;
+      sunLightRef.current.castShadow = isDay && shadowQuality !== 'off';
     }
 
     if (moonLightRef.current) {
       moonLightRef.current.position.set(-sunX, Math.max(-sunY, 20), -sunZ);
       moonLightRef.current.intensity = moonIntensity;
+      moonLightRef.current.castShadow = false;
     }
 
     if (ambientLightRef.current) {
@@ -183,7 +185,7 @@ export default function Atmosphere() {
         position={[initialSunX, Math.max(initialSunY, 1), initialSunZ]}
         intensity={isDayInitial ? 2.0 : 0}
         color="#fff4dc"
-        castShadow
+        castShadow={isDayInitial && shadowQuality !== 'off'}
         shadow-mapSize-width={shadowMapSize}
         shadow-mapSize-height={shadowMapSize}
         shadow-camera-near={1}
@@ -202,10 +204,7 @@ export default function Atmosphere() {
         position={[-initialSunX, Math.max(-initialSunY, 20), -initialSunZ]}
         intensity={!isDayInitial ? 0.6 : 0.05}
         color="#82a8e8"
-        castShadow={!isDayInitial}
-        shadow-mapSize-width={shadowMapSize}
-        shadow-mapSize-height={shadowMapSize}
-        shadow-bias={-0.0004}
+        castShadow={false}
       />
 
       {/* Complementary Cool Sky Fill Light */}

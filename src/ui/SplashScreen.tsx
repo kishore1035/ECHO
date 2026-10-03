@@ -205,12 +205,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
         @keyframes echoSubtleBloom {
           0% {
-            letter-spacing: 0.55em;
-            transform: scale(0.97);
+            transform: scale(0.95);
+            opacity: 0.3;
           }
           100% {
-            letter-spacing: 0.72em;
             transform: scale(1.0);
+            opacity: 1;
           }
         }
       `}</style>
@@ -317,11 +317,11 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             letterSpacing: '0.65em',
             textIndent: '0.65em', // optical centering for wide tracking
             color: '#E8E3D8',
-            textShadow:
-              '0 0 45px rgba(181, 154, 74, 0.22), 0 0 90px rgba(181, 154, 74, 0.1)',
+            willChange: 'transform, opacity',
+            textShadow: '0 0 35px rgba(181, 154, 74, 0.28)',
             animation:
               stage === 'echo_reveal'
-                ? 'echoSubtleBloom 2.2s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                ? 'echoSubtleBloom 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards'
                 : 'none',
           }}
         >

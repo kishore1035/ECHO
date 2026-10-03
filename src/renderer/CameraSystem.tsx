@@ -498,6 +498,10 @@ export default function CameraSystem({
 
   // ── Frame Tick: Movement Update for BOTH God & Avatar Modes ──
   useFrame((_, delta) => {
+    if (isPaused) {
+      return;
+    }
+
     if (isCinematic) {
       // Slow, sweeping panoramic orbit around the center of the world
       const t = Date.now() * 0.00012;
@@ -506,10 +510,6 @@ export default function CameraSystem({
       camera.position.z = Math.cos(t) * radius;
       camera.position.y = 24;
       camera.lookAt(0, 3.5, 0);
-      return;
-    }
-
-    if (isPaused) {
       return;
     }
 

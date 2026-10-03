@@ -193,8 +193,19 @@ export default function App() {
     <div className="game-root">
       {/* Live 3D Scene running in background */}
       <Scene
-        isCinematic={gameState === 'splash' || gameState === 'title' || gameState === 'intro'}
+        isCinematic={gameState === 'title' || gameState === 'intro'}
         isPaused={gameState === 'paused' || gameState === 'splash'}
+      />
+
+      {/* Cinematic Ambient Vignette (Zero GPU Pass Overhead, replaces heavy WebGL blit) */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          pointerEvents: 'none',
+          boxShadow: 'inset 0 0 120px rgba(7, 11, 18, 0.45)',
+          zIndex: 4,
+        }}
       />
 
       {/* ── Alt F4 Studio Intro & ECHO Logo Reveal Splash Sequence ── */}
