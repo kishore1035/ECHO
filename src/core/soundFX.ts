@@ -21,6 +21,22 @@ class SoundFXEngine {
   private heartbeatTimer: any = null;
   private isHeartbeatRunning = false;
 
+  // Water ambience & procedural audio layers
+  private waterAmbienceSource: AudioBufferSourceNode | null = null;
+  private waterAmbienceLowFilter: BiquadFilterNode | null = null;
+  private waterAmbienceHighFilter: BiquadFilterNode | null = null;
+  private waterAmbienceGain: GainNode | null = null;
+  private isWaterAmbienceRunning = false;
+
+  private swimMovementSource: AudioBufferSourceNode | null = null;
+  private swimMovementFilter: BiquadFilterNode | null = null;
+  private swimMovementGain: GainNode | null = null;
+  private isSwimMovementRunning = false;
+
+  private underwaterDroneOsc: OscillatorNode | null = null;
+  private underwaterDroneGain: GainNode | null = null;
+  private isUnderwaterDroneRunning = false;
+
   private init() {
     if (this.ctx) return;
     try {
@@ -63,6 +79,37 @@ class SoundFXEngine {
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
       data[i] = Math.random() * 2 - 1;
+    }
+    return buffer;
+  }
+
+  /**
+   * Generates organic pink noise with crossfaded loop points.
+   * Ideal for realistic water flow, streams, splashes, and liquid movement.
+   */
+  private createPinkNoiseBuffer(duration: number): AudioBuffer | null {
+    const ctx = this.ensureContext();
+    if (!ctx) return null;
+    const bufferSize = Math.floor(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+      b6 = white * 0.115926;
+    }
+    // Seamless crossfade across boundaries (0.25s) to eliminate loop seam clicks
+    const fadeLen = Math.min(Math.floor(ctx.sampleRate * 0.25), Math.floor(bufferSize / 4));
+    for (let i = 0; i < fadeLen; i++) {
+      const t = i / fadeLen;
+      data[i] = data[i] * t + data[bufferSize - fadeLen + i] * (1 - t);
     }
     return buffer;
   }
@@ -176,27 +223,49 @@ class SoundFXEngine {
     const t = ctx.currentTime;
 
     if (surface === 'water') {
-      // Shallow water wading slosh / splash
-      const noise = this.createNoiseBuffer(0.12);
-      if (!noise) return;
-      const src = ctx.createBufferSource();
-      src.buffer = noise;
+      // Natural shallow water wading slosh / soft displacement
+      // 3 randomized variations with subtle pitch offsets so left/right footsteps feel distinct & organic
+      const varIdx = Math.floor(Math.random() * 3);
+      const baseFreq = [440, 520, 480][varIdx];
+      const bubbleFreq = [320, 390, 350][varIdx];
 
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1400, t);
-      filter.Q.setValueAtTime(2.5, t);
+      // 1. Water displacement body (lowpass pink noise - no high-pitched plastic click)
+      const noise = this.createPinkNoiseBuffer(0.18);
+      if (noise) {
+        const src = ctx.createBufferSource();
+        src.buffer = noise;
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.16, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(baseFreq, t);
+        filter.frequency.exponentialRampToValueAtTime(200, t + 0.18);
 
-      src.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.underwaterFilter);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.13, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
 
-      src.start(t);
-      src.stop(t + 0.12);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.underwaterFilter);
+
+        src.start(t);
+        src.stop(t + 0.18);
+      }
+
+      // 2. Soft liquid droplet / bubble (gentle sine sweep, never a sharp click)
+      const droplet = ctx.createOscillator();
+      const dropGain = ctx.createGain();
+      droplet.type = 'sine';
+      droplet.frequency.setValueAtTime(bubbleFreq, t);
+      droplet.frequency.exponentialRampToValueAtTime(bubbleFreq * 0.65, t + 0.07);
+
+      dropGain.gain.setValueAtTime(0.035, t);
+      dropGain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+
+      droplet.connect(dropGain);
+      dropGain.connect(this.underwaterFilter);
+      droplet.start(t);
+      droplet.stop(t + 0.07);
     } else if (surface === 'stone') {
       // Crisp stone click
       const osc = ctx.createOscillator();
@@ -251,36 +320,116 @@ class SoundFXEngine {
     osc.stop(t + 0.16);
   }
 
-  // ─── 3. Water Splashes (Entry / Exit / Body Impact) ──────────
-  playWaterSplash(strength = 1.0) {
+  // ─── 3. Contextual Water Splashes (Entry / Exit / Wading / Surface) ───
+  playWaterSplash(strength = 1.0, type: 'entry' | 'exit' | 'wading' | 'surface' = 'entry') {
     const ctx = this.ensureContext();
     if (!ctx || !this.underwaterFilter) return;
     const t = ctx.currentTime;
 
-    const dur = 0.28 * Math.max(0.4, strength);
-    const noise = this.createNoiseBuffer(dur);
-    if (!noise) return;
+    const clampedStrength = Math.max(0.3, Math.min(1.5, strength));
 
-    const src = ctx.createBufferSource();
-    src.buffer = noise;
+    if (type === 'exit') {
+      // Lifting out of water: water dripping and shearing upward
+      const noise = this.createPinkNoiseBuffer(0.22);
+      if (noise) {
+        const src = ctx.createBufferSource();
+        src.buffer = noise;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(450, t);
+        filter.frequency.exponentialRampToValueAtTime(750, t + 0.22);
+        filter.Q.setValueAtTime(1.0, t);
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(1200, t);
-    filter.frequency.exponentialRampToValueAtTime(400, t + dur);
-    filter.Q.setValueAtTime(2.0, t);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.12 * clampedStrength, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
 
-    const gain = ctx.createGain();
-    const vol = Math.min(0.4, 0.22 * strength);
-    gain.gain.setValueAtTime(vol, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.underwaterFilter);
+        src.start(t);
+        src.stop(t + 0.22);
+      }
+      return;
+    }
 
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.underwaterFilter);
+    if (type === 'surface') {
+      // Emergence breach: crisp air breach + cascading water
+      const noise = this.createPinkNoiseBuffer(0.32);
+      if (noise) {
+        const src = ctx.createBufferSource();
+        src.buffer = noise;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(950, t);
+        filter.frequency.exponentialRampToValueAtTime(320, t + 0.32);
 
-    src.start(t);
-    src.stop(t + dur);
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.18 * clampedStrength, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.underwaterFilter);
+        src.start(t);
+        src.stop(t + 0.32);
+      }
+
+      // Air breach bubble
+      const breach = ctx.createOscillator();
+      const breachGain = ctx.createGain();
+      breach.type = 'sine';
+      breach.frequency.setValueAtTime(240, t);
+      breach.frequency.exponentialRampToValueAtTime(130, t + 0.11);
+      breachGain.gain.setValueAtTime(0.07, t);
+      breachGain.gain.exponentialRampToValueAtTime(0.001, t + 0.11);
+      breach.connect(breachGain);
+      breachGain.connect(this.underwaterFilter);
+      breach.start(t);
+      breach.stop(t + 0.11);
+      return;
+    }
+
+    // Default 'entry' or 'wading': deep plunging displacement + liquid spray
+    const dur = 0.30 * clampedStrength;
+
+    // 1. Plunging body displacement (low sine drop: 130Hz -> 42Hz)
+    const plunge = ctx.createOscillator();
+    const plungeGain = ctx.createGain();
+    plunge.type = 'sine';
+    plunge.frequency.setValueAtTime(130, t);
+    plunge.frequency.exponentialRampToValueAtTime(42, t + dur * 0.6);
+
+    plungeGain.gain.setValueAtTime(0.20 * clampedStrength, t);
+    plungeGain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.6);
+
+    plunge.connect(plungeGain);
+    plungeGain.connect(this.underwaterFilter);
+    plunge.start(t);
+    plunge.stop(t + dur * 0.6);
+
+    // 2. Liquid spray & turbulent foam (pink noise with lowpass filter)
+    const noise = this.createPinkNoiseBuffer(dur);
+    if (noise) {
+      const src = ctx.createBufferSource();
+      src.buffer = noise;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(650, t);
+      filter.frequency.exponentialRampToValueAtTime(260, t + dur);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.18 * clampedStrength, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.underwaterFilter);
+
+      src.start(t);
+      src.stop(t + dur);
+    }
   }
 
   // ─── 4. Swimming Stroke Flutter ──────────────────────────────
@@ -293,32 +442,50 @@ class SoundFXEngine {
     this.lastSwimTime = now;
 
     const t = ctx.currentTime;
-    const noise = this.createNoiseBuffer(0.24);
-    if (!noise) return;
 
-    const src = ctx.createBufferSource();
-    src.buffer = noise;
+    // Soft water displacement push (organic breaststroke water rush)
+    const noise = this.createPinkNoiseBuffer(0.22);
+    if (noise) {
+      const src = ctx.createBufferSource();
+      src.buffer = noise;
 
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(600, t);
-    filter.frequency.exponentialRampToValueAtTime(250, t + 0.24);
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(420, t);
+      filter.frequency.exponentialRampToValueAtTime(190, t + 0.22);
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.11, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
 
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(this.underwaterFilter);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.underwaterFilter);
 
-    src.start(t);
-    src.stop(t + 0.24);
+      src.start(t);
+      src.stop(t + 0.22);
+    }
+
+    // Subtle gentle paddle swirl
+    const swirl = ctx.createOscillator();
+    const swirlGain = ctx.createGain();
+    swirl.type = 'sine';
+    swirl.frequency.setValueAtTime(95, t);
+    swirl.frequency.exponentialRampToValueAtTime(48, t + 0.14);
+
+    swirlGain.gain.setValueAtTime(0.05, t);
+    swirlGain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+
+    swirl.connect(swirlGain);
+    swirlGain.connect(this.underwaterFilter);
+    swirl.start(t);
+    swirl.stop(t + 0.14);
   }
 
   // ─── 5. Underwater Lowpass Filter & Audio Muffling ───────────
   setUnderwaterAudio(active: boolean) {
     if (this.isUnderwater === active) return;
+    const wasUnderwater = this.isUnderwater;
     this.isUnderwater = active;
 
     const ctx = this.ensureContext();
@@ -328,11 +495,41 @@ class SoundFXEngine {
     this.underwaterFilter.frequency.cancelScheduledValues(t);
 
     if (active) {
-      // Muffle high frequencies heavily: cut off at 380Hz
-      this.underwaterFilter.frequency.linearRampToValueAtTime(380, t + 0.25);
+      // Muffle high frequencies heavily: steep cutoff at 320Hz
+      this.underwaterFilter.frequency.setTargetAtTime(320, t, 0.25);
+
+      // Start underwater deep pressure drone (52Hz sine hum)
+      if (!this.isUnderwaterDroneRunning || !this.underwaterDroneOsc) {
+        try {
+          this.underwaterDroneOsc = ctx.createOscillator();
+          this.underwaterDroneGain = ctx.createGain();
+          this.underwaterDroneOsc.type = 'sine';
+          this.underwaterDroneOsc.frequency.setValueAtTime(52, t);
+
+          this.underwaterDroneGain.gain.setValueAtTime(0.0001, t);
+          this.underwaterDroneGain.gain.setTargetAtTime(0.08, t, 0.3);
+
+          this.underwaterDroneOsc.connect(this.underwaterDroneGain);
+          this.underwaterDroneGain.connect(this.underwaterFilter);
+
+          this.underwaterDroneOsc.start(t);
+          this.isUnderwaterDroneRunning = true;
+        } catch {}
+      } else if (this.underwaterDroneGain) {
+        this.underwaterDroneGain.gain.setTargetAtTime(0.08, t, 0.3);
+      }
     } else {
       // Smoothly restore full acoustic frequency spectrum
-      this.underwaterFilter.frequency.linearRampToValueAtTime(22000, t + 0.35);
+      this.underwaterFilter.frequency.setTargetAtTime(22000, t, 0.35);
+
+      if (this.underwaterDroneGain) {
+        this.underwaterDroneGain.gain.setTargetAtTime(0.0001, t, 0.2);
+      }
+
+      // When surfacing from underwater, play an emergence splash
+      if (wasUnderwater) {
+        this.playWaterSplash(0.75, 'surface');
+      }
     }
   }
 
@@ -675,6 +872,126 @@ class SoundFXEngine {
     } catch {}
   }
 
+  // ─── 11b. Ambient Procedural Flowing Water / River Ambience ────
+  /**
+   * Continuous, natural water ambience layer whenever the player is near the river.
+   * Distance fades smoothly between 26m and 0m using exponential curves.
+   * Also controls continuous swimming water movement layer.
+   */
+  updateWaterAmbience(
+    distToRiver: number,
+    waterState: 'none' | 'shallow' | 'swimming' | 'underwater',
+    swimSpeed: number
+  ) {
+    const ctx = this.ensureContext();
+    if (!ctx || !this.underwaterFilter) return;
+
+    try {
+      const t = ctx.currentTime;
+
+      // 1. Continuous Flowing River Ambience (active within 26m of water channel)
+      if (distToRiver < 26) {
+        if (!this.isWaterAmbienceRunning || !this.waterAmbienceSource) {
+          const buffer = this.createPinkNoiseBuffer(6.0);
+          if (!buffer) return;
+
+          this.waterAmbienceSource = ctx.createBufferSource();
+          this.waterAmbienceSource.buffer = buffer;
+          this.waterAmbienceSource.loop = true;
+
+          // Low rumble/flow path (rushing body of water)
+          this.waterAmbienceLowFilter = ctx.createBiquadFilter();
+          this.waterAmbienceLowFilter.type = 'lowpass';
+          this.waterAmbienceLowFilter.frequency.setValueAtTime(420, t);
+
+          // High trickle/gurgle path (surface ripples over stones)
+          this.waterAmbienceHighFilter = ctx.createBiquadFilter();
+          this.waterAmbienceHighFilter.type = 'bandpass';
+          this.waterAmbienceHighFilter.frequency.setValueAtTime(920, t);
+          this.waterAmbienceHighFilter.Q.setValueAtTime(1.1, t);
+
+          this.waterAmbienceGain = ctx.createGain();
+          this.waterAmbienceGain.gain.setValueAtTime(0.0001, t);
+
+          // Connect source -> both filters -> gain -> master filter
+          this.waterAmbienceSource.connect(this.waterAmbienceLowFilter);
+          this.waterAmbienceSource.connect(this.waterAmbienceHighFilter);
+          this.waterAmbienceLowFilter.connect(this.waterAmbienceGain);
+          this.waterAmbienceHighFilter.connect(this.waterAmbienceGain);
+          this.waterAmbienceGain.connect(this.underwaterFilter);
+
+          this.waterAmbienceSource.start(t);
+          this.isWaterAmbienceRunning = true;
+        }
+
+        if (this.waterAmbienceGain && this.waterAmbienceLowFilter && this.waterAmbienceHighFilter) {
+          // Smooth distance falloff: 1.0 at riverbank (0m) to 0.0 at 24m
+          const normDist = Math.max(0, Math.min(1, distToRiver / 24.0));
+          const proximity = Math.cos(normDist * (Math.PI / 2));
+
+          let targetGain = proximity * 0.16;
+          if (waterState === 'shallow') {
+            targetGain = 0.20;
+          } else if (waterState === 'swimming') {
+            targetGain = 0.24;
+          } else if (waterState === 'underwater') {
+            targetGain = 0.14; // underwater filter muffles this naturally
+          }
+
+          this.waterAmbienceGain.gain.setTargetAtTime(targetGain, t, 0.35);
+
+          // Distance muffling for higher water gurgles
+          const highCutoff = 550 + proximity * 450;
+          this.waterAmbienceHighFilter.frequency.setTargetAtTime(highCutoff, t, 0.4);
+        }
+      } else if (this.isWaterAmbienceRunning && this.waterAmbienceGain) {
+        // Player is far from river: fade gain out smoothly
+        this.waterAmbienceGain.gain.setTargetAtTime(0.0001, t, 0.4);
+      }
+
+      // 2. Continuous Swimming Water Movement Layer
+      if (waterState === 'swimming' && swimSpeed > 0.4) {
+        if (!this.isSwimMovementRunning || !this.swimMovementSource) {
+          const buffer = this.createPinkNoiseBuffer(3.0);
+          if (buffer) {
+            this.swimMovementSource = ctx.createBufferSource();
+            this.swimMovementSource.buffer = buffer;
+            this.swimMovementSource.loop = true;
+
+            this.swimMovementFilter = ctx.createBiquadFilter();
+            this.swimMovementFilter.type = 'lowpass';
+            this.swimMovementFilter.frequency.setValueAtTime(320, t);
+
+            this.swimMovementGain = ctx.createGain();
+            this.swimMovementGain.gain.setValueAtTime(0.0001, t);
+
+            this.swimMovementSource.connect(this.swimMovementFilter);
+            this.swimMovementFilter.connect(this.swimMovementGain);
+            this.swimMovementGain.connect(this.underwaterFilter);
+
+            this.swimMovementSource.start(t);
+            this.isSwimMovementRunning = true;
+          }
+        }
+        if (this.swimMovementGain) {
+          const moveGain = Math.min(0.12, 0.03 + (swimSpeed - 0.4) * 0.02);
+          this.swimMovementGain.gain.setTargetAtTime(moveGain, t, 0.2);
+        }
+      } else if (this.isSwimMovementRunning && this.swimMovementGain) {
+        this.swimMovementGain.gain.setTargetAtTime(0.0001, t, 0.25);
+      }
+    } catch {}
+  }
+
+  stopWaterAmbience() {
+    if (this.waterAmbienceGain && this.ctx) {
+      try {
+        const t = this.ctx.currentTime;
+        this.waterAmbienceGain.gain.setTargetAtTime(0.0001, t, 0.3);
+      } catch {}
+    }
+  }
+
   // ─── 12. Tension / Battle Heartbeat Layer ─────────────────────
   setTensionHeartbeat(active: boolean, bpm: number = 76) {
     if (active === this.isHeartbeatRunning) return;
@@ -816,9 +1133,11 @@ export const startTitleAmbience = () => soundFX.startTitleAmbience();
 export const stopTitleAmbience = () => soundFX.stopTitleAmbience();
 export const playFootstep = (surface: 'grass' | 'stone' | 'water') => soundFX.playFootstep(surface);
 export const playLanding = (surface: 'grass' | 'stone' = 'grass') => soundFX.playLanding(surface);
-export const playWaterSplash = (strength = 1.0) => soundFX.playWaterSplash(strength);
+export const playWaterSplash = (strength = 1.0, type: 'entry' | 'exit' | 'wading' | 'surface' = 'entry') => soundFX.playWaterSplash(strength, type);
 export const playSwimStroke = () => soundFX.playSwimStroke();
 export const setUnderwaterAudio = (active: boolean) => soundFX.setUnderwaterAudio(active);
+export const updateWaterAmbience = (distToRiver: number, waterState: 'none' | 'shallow' | 'swimming' | 'underwater', swimSpeed: number) => soundFX.updateWaterAmbience(distToRiver, waterState, swimSpeed);
+export const stopWaterAmbience = () => soundFX.stopWaterAmbience();
 export const setGladeDampening = (amount: number) => soundFX.setGladeDampening(amount);
 export const playPropImpact = (speed = 1.0) => soundFX.playPropImpact(speed);
 export const playCombatHit = () => soundFX.playCombatHit();

@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
 import { useCampaignStore } from '../campaign/CampaignSystem';
-import { getTerrainHeight } from '../core/terrain';
+import { getTerrainHeight, getDistanceToRiver } from '../core/terrain';
 import { resolveCollision } from '../core/collision';
 import { navState } from '../core/navState';
 import {
@@ -21,6 +21,8 @@ import {
   playWaterSplash,
   playSwimStroke,
   setUnderwaterAudio,
+  updateWaterAmbience,
+  stopWaterAmbience,
   playCombatHit,
   playDestructionSound,
   setTensionHeartbeat,
@@ -108,6 +110,7 @@ export default function CameraSystem({
     wasGrounded: true,
     waterState: 'none' as WaterDepthState,
     lastWaterState: 'none' as WaterDepthState,
+    lastWaterTransitionTime: 0,
     yaw: Math.PI, // Face North towards kingdoms and river by default
     pitch: 0.28,  // slight downward over-the-shoulder look
     rotY: Math.PI,
@@ -131,13 +134,16 @@ export default function CameraSystem({
   const timelineRestoreVersion = useWorldStore((s) => s.timelineRestoreVersion);
   const lastRestoreRef = useRef(0);
 
-  // Sync initial position from store
+  // Sync initial position from store & cleanup sound loops on unmount
   useEffect(() => {
     const p = useWorldStore.getState().player.position;
     playerPhys.current.x = p.x;
     playerPhys.current.y = p.y;
     playerPhys.current.z = p.z;
     onModeChange?.('firstPerson');
+    return () => {
+      stopWaterAmbience();
+    };
   }, [onModeChange]);
 
   // Sync physics on timeline rewind or branch restore
@@ -566,6 +572,10 @@ export default function CameraSystem({
         camera.position.z += moveZ;
 
         orbitRef.current.update();
+
+        // Ambient river flow distance update in orbit view
+        const camDistToRiver = getDistanceToRiver(camera.position.x, camera.position.z);
+        updateWaterAmbience(camDistToRiver, 'none', 0);
       }
       return;
     }
@@ -574,21 +584,32 @@ export default function CameraSystem({
     if (modeRef.current === 'firstPerson') {
       const phys = playerPhys.current;
 
-      // 1. Current water state at avatar position
-      const currentWaterState = getWaterState(phys.x, phys.y, phys.z);
+      // 1. Current water state at avatar position with hysteresis support
+      const currentWaterState = getWaterState(phys.x, phys.y, phys.z, phys.waterState);
       const isWaterSurfaceOrUnder = currentWaterState === 'swimming' || currentWaterState === 'underwater';
 
-      // Water entry / exit splashes
-      if (phys.lastWaterState === 'none' && currentWaterState !== 'none') {
-        playWaterSplash(1.1);
-      } else if (phys.lastWaterState !== 'none' && currentWaterState === 'none') {
-        playWaterSplash(0.7);
+      // Water entry / exit splashes with debouncing (no rapid frame-by-frame triggers)
+      const now = performance.now();
+      const enteredWater = phys.lastWaterState === 'none' && currentWaterState !== 'none';
+      const exitedWater = phys.lastWaterState !== 'none' && currentWaterState === 'none';
+
+      if (enteredWater && now - phys.lastWaterTransitionTime > 450) {
+        phys.lastWaterTransitionTime = now;
+        playWaterSplash(0.85, 'entry');
+      } else if (exitedWater && now - phys.lastWaterTransitionTime > 450) {
+        phys.lastWaterTransitionTime = now;
+        playWaterSplash(0.60, 'exit');
       }
       phys.lastWaterState = currentWaterState;
       phys.waterState = currentWaterState;
 
-      // Underwater audio muffled lowpass filter
+      // Underwater audio muffled lowpass filter & sub-aquatic pressure drone
       setUnderwaterAudio(currentWaterState === 'underwater');
+
+      // Continuous natural water ambience & swimming movement layer
+      const distToRiver = getDistanceToRiver(phys.x, phys.z);
+      const currentSwimSpeed = Math.hypot(phys.vx, phys.vz);
+      updateWaterAmbience(distToRiver, currentWaterState, currentSwimSpeed);
 
       // Tension / Combat heartbeat audio
       const currentChaos = useWorldStore.getState().chaosScore;
@@ -724,14 +745,16 @@ export default function CameraSystem({
           phys.vy = Math.max(0, phys.vy);
         }
 
-        // Periodic swim stroke sound
+        // Periodic swim stroke sound synchronized with actual swimming movement
         const swimSpeed = Math.hypot(phys.vx, phys.vz);
-        if (swimSpeed > 0.4) {
+        if (swimSpeed > 0.5) {
           phys.swimStrokeTimer += dt;
-          if (phys.swimStrokeTimer > 0.6) {
+          if (phys.swimStrokeTimer > 0.75) {
             phys.swimStrokeTimer = 0;
             playSwimStroke();
           }
+        } else {
+          phys.swimStrokeTimer = 0;
         }
       } else {
         // On Land or Shallow Water
@@ -741,15 +764,19 @@ export default function CameraSystem({
 
           if (phys.y <= terrainGroundY) {
             phys.y = terrainGroundY;
+
+            // Landing sound: ONLY play landing impact on significant vertical velocity
+            // (e.g. actual jumps or drops), never when walking across undulating riverbed slopes
+            if (phys.vy < -3.5) {
+              if (currentWaterState === 'shallow') {
+                playWaterSplash(0.55, 'wading');
+              } else {
+                playLanding('grass');
+              }
+            }
+
             phys.vy = 0;
             phys.isGrounded = true;
-
-            // Landing sound
-            if (currentWaterState === 'shallow') {
-              playWaterSplash(0.5);
-            } else {
-              playLanding('grass');
-            }
           }
         } else {
           phys.y = terrainGroundY;
@@ -759,7 +786,9 @@ export default function CameraSystem({
         const walkSpeed = Math.hypot(phys.vx, phys.vz);
         if (phys.isGrounded && walkSpeed > 0.8) {
           phys.footstepDist += walkSpeed * dt;
-          if (phys.footstepDist > 1.9) {
+          // In shallow water, strides are slightly longer and rhythmic (2.15m vs 1.9m)
+          const strideDistance = currentWaterState === 'shallow' ? 2.15 : 1.9;
+          if (phys.footstepDist > strideDistance) {
             phys.footstepDist = 0;
             if (currentWaterState === 'shallow') {
               playFootstep('water');

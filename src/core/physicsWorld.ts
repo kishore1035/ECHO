@@ -25,13 +25,24 @@ export function getWaterDepth(x: number, z: number): number {
 
 /**
  * Classifies water depth state for a point at (x, y, z).
+ * Supports hysteresis via previousState to prevent boundary jitter.
  */
-export function getWaterState(x: number, y: number, z: number): WaterDepthState {
+export function getWaterState(x: number, y: number, z: number, previousState?: WaterDepthState): WaterDepthState {
   const depth = getWaterDepth(x, z);
-  if (depth <= 0.05) return 'none';
 
-  // Shallow wading: water reaches feet/shins
-  if (depth < 1.1) return 'shallow';
+  // Hysteresis for entering vs exiting water:
+  // If previously dry ('none'), require >= 0.08m (8cm) depth to enter.
+  // If previously in water, stay in water until depth drops below 0.03m (3cm).
+  const minDepth = previousState && previousState !== 'none' ? 0.03 : 0.08;
+  if (depth <= minDepth) return 'none';
+
+  // Shallow wading vs swimming hysteresis:
+  // Water deeper than ~0.88m reaches chest/swimming height
+  if (previousState === 'swimming' || previousState === 'underwater') {
+    if (depth < 0.70) return 'shallow';
+  } else {
+    if (depth < 0.88) return 'shallow';
+  }
 
   // Deep water:
   // If player's head/eyes are below the water plane (with small tolerance)

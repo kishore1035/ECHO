@@ -176,6 +176,24 @@ export function isWater(x: number, z: number): boolean {
 }
 
 /**
+ * Calculates the horizontal distance in meters from (x, z) to the edge of the river.
+ * Returns 0 if the position is directly within or over the river channel.
+ */
+export function getDistanceToRiver(x: number, z: number): number {
+  if (z < -42) {
+    const endX = -8.0 - (-42 - 5) * 0.08 + Math.sin((-42 - 5) * 0.12) * 0.6;
+    return Math.hypot(x - endX, z - (-42));
+  }
+  if (z > 48) {
+    const endX = -8.0 - (48 - 5) * 0.08 + Math.sin((48 - 5) * 0.12) * 0.6;
+    return Math.hypot(x - endX, z - 48);
+  }
+  const riverCenterX = -8.0 - (z - 5) * 0.08 + Math.sin((z - 5) * 0.12) * 0.6;
+  const distToCenter = Math.abs(x - riverCenterX);
+  return Math.max(0, distToCenter - 2.5);
+}
+
+/**
  * Named locations for LLM context injection and fallback parser.
  * These are the canonical world landmarks covering all 7 interconnected zones.
  */
