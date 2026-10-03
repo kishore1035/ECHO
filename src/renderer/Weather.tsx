@@ -2,33 +2,32 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
+import { useSettingsStore } from '../core/settingsStore';
 import { playThunder, updateWindAmbience, stopWindAmbience } from '../core/soundFX';
 import { shouldWorldTimeProgress } from '../core/timeSystem';
 
 // ─── Rain Falling Drops ───────────────────────────────────────
 
-const RAIN_COUNT = 1400;
-
-function RainMesh({ windSpeed = 4 }: { windSpeed?: number }) {
+function RainMesh({ windSpeed = 4, count = 1400 }: { windSpeed?: number; count?: number }) {
   const pointsRef = useRef<THREE.Points>(null!);
   const [positions, velocities] = useMemo(() => {
-    const pos = new Float32Array(RAIN_COUNT * 3);
-    const vel = new Float32Array(RAIN_COUNT);
-    for (let i = 0; i < RAIN_COUNT; i++) {
+    const pos = new Float32Array(count * 3);
+    const vel = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 85;
       pos[i * 3 + 1] = Math.random() * 32 + 2;
       pos[i * 3 + 2] = (Math.random() - 0.5) * 85;
       vel[i] = 28 + Math.random() * 12; // fall speed
     }
     return [pos, vel];
-  }, []);
+  }, [count]);
 
   useFrame((_, delta) => {
     if (!pointsRef.current) return;
     const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const arr = posAttr.array as Float32Array;
 
-    for (let i = 0; i < RAIN_COUNT; i++) {
+    for (let i = 0; i < count; i++) {
       arr[i * 3 + 1] -= velocities[i] * delta;
       arr[i * 3] -= windSpeed * delta;
 
@@ -170,6 +169,8 @@ export default function WeatherSystem() {
   const weatherType = useWorldStore((s) => s.weather.type);
   const hours = useWorldStore((s) => s.time.hours);
   const playerWaterState = useWorldStore((s) => s.player.waterState);
+  const effectsQuality = useSettingsStore((s) => s.effects);
+  const isLowEffects = effectsQuality === 'low';
   const { camera } = useThree();
   const fogRef = useRef<THREE.Fog>(null!);
 
@@ -269,9 +270,14 @@ export default function WeatherSystem() {
   return (
     <>
       <fog ref={fogRef} attach="fog" args={['#b8cedd', 65, 220]} />
-      {showRain && <RainMesh windSpeed={weatherType === 'storm' ? 12 : 4} />}
-      {showRain && <RainSplashes />}
-      {isUnderwater && <UnderwaterBubbles />}
+      {showRain && (
+        <RainMesh
+          windSpeed={weatherType === 'storm' ? 12 : 4}
+          count={isLowEffects ? 450 : 1400}
+        />
+      )}
+      {showRain && !isLowEffects && <RainSplashes />}
+      {isUnderwater && !isLowEffects && <UnderwaterBubbles />}
     </>
   );
 }

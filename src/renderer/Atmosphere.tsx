@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { Sky, Cloud } from '@react-three/drei';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
+import { useSettingsStore } from '../core/settingsStore';
 import { shouldWorldTimeProgress, calculateDeltaGameHours } from '../core/timeSystem';
 import WeatherSystem from './Weather';
 
@@ -10,6 +11,8 @@ export default function Atmosphere() {
   const time = useWorldStore((s) => s.time);
   const advanceTime = useWorldStore((s) => s.advanceTime);
   const weatherType = useWorldStore((s) => s.weather.type);
+  const shadowQuality = useSettingsStore((s) => s.shadows);
+  const shadowMapSize = shadowQuality === 'high' ? 2048 : 1024;
 
   const sunLightRef = useRef<THREE.DirectionalLight>(null!);
   const moonLightRef = useRef<THREE.DirectionalLight>(null!);
@@ -86,8 +89,8 @@ export default function Atmosphere() {
         intensity={sunIntensity}
         color={sunColor}
         castShadow={isDay}
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={shadowMapSize}
+        shadow-mapSize-height={shadowMapSize}
         shadow-camera-near={1}
         shadow-camera-far={240}
         shadow-camera-left={-70}
@@ -105,8 +108,8 @@ export default function Atmosphere() {
         intensity={moonIntensity}
         color="#82a8e8"
         castShadow={!isDay && moonIntensity > 0.3}
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={shadowMapSize}
+        shadow-mapSize-height={shadowMapSize}
         shadow-bias={-0.0004}
       />
 

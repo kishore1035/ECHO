@@ -37,6 +37,8 @@ const _scratchRight = new THREE.Vector3();
 const _scratchUp = new THREE.Vector3(0, 1, 0);
 const _scratchTargetCam = new THREE.Vector3();
 const _scratchLookTarget = new THREE.Vector3();
+const _scratchGroundPlane = new THREE.Plane();
+const _scratchHitPoint = new THREE.Vector3();
 
 function getEntityHeadHeight(entity: any): number {
   if (!entity) return 1.54;
@@ -464,15 +466,14 @@ export default function CameraSystem({
       raycaster.setFromCamera(mouse, camera);
 
       const currentTarget = orbitRef.current.target as THREE.Vector3;
-      const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -currentTarget.y);
-      const hitPoint = new THREE.Vector3();
-      const hit = raycaster.ray.intersectPlane(groundPlane, hitPoint);
+      _scratchGroundPlane.setComponents(0, 1, 0, -currentTarget.y);
+      const hit = raycaster.ray.intersectPlane(_scratchGroundPlane, _scratchHitPoint);
 
       if (hit) {
         const isZoomingIn = e.deltaY < 0;
         const factor = isZoomingIn ? 0.12 : -0.04;
-        const shiftX = (hitPoint.x - currentTarget.x) * factor;
-        const shiftZ = (hitPoint.z - currentTarget.z) * factor;
+        const shiftX = (_scratchHitPoint.x - currentTarget.x) * factor;
+        const shiftZ = (_scratchHitPoint.z - currentTarget.z) * factor;
 
         currentTarget.x += shiftX;
         currentTarget.z += shiftZ;
