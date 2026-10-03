@@ -14,6 +14,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
 import { getChronalRuneTexture } from './StylizedMaterials';
+import { chromaState } from './PostFX';
+
 
 // Procedural subtle temporal rewind sound using Web Audio API
 function playTemporalSound() {
@@ -153,8 +155,13 @@ export default function EchoVFX() {
     return pos;
   }, []);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const now = performance.now();
+
+    // ── Chromatic Aberration Decay ──
+    if (chromaState.peak > 0) {
+      chromaState.peak = Math.max(0, chromaState.peak - chromaState.decayRate * delta);
+    }
 
     // ── Echo Resonance Wave Animation ──
     if (activeEchoWave) {
