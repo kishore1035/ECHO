@@ -65,7 +65,6 @@ export default function PostFX() {
   const isEchoTreeActive = useEchoTreeStore((s) => s.isInteracting);
 
   const lastCommandRef = useRef('');
-  const chromaPeakRef = useRef(0);
 
   // Trigger chromatic aberration spike on new voice command
   useEffect(() => {
@@ -77,8 +76,7 @@ export default function PostFX() {
 
   if (effectsQuality === 'low') return null;
 
-  const isHighEnd = effectsQuality === 'high' || effectsQuality === 'ultra';
-  const isMediumUp = effectsQuality === 'medium' || isHighEnd;
+  const isHighEnd = effectsQuality === 'high';
 
   const isNight = hours < 5.5 || hours > 20.0;
   const isDawn = hours >= 5.5 && hours < 8.0;
@@ -136,7 +134,7 @@ export default function PostFX() {
         radius={0.4}
       />
 
-      {isMediumUp && (
+      {isHighEnd && (
         <HueSaturation
           blendFunction={BlendFunction.NORMAL}
           hue={hue}
@@ -144,7 +142,7 @@ export default function PostFX() {
         />
       )}
 
-      {isMediumUp && (
+      {isHighEnd && (
         <BrightnessContrast
           blendFunction={BlendFunction.NORMAL}
           brightness={brightness}
