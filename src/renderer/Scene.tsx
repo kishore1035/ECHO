@@ -22,27 +22,27 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
   const graphicsQuality = useSettingsStore((s) => s.graphicsQuality);
   const shadowQuality = useSettingsStore((s) => s.shadows);
 
-  // Clamp DPR according to user quality settings — avoids 4K retina melting lag
+  // Clamp DPR according to user quality settings — optimizes GPU fill rate on high-DPI/Retina screens
   const dpr: [number, number] | number = useMemo(() => {
     const maxDeviceDpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     switch (graphicsQuality) {
       case 'low':
         return 1;
       case 'medium':
-        return [1, Math.min(maxDeviceDpr, 1.25)];
+        return [1, Math.min(maxDeviceDpr, 1.10)];
       case 'high':
-        return [1, Math.min(maxDeviceDpr, 1.5)];
+        return [1, Math.min(maxDeviceDpr, 1.25)];
       case 'ultra':
-        return [1, Math.min(maxDeviceDpr, 2.0)];
-      default:
         return [1, Math.min(maxDeviceDpr, 1.5)];
+      default:
+        return [1, Math.min(maxDeviceDpr, 1.25)];
     }
   }, [graphicsQuality]);
 
   const shadowConfig = useMemo(() => {
     if (shadowQuality === 'off') return false;
     if (shadowQuality === 'low') return { type: THREE.BasicShadowMap };
-    return { type: THREE.PCFSoftShadowMap };
+    return { type: THREE.PCFShadowMap };
   }, [shadowQuality]);
 
   return (
@@ -61,7 +61,6 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
       style={{ background: '#0d1520' }}
     >
       <color attach="background" args={['#0d1520']} />
-      <fog attach="fog" args={['#1c2636', 35, 220]} />
       <Suspense fallback={null}>
         <Atmosphere />
         <Terrain />

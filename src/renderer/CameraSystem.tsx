@@ -818,13 +818,14 @@ export default function CameraSystem({
         useWorldStore.getState().setDynamicProps(updatedProps);
       }
 
-      // Sync avatar transform to Zustand store only when actually changed
+      // Sync avatar transform to Zustand store only when significantly changed or stopped
       const last = lastSyncedTransform.current;
+      const isStopped = Math.hypot(phys.vx, phys.vz) < 0.05;
+      const posDistSq = (phys.x - last.x) ** 2 + (phys.y - last.y) ** 2 + (phys.z - last.z) ** 2;
       const changed =
-        Math.abs(phys.x - last.x) > 0.005 ||
-        Math.abs(phys.y - last.y) > 0.005 ||
-        Math.abs(phys.z - last.z) > 0.005 ||
-        Math.abs(phys.rotY - last.rotY) > 0.005 ||
+        posDistSq > 0.0064 || // > 8cm displacement
+        Math.abs(phys.rotY - last.rotY) > 0.08 ||
+        (isStopped && posDistSq > 0.0001) ||
         phys.isGrounded !== last.isGrounded ||
         phys.waterState !== last.waterState;
 

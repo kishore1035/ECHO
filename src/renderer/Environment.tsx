@@ -261,7 +261,7 @@ function AnimatedWater() {
     <group position={[0, -0.05, 0]}>
       {/* ── Main Flowing Wave-Displaced River Surface ── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
-        <planeGeometry args={[250, 250, 32, 32]} />
+        <planeGeometry args={[250, 250, 18, 18]} />
         <shaderMaterial
           ref={waveMatRef}
           vertexShader={waterVertexShader}
@@ -393,23 +393,6 @@ function PlayerWake() {
   );
 }
 
-// ─── Shallow River Caustic Glow ────────────────────────────────
-
-function RiverGlow() {
-  const timeRef = useRef(0);
-  const lightRef = useRef<THREE.PointLight>(null!);
-
-  useFrame((_, delta) => {
-    timeRef.current += delta;
-    if (lightRef.current) {
-      lightRef.current.intensity = 0.6 + Math.sin(timeRef.current * 2.1) * 0.15;
-    }
-  });
-
-  return (
-    <pointLight ref={lightRef} position={[-4, 0.5, 17]} color="#2080d0" intensity={0.7} distance={12} />
-  );
-}
 
 // ─── Firefly Particles (night only) ────────────────────────────
 
@@ -742,7 +725,10 @@ function MountainGeology() {
               <boxGeometry args={[0.15, 0.22, 0.15]} />
               <meshToonMaterial color="#ffc455" emissive="#ff9812" emissiveIntensity={0.8} gradientMap={toonRamp} />
             </mesh>
-            <pointLight position={[0, 1.25, 0]} color="#ffa835" intensity={0.7} distance={7} />
+            {/* Single representative waypoint point light along the trail */}
+            {i === 2 && (
+              <pointLight position={[0, 1.25, 0]} color="#ffa835" intensity={0.8} distance={10} />
+            )}
           </group>
         );
       })}
@@ -830,9 +816,10 @@ function Landmarks() {
                 <boxGeometry args={[0.22, 0.32, 0.22]} />
                 <meshToonMaterial color="#ffbe55" emissive="#ff9510" emissiveIntensity={0.8} gradientMap={toonRamp} />
               </mesh>
-              <pointLight position={[0, 0.72, 0]} color="#ffaa35" intensity={0.65} distance={7} />
             </group>
           ))}
+          {/* Single unified warm illumination source for the bridge */}
+          <pointLight position={[0, 1.4, 0]} color="#ffaa35" intensity={0.9} distance={10} />
         </group>
       ) : (
         /* ── Collapsed / Shattered Stone Bridge Rubble ── */
@@ -945,7 +932,6 @@ export default function Environment() {
       <MountainCascade />
       <AnimatedWater />
       <PlayerWake />
-      <RiverGlow />
       <RiverDetails />
       <Landmarks />
       <ZoneLandmarks />

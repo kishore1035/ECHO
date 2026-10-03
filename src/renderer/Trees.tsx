@@ -132,7 +132,7 @@ export default function Trees() {
   return (
     <group>
       {/* ─── 1. Pine Trunks & Canopies ──────────────────────── */}
-      <Instances limit={350} receiveShadow>
+      <Instances limit={350}>
         <cylinderGeometry args={[0.1, 0.18, 1.6, 6]} />
         <meshToonMaterial color="#3b200c" gradientMap={toonRamp3} />
         {pines.map((t, i) => (
@@ -140,8 +140,8 @@ export default function Trees() {
         ))}
       </Instances>
 
-      {/* Pine Lower Canopy Tier */}
-      <Instances limit={350} castShadow>
+      {/* Pine Lower Canopy Tier (upper tier pf2 casts shadow) */}
+      <Instances limit={350}>
         <coneGeometry args={[1.05, 3.0, 7]} />
         <meshToonMaterial color="#1c4520" gradientMap={toonRamp4} />
         {pines.map((t, i) => (
@@ -149,7 +149,7 @@ export default function Trees() {
         ))}
       </Instances>
 
-      {/* Pine Upper Canopy Tier */}
+      {/* Pine Upper Canopy Tier (casts primary silhouette shadow) */}
       <Instances limit={350} castShadow>
         <coneGeometry args={[0.7, 2.2, 7]} />
         <meshToonMaterial color="#265a2c" gradientMap={toonRamp4} />
@@ -159,7 +159,7 @@ export default function Trees() {
       </Instances>
 
       {/* ─── 2. Ancient Oak Trunks & Lush Canopies ─────────── */}
-      <Instances limit={120} receiveShadow>
+      <Instances limit={120}>
         <cylinderGeometry args={[0.2, 0.3, 2.2, 7]} />
         <meshToonMaterial color="#321a08" gradientMap={toonRamp3} />
         {oaks.map((t, i) => (
@@ -177,7 +177,7 @@ export default function Trees() {
 
       {/* ─── 3. Slender Birch Trunks & Golden Foliage ────────── */}
       {/* Birch Pale Bark Trunk */}
-      <Instances limit={120} receiveShadow>
+      <Instances limit={120}>
         <cylinderGeometry args={[0.08, 0.12, 2.4, 6]} />
         <meshToonMaterial color="#dbe2d6" gradientMap={toonRamp3} />
         {birches.map((t, i) => (
@@ -195,7 +195,7 @@ export default function Trees() {
       </Instances>
 
       {/* ─── 4. Warm Autumn Amber Oaks ─────────────────────── */}
-      <Instances limit={80} receiveShadow>
+      <Instances limit={80}>
         <cylinderGeometry args={[0.18, 0.26, 2.0, 6]} />
         <meshToonMaterial color="#321a08" gradientMap={toonRamp3} />
         {autumnOaks.map((t, i) => (
