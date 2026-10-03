@@ -308,7 +308,7 @@ function VillageZone() {
       {/* ── Village Lantern Posts (Warm Ambient Streetlamps) ── */}
       {[
         { x: 1.8, z: 4.8 },
-        { x: 4.2, z: 5.6 },
+        { x: 5.4, z: 2.8 },
         { x: 5.5, z: 8.5 },
         { x: 6.8, z: 7.2 },
       ].map((pt, i) => {

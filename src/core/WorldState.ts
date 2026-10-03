@@ -164,13 +164,13 @@ function createInitialEntities(): Record<string, Entity> {
     {
       type: 'villager',
       name: 'Rowan the Miller',
-      position: { x: 5, y: 0, z: 5 },
-      rotationY: 0,
+      position: { x: 3.8, y: 0, z: 4.0 },
+      rotationY: -2.3, // Facing South-West toward the river path where the player arrives
       health: 100,
       maxHealth: 100,
       factionId: 'neutral',
-      aiState: 'wandering',
-      idleTimer: 2,
+      aiState: 'idle',
+      idleTimer: 6,
       moveSpeed: 1.6,
       category: 'character',
       isVIP: true,

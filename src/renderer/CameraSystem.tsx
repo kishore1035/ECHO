@@ -1021,6 +1021,11 @@ export default function CameraSystem({
         let targetCamZ = Sz + faceForwardZ * camDist + facePerpZ * subtleAngle;
         let targetCamY = sHeadY - 0.02;
 
+        // Avoid obstacle & structure clipping
+        const resolvedCam = resolveCollision(targetCamX, targetCamZ, 0.6);
+        targetCamX = resolvedCam.x;
+        targetCamZ = resolvedCam.z;
+
         // Avoid terrain clipping
         const terrainH = getTerrainHeight(targetCamX, targetCamZ);
         if (targetCamY < terrainH + 0.55) {
