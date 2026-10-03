@@ -5,7 +5,7 @@
 // ============================================================
 
 import { useEffect, useState, useRef } from 'react';
-import { HELP_SECTIONS, type HelpSection } from './helpContent';
+import { HELP_SECTIONS, type HelpSection, getDynamicControlsList } from './helpContent';
 import { playMenuHover, playMenuSelect, playMenuBack } from '../core/soundFX';
 
 interface HelpModalProps {
@@ -404,7 +404,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
             )}
 
             {/* Controls Table (if available) */}
-            {activeSection.controls && (
+            {Boolean(activeSection.controls) && (
               <div
                 style={{
                   background: 'rgba(8, 14, 26, 0.75)',
@@ -415,7 +415,10 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                   flexDirection: 'column',
                 }}
               >
-                {activeSection.controls.map((ctrl, i) => (
+                {(activeSection.id === 'movement'
+                  ? getDynamicControlsList()
+                  : activeSection.controls!
+                ).map((ctrl, i, arr) => (
                   <div
                     key={i}
                     style={{
@@ -424,7 +427,7 @@ export default function HelpModal({ onClose }: HelpModalProps) {
                       justifyContent: 'space-between',
                       padding: '8px 4px',
                       borderBottom:
-                        i < activeSection.controls!.length - 1
+                        i < arr.length - 1
                           ? '1px solid rgba(255, 255, 255, 0.05)'
                           : 'none',
                     }}

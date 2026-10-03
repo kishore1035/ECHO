@@ -18,12 +18,14 @@ interface PauseMenuProps {
 export default function PauseMenu({ onResume, onReturnToTitle }: PauseMenuProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeModal, setActiveModal] = useState<'save' | 'load' | 'options' | 'help' | null>(null);
+  const [optionsTab, setOptionsTab] = useState<'preferences' | 'controls'>('preferences');
 
   const MENU_ITEMS = [
     { label: 'RESUME', action: () => onResume() },
     { label: 'SAVE GAME', action: () => setActiveModal('save') },
     { label: 'LOAD GAME', action: () => setActiveModal('load') },
-    { label: 'OPTIONS', action: () => setActiveModal('options') },
+    { label: 'OPTIONS', action: () => { setOptionsTab('preferences'); setActiveModal('options'); } },
+    { label: 'CONTROLS', action: () => { setOptionsTab('controls'); setActiveModal('options'); } },
     { label: 'HELP', action: () => setActiveModal('help') },
     {
       label: 'RESTART CHECKPOINT',
@@ -134,7 +136,7 @@ export default function PauseMenu({ onResume, onReturnToTitle }: PauseMenuProps)
         />
       )}
       {activeModal === 'options' && (
-        <OptionsMenu onClose={() => setActiveModal(null)} />
+        <OptionsMenu initialTab={optionsTab} onClose={() => setActiveModal(null)} />
       )}
       {activeModal === 'help' && (
         <HelpModal onClose={() => setActiveModal(null)} />

@@ -15,6 +15,7 @@
 
 import { useTimelineStore, TimelineSystem } from '../systems/TimelineSystem';
 import { useEchoTreeStore } from '../core/echoTreeState';
+import { useControlsStore } from '../core/controls/controlsStore';
 
 function formatClock(hours: number): string {
   const h = Math.floor(hours);
@@ -475,7 +476,7 @@ export default function TimelinePanel() {
           }}
         >
           <div style={{ fontSize: 10, color: '#64748b', letterSpacing: '0.06em' }}>
-            PRESS ESC OR CLICK "STEP AWAY" TO EXIT COMMUNION
+            PRESS {useControlsStore.getState().getBindingDisplay('timelineBack')} OR CLICK "STEP AWAY" TO EXIT COMMUNION
           </div>
           <button
             onClick={closeInteraction}

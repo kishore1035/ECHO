@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useEffect, useState } from 'react';
+import ControlsSettings from './ControlsSettings';
 import {
   useSettingsStore,
   type GraphicsQuality,
@@ -16,10 +17,12 @@ import { playMenuHover, playMenuSelect, playMenuBack } from '../core/soundFX';
 
 interface OptionsMenuProps {
   onClose: () => void;
+  initialTab?: 'preferences' | 'controls';
 }
 
-export default function OptionsMenu({ onClose }: OptionsMenuProps) {
+export default function OptionsMenu({ onClose, initialTab = 'preferences' }: OptionsMenuProps) {
   const settings = useSettingsStore();
+  const [activeTab, setActiveTab] = useState<'preferences' | 'controls'>(initialTab);
   const [selectedRow, setSelectedRow] = useState(0);
 
   const OPTIONS_ROWS = [
@@ -38,6 +41,8 @@ export default function OptionsMenu({ onClose }: OptionsMenuProps) {
 
   // Keyboard navigation
   useEffect(() => {
+    if (activeTab === 'controls') return; // Handled by ControlsSettings
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
         e.preventDefault();
@@ -68,7 +73,7 @@ export default function OptionsMenu({ onClose }: OptionsMenuProps) {
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedRow, settings]);
+  }, [selectedRow, settings, activeTab]);
 
   const adjustCurrentOption = (direction: -1 | 1) => {
     playMenuSelect();
@@ -205,154 +210,214 @@ export default function OptionsMenu({ onClose }: OptionsMenuProps) {
           </button>
         </div>
 
-        {/* Options List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {/* Graphics Quality */}
-          <OptionRow
-            label="Graphics Quality"
-            hint="Overall procedural LOD & render detail"
-            value={settings.graphicsQuality.toUpperCase()}
-            isSelected={selectedRow === 0}
-            onSelect={() => setSelectedRow(0)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Shadows */}
-          <OptionRow
-            label="Shadows"
-            hint="PCF soft shadow maps resolution"
-            value={settings.shadows.toUpperCase()}
-            isSelected={selectedRow === 1}
-            onSelect={() => setSelectedRow(1)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Effects */}
-          <OptionRow
-            label="Effects"
-            hint="Atmospheric dust, rain particles, and fog volumetric"
-            value={settings.effects.toUpperCase()}
-            isSelected={selectedRow === 2}
-            onSelect={() => setSelectedRow(2)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Time Scale */}
-          <OptionRow
-            label="Time Scale"
-            hint="1.0x = 1 real min / game hr (24 min day). Also 0.5x, 2.0x"
-            value={`${settings.timeScale ?? 1.0}x`}
-            isSelected={selectedRow === 3}
-            onSelect={() => setSelectedRow(3)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Master Volume */}
-          <SliderOptionRow
-            label="Master Volume"
-            value={settings.masterVolume}
-            isSelected={selectedRow === 4}
-            onSelect={() => setSelectedRow(4)}
-            onChange={(val) => settings.updateSettings({ masterVolume: val })}
-          />
-
-          {/* Music Volume */}
-          <SliderOptionRow
-            label="Music Volume"
-            value={settings.musicVolume}
-            isSelected={selectedRow === 5}
-            onSelect={() => setSelectedRow(5)}
-            onChange={(val) => settings.updateSettings({ musicVolume: val })}
-          />
-
-          {/* SFX Volume */}
-          <SliderOptionRow
-            label="SFX Volume"
-            value={settings.sfxVolume}
-            isSelected={selectedRow === 6}
-            onSelect={() => setSelectedRow(6)}
-            onChange={(val) => settings.updateSettings({ sfxVolume: val })}
-          />
-
-          {/* Camera Sensitivity */}
-          <OptionRow
-            label="Camera Sensitivity"
-            hint="Orbit and mouse look speed multiplier"
-            value={`${settings.cameraSensitivity}x`}
-            isSelected={selectedRow === 7}
-            onSelect={() => setSelectedRow(7)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Voice Sensitivity */}
-          <OptionRow
-            label="Voice Sensitivity"
-            hint="Speech recognition audio gating threshold"
-            value={settings.voiceSensitivity.toUpperCase()}
-            isSelected={selectedRow === 8}
-            onSelect={() => setSelectedRow(8)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* Subtitles */}
-          <OptionRow
-            label="Subtitles"
-            hint="Display character dialogue barks on HUD"
-            value={settings.subtitles ? 'ON' : 'OFF'}
-            isSelected={selectedRow === 9}
-            onSelect={() => setSelectedRow(9)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-
-          {/* UI Scale */}
-          <OptionRow
-            label="UI Scale"
-            hint="Size of HUD and dialog overlays"
-            value={settings.uiScale.toUpperCase()}
-            isSelected={selectedRow === 10}
-            onSelect={() => setSelectedRow(10)}
-            onLeft={() => adjustCurrentOption(-1)}
-            onRight={() => adjustCurrentOption(1)}
-          />
-        </div>
-
-        {/* Footer controls hint & Reset */}
+        {/* ── Tab Switcher: PREFERENCES / CONTROLS ── */}
         <div
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: 10,
-            color: '#64748b',
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-            paddingTop: 12,
+            gap: 8,
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            paddingBottom: 10,
           }}
         >
-          <span>[↑/↓] Navigate • [←/→] Adjust • [ESC] Back</span>
           <button
             onClick={() => {
-              playMenuBack();
-              settings.resetSettings();
+              playMenuHover();
+              setActiveTab('preferences');
             }}
             style={{
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: 10,
-              textDecoration: 'underline',
+              background: activeTab === 'preferences' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(255, 255, 255, 0.04)',
+              border: `1px solid ${activeTab === 'preferences' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(255, 255, 255, 0.08)'}`,
+              borderRadius: 4,
+              color: activeTab === 'preferences' ? '#38bdf8' : '#94a3b8',
+              padding: '6px 16px',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
               cursor: 'pointer',
+              transition: 'all 0.15s ease',
             }}
           >
-            Reset to Defaults
+            PREFERENCES
+          </button>
+          <button
+            onClick={() => {
+              playMenuHover();
+              setActiveTab('controls');
+            }}
+            style={{
+              background: activeTab === 'controls' ? 'rgba(56, 189, 248, 0.16)' : 'rgba(255, 255, 255, 0.04)',
+              border: `1px solid ${activeTab === 'controls' ? 'rgba(56, 189, 248, 0.45)' : 'rgba(255, 255, 255, 0.08)'}`,
+              borderRadius: 4,
+              color: activeTab === 'controls' ? '#38bdf8' : '#94a3b8',
+              padding: '6px 16px',
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            CONTROLS
           </button>
         </div>
+
+        {/* ── Content View ── */}
+        {activeTab === 'controls' ? (
+          <div style={{ flex: 1, minHeight: 420, display: 'flex', flexDirection: 'column' }}>
+            <ControlsSettings onBack={onClose} />
+          </div>
+        ) : (
+          <>
+            {/* Options List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {/* Graphics Quality */}
+              <OptionRow
+                label="Graphics Quality"
+                hint="Overall procedural LOD & render detail"
+                value={settings.graphicsQuality.toUpperCase()}
+                isSelected={selectedRow === 0}
+                onSelect={() => setSelectedRow(0)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Shadows */}
+              <OptionRow
+                label="Shadows"
+                hint="PCF soft shadow maps resolution"
+                value={settings.shadows.toUpperCase()}
+                isSelected={selectedRow === 1}
+                onSelect={() => setSelectedRow(1)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Effects */}
+              <OptionRow
+                label="Effects"
+                hint="Atmospheric dust, rain particles, and fog volumetric"
+                value={settings.effects.toUpperCase()}
+                isSelected={selectedRow === 2}
+                onSelect={() => setSelectedRow(2)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Time Scale */}
+              <OptionRow
+                label="Time Scale"
+                hint="1.0x = 1 real min / game hr (24 min day). Also 0.5x, 2.0x"
+                value={`${settings.timeScale ?? 1.0}x`}
+                isSelected={selectedRow === 3}
+                onSelect={() => setSelectedRow(3)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Master Volume */}
+              <SliderOptionRow
+                label="Master Volume"
+                value={settings.masterVolume}
+                isSelected={selectedRow === 4}
+                onSelect={() => setSelectedRow(4)}
+                onChange={(val) => settings.updateSettings({ masterVolume: val })}
+              />
+
+              {/* Music Volume */}
+              <SliderOptionRow
+                label="Music Volume"
+                value={settings.musicVolume}
+                isSelected={selectedRow === 5}
+                onSelect={() => setSelectedRow(5)}
+                onChange={(val) => settings.updateSettings({ musicVolume: val })}
+              />
+
+              {/* SFX Volume */}
+              <SliderOptionRow
+                label="SFX Volume"
+                value={settings.sfxVolume}
+                isSelected={selectedRow === 6}
+                onSelect={() => setSelectedRow(6)}
+                onChange={(val) => settings.updateSettings({ sfxVolume: val })}
+              />
+
+              {/* Camera Sensitivity */}
+              <OptionRow
+                label="Camera Sensitivity"
+                hint="Orbit and mouse look speed multiplier"
+                value={`${settings.cameraSensitivity}x`}
+                isSelected={selectedRow === 7}
+                onSelect={() => setSelectedRow(7)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Voice Sensitivity */}
+              <OptionRow
+                label="Voice Sensitivity"
+                hint="Speech recognition audio gating threshold"
+                value={settings.voiceSensitivity.toUpperCase()}
+                isSelected={selectedRow === 8}
+                onSelect={() => setSelectedRow(8)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* Subtitles */}
+              <OptionRow
+                label="Subtitles"
+                hint="Display character dialogue barks on HUD"
+                value={settings.subtitles ? 'ON' : 'OFF'}
+                isSelected={selectedRow === 9}
+                onSelect={() => setSelectedRow(9)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+
+              {/* UI Scale */}
+              <OptionRow
+                label="UI Scale"
+                hint="Size of HUD and dialog overlays"
+                value={settings.uiScale.toUpperCase()}
+                isSelected={selectedRow === 10}
+                onSelect={() => setSelectedRow(10)}
+                onLeft={() => adjustCurrentOption(-1)}
+                onRight={() => adjustCurrentOption(1)}
+              />
+            </div>
+
+            {/* Footer controls hint & Reset */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                fontSize: 10,
+                color: '#64748b',
+                borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                paddingTop: 12,
+              }}
+            >
+              <span>[↑/↓] Navigate • [←/→] Adjust • [ESC] Back</span>
+              <button
+                onClick={() => {
+                  playMenuBack();
+                  settings.resetSettings();
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#94a3b8',
+                  fontSize: 10,
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                }}
+              >
+                Reset to Defaults
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

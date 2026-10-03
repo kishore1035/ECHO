@@ -27,6 +27,7 @@ import {
 import type { WaterDepthState } from '../core/types';
 import { liveEntityTransforms } from './EntityMesh';
 import { useEchoTreeStore } from '../core/echoTreeState';
+import { isActionHeld, matchesAction } from '../core/controls/InputManager';
 
 
 // Reusable scratch vectors to avoid per-frame allocations & GC pauses
@@ -290,16 +291,24 @@ export default function CameraSystem({
       const k = e.key.toLowerCase();
       const code = e.code.toLowerCase();
 
-      // Toggle God View vs Avatar View with V
-      if (k === 'v' || code === 'keyv') {
+      // Toggle God View vs Avatar View (Camera Toggle action)
+      if (matchesAction('toggleCamera', e)) {
         e.preventDefault();
         if (modeRef.current === 'orbit') switchToAvatar();
         else switchToOrbit();
         return;
       }
 
-      // Jump in Avatar View or Swim Up in Water (Space or J)
-      if ((k === 'j' || k === ' ' || code === 'space') && modeRef.current === 'firstPerson') {
+      // Camera Reset action
+      if (matchesAction('cameraReset', e)) {
+        e.preventDefault();
+        playerPhys.current.pitch = 0.28;
+        playerPhys.current.yaw = playerPhys.current.rotY;
+        return;
+      }
+
+      // Jump in Avatar View or Swim Up in Water (Jump action)
+      if (matchesAction('jump', e) && modeRef.current === 'firstPerson') {
         const p = playerPhys.current;
         if (p.waterState === 'swimming' || p.waterState === 'underwater') {
           p.vy = 3.6; // Swim upward
@@ -508,10 +517,10 @@ export default function CameraSystem({
       }
     }
 
-    const isW = keys.has('w') || keys.has('keyw') || keys.has('arrowup');
-    const isS = keys.has('s') || keys.has('keys') || keys.has('arrowdown');
-    const isA = keys.has('a') || keys.has('keya') || keys.has('arrowleft');
-    const isD = keys.has('d') || keys.has('keyd') || keys.has('arrowright');
+    const isW = isActionHeld('moveForward') || keys.has('w') || keys.has('keyw') || keys.has('arrowup');
+    const isS = isActionHeld('moveBackward') || keys.has('s') || keys.has('keys') || keys.has('arrowdown');
+    const isA = isActionHeld('moveLeft') || keys.has('a') || keys.has('keya') || keys.has('arrowleft');
+    const isD = isActionHeld('moveRight') || keys.has('d') || keys.has('keyd') || keys.has('arrowright');
     const isShift = keys.has('shift') || keys.has('shiftleft') || keys.has('shiftright');
 
     // ── Mode 1: GOD / ORBIT VIEW — WASD PANS THE WORLD ────────

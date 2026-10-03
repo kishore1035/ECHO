@@ -1,5 +1,6 @@
 import { useWorldStore } from '../core/WorldState';
 import { useEchoTreeStore } from '../core/echoTreeState';
+import { useControlsStore } from '../core/controls/controlsStore';
 
 function formatGameTime(hours: number): string {
   const h = Math.floor(hours);
@@ -44,10 +45,11 @@ export default function HUD() {
     return null;
   }
 
+  const interactKey = useControlsStore.getState().getBindingDisplay('interact');
   const interactionPrompt = isNearEchoTree
-    ? '[E] TOUCH THE ECHO TREE'
+    ? `[${interactKey}] TOUCH THE ECHO TREE`
     : targetNpc
-    ? `[E] TALK TO ${targetNpc}`
+    ? `[${interactKey}] TALK TO ${targetNpc}`
     : '';
 
   return (

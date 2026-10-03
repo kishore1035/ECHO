@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useCampaignStore, CampaignSystem } from '../campaign/CampaignSystem';
 import type { DialogueChoice, DialogueLine } from '../campaign/types';
 import { playMenuHover, playMenuSelect } from '../core/soundFX';
+import { matchesAction } from '../core/controls/InputManager';
 
 // Restrained authored color palette for character pill headers
 const SPEAKER_THEMES: Record<string, { bg: string; text: string; border: string }> = {
@@ -149,7 +150,7 @@ export default function DialogueBox() {
 
       if (hasChoices && !isTyping) {
         const choiceCount = currentLine.choices!.length;
-        if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        if (matchesAction('dialoguePrevChoice', e)) {
           e.preventDefault();
           setSelectedChoiceIndex((i) => {
             const next = (i - 1 + choiceCount) % choiceCount;
@@ -157,13 +158,17 @@ export default function DialogueBox() {
             return next;
           });
           return;
-        } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        } else if (matchesAction('dialogueNextChoice', e)) {
           e.preventDefault();
           setSelectedChoiceIndex((i) => {
             const next = (i + 1) % choiceCount;
             playMenuHover();
             return next;
           });
+          return;
+        } else if (matchesAction('dialogueConfirm', e)) {
+          e.preventDefault();
+          handleSelectChoice(currentLine.choices![selectedChoiceIndex]);
           return;
         } else if (e.key >= '1' && e.key <= String(choiceCount)) {
           e.preventDefault();
@@ -173,10 +178,10 @@ export default function DialogueBox() {
         }
       }
 
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (matchesAction('dialogueAdvance', e)) {
         e.preventDefault();
         handleAdvance();
-      } else if (e.key === 'Escape') {
+      } else if (matchesAction('dialogueBack', e)) {
         e.preventDefault();
         if (!isTyping) {
           CampaignSystem.closeDialogue();

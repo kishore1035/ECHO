@@ -24,6 +24,7 @@ import { buildRowanAndMiraDialogue, buildMission4CommunionDialogue } from './cam
 import { playEchoChime } from './core/soundFX';
 import TimelinePanel from './ui/TimelinePanel';
 import { useEchoTreeStore } from './core/echoTreeState';
+import { matchesAction } from './core/controls/InputManager';
 import './index.css';
 
 import { isSaveLoadActive } from './core/timeSystem';
@@ -75,23 +76,23 @@ export default function App() {
 
       const isDialogueOpen = Boolean(useCampaignStore.getState().activeDialogue);
 
-      // Escape: Close Echo Tree communion if active
-      if (e.code === 'Escape' && useEchoTreeStore.getState().isInteracting) {
+      // Back / Escape: Close Echo Tree communion if active
+      if (matchesAction('timelineBack', e) && useEchoTreeStore.getState().isInteracting) {
         e.preventDefault();
         useEchoTreeStore.getState().closeInteraction();
         return;
       }
 
-      // Escape during gameplay pauses the game
-      if (e.code === 'Escape' && gameState === 'playing' && !isDialogueOpen) {
+      // Pause during gameplay
+      if (matchesAction('pause', e) && gameState === 'playing' && !isDialogueOpen) {
         e.preventDefault();
         setGameState('paused');
         useWorldStore.getState().setTime({ isPaused: true });
         return;
       }
 
-      // Spacebar Push-to-Talk (only active during gameplay when dialogue is NOT active)
-      if (e.code === 'Space' && gameState === 'playing' && !isDialogueOpen) {
+      // Voice Push-to-Talk (only active during gameplay when dialogue is NOT active)
+      if (matchesAction('voicePushToTalk', e) && gameState === 'playing' && !isDialogueOpen) {
         e.preventDefault();
         if (!isHoldingRef.current) {
           isHoldingRef.current = true;
@@ -99,16 +100,16 @@ export default function App() {
         }
       }
 
-      // 'E' Key: Interact with Echo Tree OR talk with nearby characters
+      // Interact: Interact with Echo Tree OR talk with nearby characters
       if (
-        (e.code === 'KeyE' || e.key === 'e' || e.key === 'E') &&
+        matchesAction('interact', e) &&
         gameState === 'playing' &&
         !isDialogueOpen
       ) {
         // If near Echo Tree, commune with the physical anchor
         if (useEchoTreeStore.getState().isNear) {
           const campaign = useCampaignStore.getState();
-          // In Mission 4: Before the revelation is learned, E triggers intimate cinematic communion
+          // In Mission 4: Before the revelation is learned, interact triggers intimate cinematic communion
           if (
             campaign.activeMissionId === 'm4_anchor_architect' &&
             !campaign.storyFlags['architect_revelation_learned']
@@ -122,7 +123,7 @@ export default function App() {
           return;
         }
 
-        // If currently communing with Echo Tree, close it on E
+        // If currently communing with Echo Tree, close it on interact
         if (useEchoTreeStore.getState().isInteracting) {
           useEchoTreeStore.getState().closeInteraction();
           return;
@@ -145,9 +146,9 @@ export default function App() {
         }
       }
 
-      // R Key Rewind: ONLY permitted while communing with the Echo Tree
+      // Timeline Rewind: ONLY permitted while communing with the Echo Tree
       if (
-        e.code === 'KeyR' &&
+        matchesAction('timelineRewind', e) &&
         gameState === 'playing' &&
         !isDialogueOpen &&
         !e.ctrlKey &&
@@ -161,7 +162,7 @@ export default function App() {
 
     const onKeyUp = (e: KeyboardEvent) => {
       const isDialogueOpen = Boolean(useCampaignStore.getState().activeDialogue);
-      if (e.code === 'Space' && gameState === 'playing' && !isDialogueOpen) {
+      if (matchesAction('voicePushToTalk', e) && gameState === 'playing' && !isDialogueOpen) {
         e.preventDefault();
         if (isHoldingRef.current) {
           isHoldingRef.current = false;

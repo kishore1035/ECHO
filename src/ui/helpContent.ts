@@ -177,3 +177,32 @@ export const HELP_SECTIONS: HelpSection[] = [
     },
   },
 ];
+
+import { useControlsStore } from '../core/controls/controlsStore';
+
+export function getDynamicControlsList(): ControlBinding[] {
+  const store = useControlsStore.getState();
+  const fwd = store.getBindingDisplay('moveForward');
+  const bwd = store.getBindingDisplay('moveBackward');
+  const lft = store.getBindingDisplay('moveLeft');
+  const rgt = store.getBindingDisplay('moveRight');
+  const jump = store.getBindingDisplay('jump');
+  const interact = store.getBindingDisplay('interact');
+  const voice = store.getBindingDisplay('voicePushToTalk');
+  const rewind = store.getBindingDisplay('timelineRewind');
+  const pause = store.getBindingDisplay('pause');
+  const toggleCam = store.getBindingDisplay('toggleCamera');
+
+  return [
+    { input: `${fwd} / ${lft} / ${bwd} / ${rgt}`, action: 'Move character in world space' },
+    { input: jump, action: 'Jump on land / swim upward in water' },
+    { input: toggleCam, action: 'Toggle between third-person and orbit camera' },
+    { input: 'Mouse Look / Orbit', action: 'Rotate camera view around the protagonist' },
+    { input: 'Scroll Wheel', action: 'Zoom camera distance in / out' },
+    { input: interact, action: 'Interact with Echo Tree or speak with characters' },
+    { input: `${voice} (Hold)`, action: 'Push-to-Talk: speak Echo voice command' },
+    { input: rewind, action: 'Timeline rewind when communing at Echo Tree' },
+    { input: pause, action: 'Pause simulation and open system menu' },
+  ];
+}
+
