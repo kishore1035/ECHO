@@ -256,4 +256,4 @@ The test suite validates:
 
 ## License
 
-Private repository. All rights reserved. Built with Antigravity and React Three Fiber.
+Private repository. All rights reserved. Built with React Three Fiber.
