@@ -1,4 +1,7 @@
 import { useWorldStore } from '../core/WorldState';
+import { useEchoTreeStore } from '../core/echoTreeState';
+import { useCampaignStore } from '../campaign/CampaignSystem';
+import { useControlsStore } from '../core/controls/controlsStore';
 import type { VoiceStatus } from '../core/types';
 
 // ─── Status config ────────────────────────────────────────────
@@ -7,7 +10,7 @@ const STATUS_CONFIG: Record<
   VoiceStatus,
   { label: string; color: string; glow: string; pulse: boolean; spin: boolean }
 > = {
-  idle:       { label: 'HOLD SPACE TO COMMAND', color: '#8090a8', glow: 'transparent',     pulse: false, spin: false },
+  idle:       { label: '',                       color: '#8090a8', glow: 'transparent',     pulse: false, spin: false },
   listening:  { label: 'LISTENING...',           color: '#ff4060', glow: '#ff406040',       pulse: true,  spin: false },
   processing: { label: 'PROCESSING...',          color: '#f0b820', glow: '#f0b82040',       pulse: false, spin: true  },
   success:    { label: 'COMMAND EXECUTED',       color: '#40c870', glow: '#40c87040',       pulse: false, spin: false },
@@ -53,7 +56,34 @@ export default function VoiceIndicator() {
   const lastCommand = useWorldStore((s) => s.voice.lastCommand);
   const lastError = useWorldStore((s) => s.voice.lastError);
 
+  const isNearTree = useEchoTreeStore((s) => s.isNear);
+  const activeMissionId = useCampaignStore((s) => s.activeMissionId);
+
+  const targetNpc = useWorldStore((s) => {
+    const p = s.player.position;
+    for (const ent of Object.values(s.entities)) {
+      if (ent.name.includes('Rowan') || ent.name.includes('Mira')) {
+        const dist = Math.hypot(p.x - ent.position.x, p.z - ent.position.z);
+        if (dist <= 7.0) return true;
+      }
+    }
+    return false;
+  });
+
+  const voiceKey = useControlsStore((s) => s.getBindingDisplay('voicePushToTalk')) || 'SPACE';
+
+  // Contextual command guidance for idle state
+  let idleLabel = `HOLD [${voiceKey}] TO COMMAND`;
+  if (isNearTree) {
+    idleLabel = `HOLD [${voiceKey}] • "COMMUNE" • "RESTORE" • "REWIND"`;
+  } else if (activeMissionId === 'm3_battle_for_the_mill') {
+    idleLabel = `HOLD [${voiceKey}] • "FREEZE" • "DEFEND" • "REWIND"`;
+  } else if (targetNpc) {
+    idleLabel = `HOLD [${voiceKey}] • "TALK" • "WARM" • "GUIDE"`;
+  }
+
   const cfg = STATUS_CONFIG[status];
+  const labelText = status === 'idle' ? idleLabel : cfg.label;
 
   const displayText =
     status === 'listening'  ? (transcript || '...') :
@@ -107,11 +137,11 @@ export default function VoiceIndicator() {
           display: 'flex',
           alignItems: 'center',
           gap: 10,
-          background: 'rgba(6,12,24,0.82)',
+          background: 'rgba(6,12,24,0.85)',
           backdropFilter: 'blur(16px)',
           border: `1px solid ${cfg.color}40`,
           borderRadius: 999,
-          padding: '9px 20px',
+          padding: '8px 22px',
           boxShadow: `0 0 20px ${cfg.glow}, inset 0 1px 0 rgba(255,255,255,0.06)`,
           animation: cfg.pulse ? 'vw-pulse 1.1s ease-in-out infinite' : 'none',
           transition: 'border-color 0.3s, box-shadow 0.3s',
@@ -121,21 +151,21 @@ export default function VoiceIndicator() {
         {cfg.spin ? (
           <Spinner color={cfg.color} />
         ) : (
-          <MicIcon color={cfg.color} />
+          <MicIcon color={status === 'idle' ? 'var(--gold, #e8c84a)' : cfg.color} />
         )}
 
         {/* Status label */}
         <span
           style={{
-            color: cfg.color,
-            fontFamily: '"Inter", sans-serif',
+            color: status === 'idle' ? '#94a3b8' : cfg.color,
+            fontFamily: 'var(--font-ui, "Inter", sans-serif)',
             fontSize: 11,
             fontWeight: 700,
             letterSpacing: '0.12em',
             transition: 'color 0.3s',
           }}
         >
-          {cfg.label}
+          {labelText}
         </span>
 
         {/* Live dot for listening */}
