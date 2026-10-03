@@ -15,42 +15,7 @@ import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
 import { getChronalRuneTexture } from './StylizedMaterials';
 import { chromaState } from './PostFX';
-
-
-// Procedural subtle temporal rewind sound using Web Audio API
-function playTemporalSound() {
-  try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    osc.type = 'sine';
-    // Pitch drops then rises smoothly like tape reversing
-    osc.frequency.setValueAtTime(320, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.35);
-    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.7);
-
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(600, ctx.currentTime);
-    filter.frequency.exponentialRampToValueAtTime(2200, ctx.currentTime + 0.6);
-
-    gain.gain.setValueAtTime(0.01, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.2);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.85);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.85);
-  } catch {
-    // AudioContext blocked or unsupported, silently skip
-  }
-}
+import { playEchoShockwave, playTemporalSound } from '../core/soundFX';
 
 export default function EchoVFX() {
   const voiceStatus = useWorldStore((s) => s.voice.status);
@@ -110,6 +75,7 @@ export default function EchoVFX() {
         startTime: performance.now(),
         isMajor,
       });
+      playEchoShockwave(isMajor ? 1.0 : 0.45);
     }
   }, [voiceStatus, lastCommand]);
 

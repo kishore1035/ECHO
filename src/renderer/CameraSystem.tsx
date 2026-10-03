@@ -23,6 +23,7 @@ import {
   setUnderwaterAudio,
   playCombatHit,
   playDestructionSound,
+  setTensionHeartbeat,
 } from '../core/soundFX';
 import type { WaterDepthState } from '../core/types';
 import { liveEntityTransforms } from './EntityMesh';
@@ -588,6 +589,12 @@ export default function CameraSystem({
       // Underwater audio muffled lowpass filter
       setUnderwaterAudio(currentWaterState === 'underwater');
 
+      // Tension / Combat heartbeat audio
+      const currentChaos = useWorldStore.getState().chaosScore;
+      const isM3Active = useCampaignStore.getState().activeMissionId === 'm3_battle_for_the_mill';
+      const isTensionActive = currentChaos > 35 || isM3Active;
+      setTensionHeartbeat(isTensionActive, Math.min(125, 72 + Math.floor(currentChaos * 0.55)));
+
       let targetMoveX = 0;
       let targetMoveZ = 0;
 
@@ -756,7 +763,13 @@ export default function CameraSystem({
             if (currentWaterState === 'shallow') {
               playFootstep('water');
             } else {
-              playFootstep('grass');
+              const isStone =
+                (!useWorldStore.getState().bridgeDestroyed &&
+                  Math.hypot(phys.x - (-8), phys.z - 5) < 5.5) ||
+                Math.hypot(phys.x - (-4.5), phys.z - 9.5) < 7.0 ||
+                Math.hypot(phys.x - 3, phys.z - 6) < 4.0 ||
+                (phys.x > 8 && phys.z < -6 && phys.y > 6.0);
+              playFootstep(isStone ? 'stone' : 'grass');
             }
           }
         }

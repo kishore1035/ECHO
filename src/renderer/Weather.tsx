@@ -1,8 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
-import { playThunder } from '../core/soundFX';
+import { playThunder, updateWindAmbience, stopWindAmbience } from '../core/soundFX';
 import { shouldWorldTimeProgress } from '../core/timeSystem';
 
 // ─── Rain Falling Drops ───────────────────────────────────────
@@ -182,11 +182,26 @@ export default function WeatherSystem() {
 
   const _scratchFogColor = useMemo(() => new THREE.Color(), []);
 
+  useEffect(() => {
+    return () => {
+      stopWindAmbience();
+    };
+  }, []);
+
   useFrame((_, delta) => {
     if (!fogRef.current) return;
 
     // Check if camera or player is underwater
     const isUnderwater = playerWaterState === 'underwater' || camera.position.y < -0.15;
+
+    // Procedural wind audio: calm breeze to ferocious howling storm
+    if (isUnderwater) {
+      updateWindAmbience(0, false);
+    } else {
+      const windIntensity =
+        weatherType === 'storm' ? 1.0 : weatherType === 'rain' ? 0.6 : weatherType === 'fog' ? 0.2 : 0.25;
+      updateWindAmbience(windIntensity, weatherType === 'storm');
+    }
 
     let targetNear = 65;
     let targetFar = 220;

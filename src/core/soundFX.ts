@@ -14,6 +14,12 @@ class SoundFXEngine {
   private lastSwimTime = 0;
   private ambienceOsc: OscillatorNode | null = null;
   private ambienceGain: GainNode | null = null;
+  private windSource: AudioBufferSourceNode | null = null;
+  private windFilter: BiquadFilterNode | null = null;
+  private windGain: GainNode | null = null;
+  private isWindRunning = false;
+  private heartbeatTimer: any = null;
+  private isHeartbeatRunning = false;
 
   private init() {
     if (this.ctx) return;
@@ -603,6 +609,201 @@ class SoundFXEngine {
       osc.stop(t + 2.5);
     });
   }
+
+  // ─── 11. Ambient Procedural Wind System ──────────────────────
+  updateWindAmbience(intensity: number, stormActive: boolean) {
+    const ctx = this.ensureContext();
+    if (!ctx || !this.underwaterFilter) return;
+
+    try {
+      const t = ctx.currentTime;
+
+      // Start looping wind buffer if not yet running
+      if (!this.isWindRunning || !this.windSource) {
+        const noiseBuffer = this.createNoiseBuffer(4.0);
+        if (!noiseBuffer) return;
+
+        this.windSource = ctx.createBufferSource();
+        this.windSource.buffer = noiseBuffer;
+        this.windSource.loop = true;
+
+        this.windFilter = ctx.createBiquadFilter();
+        this.windFilter.type = 'bandpass';
+        this.windFilter.frequency.setValueAtTime(450, t);
+        this.windFilter.Q.setValueAtTime(1.8, t);
+
+        this.windGain = ctx.createGain();
+        this.windGain.gain.setValueAtTime(0.001, t);
+
+        this.windSource.connect(this.windFilter);
+        this.windFilter.connect(this.windGain);
+        this.windGain.connect(this.underwaterFilter);
+
+        this.windSource.start(t);
+        this.isWindRunning = true;
+      }
+
+      if (this.windFilter && this.windGain) {
+        const targetFreq = stormActive ? 750 + intensity * 600 : 320 + intensity * 350;
+        const targetGain = stormActive
+          ? Math.min(0.22, 0.08 + intensity * 0.14)
+          : Math.min(0.08, intensity * 0.07);
+
+        this.windFilter.frequency.setTargetAtTime(targetFreq, t, 0.4);
+        this.windGain.gain.setTargetAtTime(targetGain, t, 0.4);
+      }
+    } catch {
+      // Audio fallback
+    }
+  }
+
+  stopWindAmbience() {
+    if (!this.windGain || !this.ctx) return;
+    try {
+      const t = this.ctx.currentTime;
+      this.windGain.gain.linearRampToValueAtTime(0.0001, t + 0.5);
+      setTimeout(() => {
+        try {
+          this.windSource?.stop();
+          this.windSource?.disconnect();
+        } catch {}
+        this.windSource = null;
+        this.windFilter = null;
+        this.windGain = null;
+        this.isWindRunning = false;
+      }, 550);
+    } catch {}
+  }
+
+  // ─── 12. Tension / Battle Heartbeat Layer ─────────────────────
+  setTensionHeartbeat(active: boolean, bpm: number = 76) {
+    if (active === this.isHeartbeatRunning) return;
+    this.isHeartbeatRunning = active;
+
+    if (!active) {
+      if (this.heartbeatTimer) {
+        clearInterval(this.heartbeatTimer);
+        this.heartbeatTimer = null;
+      }
+      return;
+    }
+
+    const intervalMs = Math.max(450, Math.min(1200, (60 / bpm) * 1000));
+    const playThump = () => {
+      const ctx = this.ensureContext();
+      if (!ctx || !this.underwaterFilter) return;
+      try {
+        const t = ctx.currentTime;
+
+        // First thump: "lub" (58Hz)
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(58, t);
+        osc1.frequency.exponentialRampToValueAtTime(24, t + 0.12);
+        gain1.gain.setValueAtTime(0.16, t);
+        gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+        osc1.connect(gain1);
+        gain1.connect(this.underwaterFilter!);
+        osc1.start(t);
+        osc1.stop(t + 0.12);
+
+        // Second thump: "dub" (46Hz, 120ms later)
+        const t2 = t + 0.12;
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(46, t2);
+        osc2.frequency.exponentialRampToValueAtTime(20, t2 + 0.14);
+        gain2.gain.setValueAtTime(0.12, t2);
+        gain2.gain.exponentialRampToValueAtTime(0.001, t2 + 0.14);
+        osc2.connect(gain2);
+        gain2.connect(this.underwaterFilter!);
+        osc2.start(t2);
+        osc2.stop(t2 + 0.14);
+      } catch {}
+    };
+
+    // Initial beat immediately
+    playThump();
+    this.heartbeatTimer = setInterval(playThump, intervalMs);
+  }
+
+  // ─── 13. Deep Echo Shockwave (Voice Command Resonance) ────────
+  playEchoShockwave(intensity = 1.0) {
+    const ctx = this.ensureContext();
+    if (!ctx || !this.underwaterFilter) return;
+    try {
+      const t = ctx.currentTime;
+      const mult = Math.max(0.2, Math.min(1.5, intensity));
+
+      // Deep sub-bass descent
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(62, t);
+      subOsc.frequency.exponentialRampToValueAtTime(22, t + 1.2 * mult);
+
+      subGain.gain.setValueAtTime(0.28 * mult, t);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, t + 1.2 * mult);
+
+      subOsc.connect(subGain);
+      subGain.connect(this.underwaterFilter);
+      subOsc.start(t);
+      subOsc.stop(t + 1.2 * mult);
+
+      // Resonant harmonic shimmer chords (E minor chronal triad)
+      const freqs = [164.81, 246.94, 329.63, 493.88];
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+
+        const v = (0.06 / (idx + 1)) * mult;
+        gain.gain.setValueAtTime(0.001, t);
+        gain.gain.linearRampToValueAtTime(v, t + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.6);
+
+        osc.connect(gain);
+        gain.connect(this.underwaterFilter!);
+        osc.start(t);
+        osc.stop(t + 1.6);
+      });
+    } catch {}
+  }
+
+  // ─── 14. Temporal Tape Rewind Pitch Sweep ────────────────────
+  playTemporalSound() {
+    const ctx = this.ensureContext();
+    if (!ctx || !this.underwaterFilter) return;
+    try {
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(110, t + 0.35);
+      osc.frequency.exponentialRampToValueAtTime(440, t + 0.7);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(600, t);
+      filter.frequency.exponentialRampToValueAtTime(2200, t + 0.6);
+
+      gain.gain.setValueAtTime(0.01, t);
+      gain.gain.linearRampToValueAtTime(0.12, t + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.underwaterFilter);
+
+      osc.start(t);
+      osc.stop(t + 0.85);
+    } catch {}
+  }
 }
 
 export const soundFX = new SoundFXEngine();
@@ -627,3 +828,8 @@ export const playThunder = () => soundFX.playThunder();
 export const playKeystroke = (variation?: number) => soundFX.playKeystroke(variation);
 export const playGlitchDistortion = () => soundFX.playGlitchDistortion();
 export const playEchoChime = () => soundFX.playEchoChime();
+export const updateWindAmbience = (intensity: number, stormActive: boolean) => soundFX.updateWindAmbience(intensity, stormActive);
+export const stopWindAmbience = () => soundFX.stopWindAmbience();
+export const setTensionHeartbeat = (active: boolean, bpm?: number) => soundFX.setTensionHeartbeat(active, bpm);
+export const playEchoShockwave = (intensity?: number) => soundFX.playEchoShockwave(intensity);
+export const playTemporalSound = () => soundFX.playTemporalSound();
