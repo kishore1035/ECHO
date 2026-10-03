@@ -20,7 +20,8 @@ import { VoicePipeline } from './voice/VoicePipeline';
 import { TimelineSystem } from './systems/TimelineSystem';
 import { useWorldStore } from './core/WorldState';
 import { CampaignSystem, useCampaignStore } from './campaign/CampaignSystem';
-import { buildRowanAndMiraDialogue } from './campaign/dialogues';
+import { buildRowanAndMiraDialogue, buildMission4CommunionDialogue } from './campaign/dialogues';
+import { playEchoChime } from './core/soundFX';
 import TimelinePanel from './ui/TimelinePanel';
 import { useEchoTreeStore } from './core/echoTreeState';
 import './index.css';
@@ -106,6 +107,17 @@ export default function App() {
       ) {
         // If near Echo Tree, commune with the physical anchor
         if (useEchoTreeStore.getState().isNear) {
+          const campaign = useCampaignStore.getState();
+          // In Mission 4: Before the revelation is learned, E triggers intimate cinematic communion
+          if (
+            campaign.activeMissionId === 'm4_anchor_architect' &&
+            !campaign.storyFlags['architect_revelation_learned']
+          ) {
+            playEchoChime();
+            CampaignSystem.triggerDialogue(buildMission4CommunionDialogue());
+            return;
+          }
+
           useEchoTreeStore.getState().toggleInteraction();
           return;
         }

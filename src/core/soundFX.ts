@@ -330,6 +330,31 @@ class SoundFXEngine {
     }
   }
 
+  // ─── 5b. Glade Dampening (Eerie acoustic silence as player nears Echo Tree) ──
+  private gladeDampening = 0;
+
+  setGladeDampening(amount: number) {
+    const clamped = Math.max(0, Math.min(1, amount));
+    if (Math.abs(this.gladeDampening - clamped) < 0.01) return;
+    this.gladeDampening = clamped;
+
+    const ctx = this.ensureContext();
+    if (!ctx || !this.underwaterFilter || this.isUnderwater) return;
+
+    const t = ctx.currentTime;
+    this.underwaterFilter.frequency.cancelScheduledValues(t);
+
+    // As player approaches the ancient tree, ambient sounds drop from 22kHz to 2200Hz
+    const cutoff = 22000 - clamped * 19800;
+    this.underwaterFilter.frequency.setTargetAtTime(cutoff, t, 0.35);
+
+    if (this.masterGain) {
+      // Dip master volume slightly so distant sounds fade away
+      const vol = 0.8 - clamped * 0.4;
+      this.masterGain.gain.setTargetAtTime(vol, t, 0.35);
+    }
+  }
+
   // ─── 6. Physical Prop Impact (Crate / Barrel / Rock) ─────────
   playPropImpact(speed = 1.0) {
     const ctx = this.ensureContext();
@@ -593,6 +618,7 @@ export const playLanding = (surface: 'grass' | 'stone' = 'grass') => soundFX.pla
 export const playWaterSplash = (strength = 1.0) => soundFX.playWaterSplash(strength);
 export const playSwimStroke = () => soundFX.playSwimStroke();
 export const setUnderwaterAudio = (active: boolean) => soundFX.setUnderwaterAudio(active);
+export const setGladeDampening = (amount: number) => soundFX.setGladeDampening(amount);
 export const playPropImpact = (speed = 1.0) => soundFX.playPropImpact(speed);
 export const playCombatHit = () => soundFX.playCombatHit();
 export const playDestructionSound = () => soundFX.playDestructionSound();

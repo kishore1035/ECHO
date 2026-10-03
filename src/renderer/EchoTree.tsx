@@ -20,6 +20,7 @@ import { useTimelineStore } from '../systems/TimelineSystem';
 import { ECHO_TREE_COORDS, useEchoTreeStore } from '../core/echoTreeState';
 import { getTerrainHeight } from '../core/terrain';
 import { registerObstacle, unregisterObstacle } from '../core/collision';
+import { setGladeDampening } from '../core/soundFX';
 import {
   getStylizedWoodTexture,
   getStylizedStoneTexture,
@@ -158,19 +159,24 @@ export default function EchoTree() {
 
   // Animation frame loop: proximity tracking & atmospheric particles
   useFrame((_, delta) => {
-    // 1. Proximity check with player
+    // 1. Proximity check with player & Environmental Hush
     const player = useWorldStore.getState().player;
     const distToTree = Math.hypot(player.position.x - treeX, player.position.z - treeZ);
     useEchoTreeStore.getState().setNear(distToTree <= ECHO_TREE_COORDS.interactionRadius);
 
-    // 2. Particle drift & spiraling
+    // Environmental storytelling: Sound becomes quieter and hushed as player approaches glade
+    const dampAmount = distToTree < 18.0 ? Math.min(1.0, (18.0 - distToTree) / 12.0) : 0;
+    setGladeDampening(dampAmount);
+
+    // 2. Particle drift & subtle chronal reaction
     if (particlesRef.current) {
       const geo = particlesRef.current.geometry;
       const posAttr = geo.attributes.position as THREE.BufferAttribute;
       const arr = posAttr.array as Float32Array;
 
-      // Accelerated spiral when switching realities / rewinding
-      const speedMult = isTransitioning ? 3.5 : 1.0;
+      // Accelerated spiral when switching realities or reacting softly to player presence
+      const proxReact = distToTree < 10.0 ? 1.0 + (10.0 - distToTree) * 0.08 : 1.0;
+      const speedMult = (isTransitioning ? 3.5 : 1.0) * proxReact;
 
       for (let i = 0; i < particleCount; i++) {
         // Slow lazy orbit around trunk

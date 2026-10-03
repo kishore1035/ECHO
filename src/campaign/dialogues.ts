@@ -1098,3 +1098,236 @@ export function buildMission3CompleteDialogue(): DialogueSequence {
   };
 }
 
+/**
+ * Builds the opening dialogue for Mission 4: The Anchor of the Architect.
+ * Mira waits at the edge of the western crossing, guiding the player into the silent glade.
+ */
+export function buildMission4StartDialogue(): DialogueSequence {
+  const world = useWorldStore.getState();
+  const mira = Object.values(world.entities).find((e) => e.name.includes('Mira'));
+
+  return {
+    id: 'diag_m4_start',
+    cameraFocusEntity: mira?.id,
+    lines: [
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'Listen to the valley behind us... the wind, the river, Rowan\'s mill. Now step west into the glade.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'warning',
+        text: 'The birds stop singing here. Not because they fear predators, but because time itself pools in this hollow. The Echo Tree awaits.',
+      },
+    ],
+    onCompleteFlag: 'm4_guidance_received',
+  };
+}
+
+/**
+ * Builds the intimate, progressive communion dialogue at the Echo Tree.
+ * Unveils the tragedy of the Architect in short, emotionally restrained fragments:
+ * - A loved one died
+ * - He used the Echo to undo it
+ * - Cascading consequences forced repeated rewrites
+ * - People ceased to be individuals and became variables
+ * - Mira asks the player if they are repeating his path
+ */
+export function buildMission4CommunionDialogue(): DialogueSequence {
+  const world = useWorldStore.getState();
+  const campaign = useCampaignStore.getState();
+  const mira = Object.values(world.entities).find((e) => e.name.includes('Mira'));
+
+  const rowanFate = String(campaign.storyFlags['rowan_fate'] || 'saved');
+  const rowanRef =
+    rowanFate === 'saved'
+      ? 'Rowan breathes safely at his mill'
+      : rowanFate === 'wounded'
+      ? 'Rowan lies bleeding in his bed'
+      : 'Rowan lies dead in the meadow grass';
+
+  return {
+    id: 'diag_m4_communion',
+    cameraFocusEntity: mira?.id,
+    lines: [
+      {
+        speaker: 'Ancient Roots',
+        speakerRole: 'Residual Resonance',
+        speakerColor: '#38bdf8',
+        avatarIcon: '🌲',
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'The weathered bark is cold beneath your palm. A faint, low oscillation travels up your arm—the quiet vibration of a thousand vanished moments.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'He stood exactly where you stand now. Centuries before either Suncrest or Shadowfang drew borders across this valley.',
+      },
+      {
+        speaker: 'Architect Echo',
+        speakerRole: 'Memory Fragment • Ancient Valley',
+        speakerColor: '#cbd5e1',
+        avatarIcon: '👤',
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'She was smiling that dawn by the river. By evening, the marsh fever took her breath. I refused to let the earth have her. I spoke... and reality pulled apart.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'warning',
+        text: 'He saved her life. But the correction caused a drought that starved three farming hamlets downriver.',
+      },
+      {
+        speaker: 'Architect Echo',
+        speakerRole: 'Memory Fragment • The Revisions',
+        speakerColor: '#cbd5e1',
+        avatarIcon: '👤',
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'So I spoke again. I broke the drought. But the flood drowned the pass. Every time I reached out to fix a consequence, two new wounds opened in the fabric.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'wincing',
+        text: 'He rewrote reality dozens of times. Then hundreds. Slowly, the woman he loved ceased to be a person. She became an equation he couldn\'t balance.',
+      },
+      {
+        speaker: 'Architect Echo',
+        speakerRole: 'Memory Fragment • The Reckoning',
+        speakerColor: '#cbd5e1',
+        avatarIcon: '👤',
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'You stop seeing their faces. You only see branching lines. Pruning one life to preserve another... until the entire world is just kindling for what you think it should be.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: `Today at the mill, ${rowanRef}. You spoke, and the world gave way. Tell me... did you act out of love for a mortal life, or are people already becoming variables to you?`,
+        choices: [
+          {
+            text: '"I wanted to protect a human life. Nothing more."',
+            onSelectFlag: 'architect_path_empathy',
+            bondDelta: { character: 'mira', amount: 15 },
+            followUpLines: [
+              {
+                speaker: 'Mira the Seer',
+                speakerRole: 'Chronal Scholar',
+                speakerColor: '#a855f7',
+                avatarIcon: '🔮',
+                cameraFocusEntity: mira?.id,
+                shotType: 'closeUp',
+                emotion: 'solemn',
+                text: 'Hold tightly to that instinct, Voice. The moment you treat this realm like clay to be reshaped at will, you become his reflection.',
+              },
+            ],
+          },
+          {
+            text: '"Every choice has a cost. I will bear whatever comes."',
+            onSelectFlag: 'architect_path_resolve',
+            bondDelta: { character: 'mira', amount: 5 },
+            followUpLines: [
+              {
+                speaker: 'Mira the Seer',
+                speakerRole: 'Chronal Scholar',
+                speakerColor: '#a855f7',
+                avatarIcon: '🔮',
+                cameraFocusEntity: mira?.id,
+                shotType: 'closeUp',
+                emotion: 'warning',
+                text: 'Those were almost his exact words before the valley fractured. Resolve without humility is how gods ruin worlds.',
+              },
+            ],
+          },
+          {
+            text: '"If using the Echo destroys reality... why bring me here?"',
+            onSelectFlag: 'architect_path_question',
+            bondDelta: { character: 'mira', amount: 10 },
+            followUpLines: [
+              {
+                speaker: 'Mira the Seer',
+                speakerRole: 'Chronal Scholar',
+                speakerColor: '#a855f7',
+                avatarIcon: '🔮',
+                cameraFocusEntity: mira?.id,
+                shotType: 'closeUp',
+                emotion: 'solemn',
+                text: 'Because blindness does not protect us. Look into the deep wood now, Voice. Behold the branches you have set in motion.',
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    onCompleteFlag: 'architect_revelation_learned',
+  };
+}
+
+/**
+ * Builds the quiet conclusion dialogue for Mission 4.
+ */
+export function buildMission4CompleteDialogue(): DialogueSequence {
+  const world = useWorldStore.getState();
+  const mira = Object.values(world.entities).find((e) => e.name.includes('Mira'));
+
+  return {
+    id: 'diag_m4_complete',
+    cameraFocusEntity: mira?.id,
+    lines: [
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'solemn',
+        text: 'The roots hold your memories now. From this day forward, if you choose to turn back time, you will do so here—where every consequence is remembered.',
+      },
+      {
+        speaker: 'Mira the Seer',
+        speakerRole: 'Chronal Scholar',
+        speakerColor: '#a855f7',
+        avatarIcon: '🔮',
+        cameraFocusEntity: mira?.id,
+        shotType: 'closeUp',
+        emotion: 'warning',
+        text: 'How much of this world are you willing to destroy to create the world you want? The question belongs to you now.',
+      },
+    ],
+    onCompleteFlag: 'm4_completed',
+  };
+}
+

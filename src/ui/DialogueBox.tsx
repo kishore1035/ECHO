@@ -17,6 +17,8 @@ const SPEAKER_THEMES: Record<string, { bg: string; text: string; border: string 
   aldric: { bg: '#1c2d4a', text: '#dbeafe', border: '#3b5f9a' },
   vorn: { bg: '#481919', text: '#fee2e2', border: '#8b3232' },
   echo: { bg: '#10333b', text: '#cffafe', border: '#227282' },
+  architect: { bg: '#1e2230', text: '#e2e8f0', border: '#475569' },
+  ancient: { bg: '#0a231f', text: '#a7f3d0', border: '#10b981' },
   default: { bg: '#1e293b', text: '#f8fafc', border: '#475569' },
 };
 
@@ -26,6 +28,8 @@ function getSpeakerTheme(speaker: string) {
   if (lower.includes('mira')) return SPEAKER_THEMES.mira;
   if (lower.includes('aldric')) return SPEAKER_THEMES.aldric;
   if (lower.includes('vorn')) return SPEAKER_THEMES.vorn;
+  if (lower.includes('architect')) return SPEAKER_THEMES.architect;
+  if (lower.includes('ancient') || lower.includes('root')) return SPEAKER_THEMES.ancient;
   if (lower.includes('echo')) return SPEAKER_THEMES.echo;
   return SPEAKER_THEMES.default;
 }

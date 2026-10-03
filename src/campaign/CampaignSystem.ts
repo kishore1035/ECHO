@@ -14,6 +14,8 @@ import {
   buildMission2CompleteDialogue,
   buildMission3StartDialogue,
   buildMission3CompleteDialogue,
+  buildMission4StartDialogue,
+  buildMission4CompleteDialogue,
 } from './dialogues';
 import type { CampaignAct, CampaignState, DialogueSequence, Mission } from './types';
 import { playMenuSelect } from '../core/soundFX';
@@ -475,6 +477,119 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
         }
 
         world.addStoryLog('🏆 Mission Complete: The Battle for the Mill!');
+      }
+    }
+
+    // ── MISSION 4: The Anchor of the Architect (Act IV) ─────────
+    if (activeMission.id === 'm4_anchor_architect') {
+      const treeX = -13.0;
+      const treeZ = -1.5;
+      const distToTree = Math.hypot(playerPos.x - treeX, playerPos.z - treeZ);
+
+      // Relocate Mira to the secluded glade entrance if not yet positioned
+      const mira = Object.values(world.entities).find((e) => e.name.includes('Mira'));
+      if (mira && !get().storyFlags['mira_relocated_glade']) {
+        get().setStoryFlag('mira_relocated_glade', true);
+        world.updateEntity(mira.id, {
+          position: { x: -10.5, y: 0, z: 0.5 },
+          rotationY: 2.1,
+          dialogBark: 'The river falls silent here. The roots remember what the world forgets.',
+        });
+      }
+
+      // Obj 1: Cross the river bridge toward the secluded glade (x <= -7.0)
+      const objBridge = activeMission.objectives.find((o) => o.id === 'obj_follow_mira_glade');
+      if (objBridge && !objBridge.completed) {
+        if (playerPos.x <= -7.0) {
+          objBridge.completed = true;
+          missionModified = true;
+          world.addStoryLog('📜 Mission Objective Complete: Crossed into the western river hollow.');
+
+          // Establishing camera pull toward the silent glade
+          if (!get().storyFlags['m4_glade_cam_triggered']) {
+            get().setStoryFlag('m4_glade_cam_triggered', true);
+            triggerCameraCue({
+              id: 'glade_approach',
+              duration: 3.5,
+              camPos: { x: -8.0, y: 4.8, z: 4.0 },
+              lookAt: { x: -13.0, y: 2.5, z: -1.5 },
+            });
+          }
+
+          if (!get().storyFlags['m4_start_dialogue_triggered'] && !get().activeDialogue) {
+            get().setStoryFlag('m4_start_dialogue_triggered', true);
+            get().triggerDialogue(buildMission4StartDialogue());
+          }
+        }
+      }
+
+      // Obj 2: Discover the ancient Echo Tree (distToTree <= 8.5m)
+      const objDiscover = activeMission.objectives.find((o) => o.id === 'obj_discover_echo_tree');
+      if (objDiscover && !objDiscover.completed && objBridge?.completed) {
+        if (distToTree <= 8.5) {
+          objDiscover.completed = true;
+          missionModified = true;
+          get().setStoryFlag('echo_tree_discovered', true);
+          world.addStoryLog('🌲 Mission Objective Complete: Discovered the ancient Echo Tree.');
+        }
+      }
+
+      // Obj 3: Touch the Echo Tree and initiate timeline communion
+      const objCommune = activeMission.objectives.find((o) => o.id === 'obj_commune_with_anchor');
+      if (objCommune && !objCommune.completed && objDiscover?.completed) {
+        if (get().storyFlags['architect_revelation_learned']) {
+          objCommune.completed = true;
+          missionModified = true;
+          world.addStoryLog('✨ Mission Objective Complete: Communed with the Timeline Anchor.');
+        }
+      }
+
+      // Obj 4: Confront the tragic truth of the Architect and choose your conviction
+      const objConfront = activeMission.objectives.find((o) => o.id === 'obj_confront_the_mirror');
+      if (objConfront && !objConfront.completed && objCommune?.completed) {
+        const hasChosenConviction =
+          Boolean(get().storyFlags['architect_path_empathy']) ||
+          Boolean(get().storyFlags['architect_path_resolve']) ||
+          Boolean(get().storyFlags['architect_path_question']);
+
+        if (hasChosenConviction || get().storyFlags['architect_revelation_learned']) {
+          objConfront.completed = true;
+          missionModified = true;
+          world.addStoryLog('🪞 Mission Objective Complete: Confronted the tragedy of the Architect.');
+
+          if (!get().storyFlags['m4_complete_dialogue_triggered'] && !get().activeDialogue) {
+            get().setStoryFlag('m4_complete_dialogue_triggered', true);
+            get().triggerDialogue(buildMission4CompleteDialogue());
+          }
+        }
+      }
+
+      // Check Mission 4 completion & vertical slice conclusion
+      if (activeMission.objectives.every((o) => o.completed)) {
+        activeMission.status = 'completed';
+        if (!get().completedMissionIds.includes('m4_anchor_architect')) {
+          set((s) => ({ completedMissionIds: [...s.completedMissionIds, 'm4_anchor_architect'] }));
+        }
+
+        const conviction = get().storyFlags['architect_path_empathy']
+          ? 'empathy and reverence for human life'
+          : get().storyFlags['architect_path_resolve']
+          ? 'unyielding resolve to bear any cost'
+          : 'deep questioning of reality tampering';
+
+        activeMission.consequences.push({
+          id: 'c_architect_mirror_confronted',
+          description: `You communed with the ancient Echo Tree, learning the Architect's tragedy and facing the timeline with ${conviction}.`,
+          echoUsed: true,
+        });
+
+        get().setStoryFlag('vertical_slice_completed', true);
+        world.addStoryLog('🌟 Vertical Slice Complete: The Anchor of the Architect!');
+
+        // Organically reveal the timeline lineage interface for the first time
+        if (!useEchoTreeStore.getState().isInteracting) {
+          useEchoTreeStore.getState().openInteraction();
+        }
       }
     }
 
