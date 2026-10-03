@@ -20,7 +20,10 @@ Built in React, TypeScript, and Three.js (via React Three Fiber), the game merge
    - [Real-Time Crisis & AI Simulation](#real-time-crisis--ai-simulation)
    - [Timeline Branching, Checkpointing & The Echo Tree](#timeline-branching-checkpointing--the-echo-tree)
    - [World Memory Ledger & Character Bonds](#world-memory-ledger--character-bonds)
+   - [Procedural Audio & Water Acoustics](#procedural-audio--water-acoustics)
    - [Stylized Cel-Shaded Visual Direction](#stylized-cel-shaded-visual-direction)
+   - [Cinematic Dark Fantasy UI Design](#cinematic-dark-fantasy-ui-design)
+   - [Rebindable Controls System](#rebindable-controls-system)
    - [Cinematic Camera System](#cinematic-camera-system)
 4. [Technology Stack](#technology-stack)
 5. [Voice Commands & Controls](#voice-commands--controls)
@@ -144,10 +147,37 @@ ACT IV — THE PHYSICAL ANCHOR
 - **Persistent Memory Ledger**: Records player actions (e.g., `player_helped`, `structure_built`, `player_attacked`).
 - **Dynamic Character Bonds**: Rowan, Mira, King Aldric, and Warlord Vorn track relationship values based on player choices and interventions.
 
+### Procedural Audio & Water Acoustics
+ECHO synthesizes 100% of its audio procedurally using the Web Audio API with zero external asset dependencies, zero network latency, and seamless acoustic continuity:
+- **Continuous River Ambience**: Looping 6.0-second pink noise buffer processed through parallel dual-band filters:
+  - *Deep flow path*: Lowpass filter at 420 Hz for rushing water body.
+  - *Surface trickle path*: Bandpass filter at 920 Hz (Q=1.1) for water rippling over riverbed stones.
+  - *Distance Attenuation*: Logarithmic falloff between 26m and the riverbank (0m), with high frequencies rolling off at distance.
+- **Shoreline Hysteresis & Debouncing**:
+  - Entry requires $\ge 0.08$m water depth; exit requires $< 0.03$m depth (6cm deadband preventing shoreline boundary oscillation).
+  - 450ms transition debounce timer prevents repeated one-shot audio triggers.
+- **Natural Wading Sloshes**: 3 randomized slosh variations combining a low-frequency liquid displacement body (440–520 Hz $\to$ 200 Hz) with soft bubble blips (320–390 Hz). Completely eliminates harsh resonant clicking.
+- **Swimming Audio Layers**: Continuous gentle water churn when moving ($> 0.4$ speed), paired with synchronized breaststroke water pushes and subtle paddle swirls.
+- **Submersion & Underwater Acoustics**:
+  - Master lowpass filter steeply ramps down to 320 Hz to muffle distant world sounds.
+  - 52 Hz sub-aquatic pressure drone hums while submerged.
+  - Surfacing smoothly restores the 22 kHz frequency spectrum and plays a crisp air-breach emergence splash.
+- **Landing Velocity Filtering**: Landing impacts are gated to vertical drops exceeding $-3.5$ m/s, preventing false splashes while walking down terrain gradients.
+
 ### Stylized Cel-Shaded Visual Direction
 - **Toon Shading Pipeline**: Custom 3-step and 4-step toon color ramps (`getToonGradient3`, `getToonGradient4`) applied to custom meshes.
 - **Procedural Textures**: Hand-drawn canvas textures for stone masonry, timber grain, heraldic tabards, and character attire.
 - **Distinctive Character Silhouettes**: Expressive facial textures, animated limbs, speaking mouth/head gestures during dialogue, and unique weapons/torches.
+
+### Cinematic Dark Fantasy UI Design
+The game uses a unified, serious dark fantasy visual theme across all 18 UI surfaces:
+- **Palette**: Warm ivory/parchment typography (`#E8E3D8`), muted antique gold highlights (`#B59A4A`, `#8F7836`), near-black charcoal panels (`#070B12`, `#0C1119`), and dark bronze/stone borders (`#292923`, `#3A3628`).
+- **Cohesive Surfaces**: Applied consistently to the Title Screen, Dialogue Box, Memory Panel, Timeline Tree, Save/Load modal, Settings modal, Compass, and Action Bars.
+
+### Rebindable Controls System
+- **Centralized Input Manager**: Custom action-based key mapping engine (`InputManager.ts`) supporting primary and alternate keybindings.
+- **Conflict Handling**: Detects and resolves key conflicts within the same context while allowing shared keys across isolated contexts (e.g., Gameplay vs. Dialogue).
+- **Timeline Isolation**: Control configurations persist in `localStorage` and remain completely unaffected by timeline rewinds or branch restorations.
 
 ### Cinematic Camera System
 - **Face-Focused Dialogue Framing**: Automatic close-up framing with shot-reverse-shot staging and character emotion states.
@@ -161,11 +191,11 @@ ACT IV — THE PHYSICAL ANCHOR
 | :--- | :--- |
 | **Frontend Core** | React 19, TypeScript, Vite |
 | **3D Rendering** | Three.js, `@react-three/fiber`, `@react-three/drei` |
-| **State Management** | Zustand (Modular stores: `WorldState`, `CampaignSystem`, `TimelineSystem`, `EchoTreeState`) |
+| **State Management** | Zustand (Modular stores: `WorldState`, `CampaignSystem`, `TimelineSystem`, `EchoTreeState`, `SettingsStore`) |
 | **Speech & AI** | Web Speech Recognition API, Google Gemini Flash API (`generateContent` with structured JSON) |
-| **Audio Synthesis** | Web Audio API (procedural footsteps, chimes, water splashes, thunder, ambient nature) |
-| **Styling & UI** | Vanilla CSS, Glassmorphic overlays, Lucide React icons |
-| **Testing** | Node.js, `tsx` TypeScript test runner |
+| **Audio Synthesis** | Procedural Web Audio API (river ambience, wading sloshes, swimming strokes, underwater filtering, thunder, combat impacts) |
+| **Styling & UI** | Vanilla CSS, Glassmorphic overlays, Cinematic Dark Fantasy Design System |
+| **Testing & CI** | Node.js, `tsx` TypeScript test runner |
 
 ---
 
@@ -175,12 +205,18 @@ ACT IV — THE PHYSICAL ANCHOR
 
 | Input | Action |
 | :--- | :--- |
-| **W, A, S, D** | Move Character (Cancels active camera cues) |
+| **W, A, S, D** | Move Character |
+| **Q, E** | Turn Character (Left / Right) |
 | **Shift** | Sprint |
-| **Space** | Jump |
-| **Mouse Drag** | Orbit Camera / Adjust View Angle |
-| **C** | Toggle Camera Mode (Third-person Orbit $\leftrightarrow$ First-person) |
-| **Spacebar / Click** | Advance Dialogue during conversations |
+| **Space** | Jump (or swim upward when in water) |
+| **C** | Dive / Swim Downward (or toggle camera mode in orbit) |
+| **E** | Interact with NPCs, Echo Tree, or inspect objects |
+| **R** | Timeline Rewind (open chronal branch panel) |
+| **Escape** | Pause / Settings / Close Modal |
+| **Mouse Drag** | Rotate Camera / Adjust View Angle |
+| **Enter / Click** | Advance Dialogue during conversations |
+
+*(All gameplay and dialogue keys can be rebound in the in-game Settings modal)*
 
 ### Example Voice Commands
 
@@ -217,7 +253,7 @@ ACT IV — THE PHYSICAL ANCHOR
    ```
 
 3. **Configure Environment Variables** (Optional):
-   Create a `.env` file in the project root to enable Gemini API command parsing (the game will fall back to local keyword parsing if omitted):
+   Create a `.env` file in the project root to enable Gemini API command parsing (the game falls back to zero-latency keyword parsing if omitted):
    ```env
    VITE_GEMINI_API_KEY=your_gemini_api_key_here
    ```
@@ -237,20 +273,23 @@ ACT IV — THE PHYSICAL ANCHOR
 
 ## Verification & Testing
 
-ECHO includes an automated simulation test suite that verifies all story branches, voice commands, and timeline state restorations:
+ECHO includes automated test suites covering narrative progression, controls, water audio, and combat simulation:
 
 ```bash
+# 1. Full Narrative Vertical Slice (M1 -> M2 -> M3 -> M4, branches & Echo Tree)
+npx tsx scripts/verify_narrative_slice.ts
+
+# 2. Controls & Key Rebinding System (Bindings, conflict resolution, timeline isolation)
+npx tsx scripts/verify_controls_system.ts
+
+# 3. Water Audio & Acoustic Physics (Proximity falloff, hysteresis, splash synthesis, velocity gates)
+npx tsx scripts/verify_water_audio.ts
+
+# 4. Mission 3 Battle Simulation (All 4 Echo solutions, raider pathing, Rowan fates)
 npx tsx scripts/verify_m3_battle.ts
 ```
 
-The test suite validates:
-- [x] Voice command parsing for all 4 Echo paths.
-- [x] Path 1: Chronal Shield formation on Rowan.
-- [x] Path 2: Weather transition to rain and torch extinguishing.
-- [x] Path 3: Bridge destruction, collision severing, and crossing cutoff.
-- [x] Path 4: Soldier panic and retreat behavior.
-- [x] Path 5: Rowan simulation fates (*saved*, *wounded*, *dead*) from real HP values.
-- [x] Path 6: Timeline Rewind restoring pre-raid world state, entity health, and structures.
+All test suites validate zero regression across storyline logic, audio synthesis, and world simulation.
 
 ---
 
