@@ -24,6 +24,7 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
 
   // Clamp DPR according to user quality settings — optimizes GPU fill rate on high-DPI/Retina screens
   const dpr: [number, number] | number = useMemo(() => {
+    if (isCinematic) return 1.0;
     const maxDeviceDpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
     switch (graphicsQuality) {
       case 'low':
@@ -37,7 +38,7 @@ export default function Scene({ onCameraMode, isCinematic, isPaused }: SceneProp
       default:
         return [1, Math.min(maxDeviceDpr, 1.15)];
     }
-  }, [graphicsQuality]);
+  }, [graphicsQuality, isCinematic]);
 
   const shadowConfig = useMemo(() => {
     if (shadowQuality === 'off') return false;

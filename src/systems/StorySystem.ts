@@ -57,7 +57,7 @@ export class StorySystemClass {
         }
       }
 
-      console.log('[StorySystem] Story branched to: ALLIANCE (Tension: 0)');
+      if (import.meta.env?.DEV) console.log('[StorySystem] Story branched to: ALLIANCE (Tension: 0)');
     } else if (relation === 'hostile') {
       // ── Story Branch: The Outbreak of War ───────────────────
       store.setStory({
@@ -94,7 +94,7 @@ export class StorySystemClass {
         }
       }
 
-      console.log('[StorySystem] Story branched to: WAR (Tension: 100)');
+      if (import.meta.env?.DEV) console.log('[StorySystem] Story branched to: WAR (Tension: 100)');
     }
   }
 }

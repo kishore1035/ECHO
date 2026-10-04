@@ -17,7 +17,7 @@ export function handleSetFactionRelation(cmd: SetFactionRelationCommand): void {
 
   store.setFactionRelation(fA, fB, relation);
 
-  console.log(`[FactionSystem] Relationship between ${fA} and ${fB} set to ${relation}`);
+  if (import.meta.env?.DEV) console.log(`[FactionSystem] Relationship between ${fA} and ${fB} set to ${relation}`);
 
   // M3: Record this as a world memory event
   const factionNames: Record<string, string> = {

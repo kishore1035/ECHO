@@ -92,7 +92,7 @@ const TRIGGERS: NarrativeTrigger[] = [
       // Storm the world
       store.setWeather({ type: 'storm', intensity: 0.7 });
 
-      console.log('[NarrativeEngine] Trigger fired: malice_awakens');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: malice_awakens');
     },
   },
 
@@ -137,7 +137,7 @@ const TRIGGERS: NarrativeTrigger[] = [
         'alert'
       );
 
-      console.log('[NarrativeEngine] Trigger fired: blood_pact');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: blood_pact');
     },
   },
 
@@ -163,7 +163,7 @@ const TRIGGERS: NarrativeTrigger[] = [
         'Rowan the Miller: "You helped us before you brokered peace. The Meadowlands remembers its friends."'
       );
 
-      console.log('[NarrativeEngine] Trigger fired: rowan_remembers');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: rowan_remembers');
     },
   },
 
@@ -189,7 +189,7 @@ const TRIGGERS: NarrativeTrigger[] = [
         'King Aldric: "I will uphold this treaty. But I have not forgotten what you did to my men."'
       );
 
-      console.log('[NarrativeEngine] Trigger fired: aldric_remembers_betrayal');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: aldric_remembers_betrayal');
     },
   },
 
@@ -212,7 +212,7 @@ const TRIGGERS: NarrativeTrigger[] = [
         'Warlord Vorn: "War AND shadow? This voice courts total annihilation."'
       );
 
-      console.log('[NarrativeEngine] Trigger fired: war_shadow_recognized');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: war_shadow_recognized');
     },
   },
 
@@ -230,7 +230,7 @@ const TRIGGERS: NarrativeTrigger[] = [
         'idle'
       );
 
-      console.log('[NarrativeEngine] Trigger fired: elspeth_notices_construction');
+      if (import.meta.env?.DEV) console.log('[NarrativeEngine] Trigger fired: elspeth_notices_construction');
     },
   },
 ];

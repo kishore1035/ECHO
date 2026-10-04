@@ -15,7 +15,7 @@ export function handleWorldModify(cmd: WorldModifyCommand): void {
     else if (val.includes('clear') || val.includes('sun')) type = 'clear';
 
     store.setWeather({ type, intensity: 1 });
-    console.log('[WorldModifySystem] Weather set to', type);
+    if (import.meta.env?.DEV) console.log('[WorldModifySystem] Weather set to', type);
   } else if (cmd.property === 'time') {
     const val = cmd.value.toLowerCase();
     let targetHour = 12;
@@ -34,7 +34,7 @@ export function handleWorldModify(cmd: WorldModifyCommand): void {
     }
 
     store.setTime({ hours: targetHour });
-    console.log('[WorldModifySystem] Time set to hour', targetHour);
+    if (import.meta.env?.DEV) console.log('[WorldModifySystem] Time set to hour', targetHour);
   }
 
   // M4: Record environment checkpoint

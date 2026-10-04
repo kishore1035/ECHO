@@ -30,15 +30,28 @@ import './index.css';
 import { isSaveLoadActive } from './core/timeSystem';
 import { useTimelineStore } from './systems/TimelineSystem';
 
+if (typeof window !== 'undefined') {
+  (window as any).useWorldStore = useWorldStore;
+  (window as any).useTimelineStore = useTimelineStore;
+  (window as any).TimelineSystem = TimelineSystem;
+  (window as any).useCampaignStore = useCampaignStore;
+}
+
 export type GameState = 'splash' | 'title' | 'intro' | 'playing' | 'paused';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>('splash');
+  const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
   const isHoldingRef = useRef(false);
 
   const isDialogueOpen = useCampaignStore((s) => Boolean(s.activeDialogue));
   const isTimelineTransitioning = useTimelineStore((s) => s.isTransitioning);
   const isEchoTreeInteracting = useEchoTreeStore((s) => s.isInteracting);
+
+  useEffect(() => {
+    (window as any).setGameState = setGameState;
+    (window as any).getGameState = () => gameState;
+  }, [gameState]);
 
   // Authoritative WorldTime auto-pause synchronization
   // Automatically pauses while:
@@ -57,6 +70,12 @@ export default function App() {
       isEchoTreeInteracting ||
       isSaveLoadActive();
     useWorldStore.getState().setTime({ isPaused });
+
+    if (isPaused && typeof document !== 'undefined' && document.pointerLockElement) {
+      try {
+        document.exitPointerLock?.();
+      } catch (_) {}
+    }
   }, [gameState, isDialogueOpen, isTimelineTransitioning, isEchoTreeInteracting]);
 
   // Periodic campaign evaluation against real simulation state
@@ -194,7 +213,7 @@ export default function App() {
       {/* Live 3D Scene running in background */}
       <Scene
         isCinematic={gameState === 'title' || gameState === 'intro'}
-        isPaused={gameState === 'paused' || gameState === 'splash'}
+        isPaused={gameState === 'paused' || gameState === 'splash' || isTitleModalOpen}
       />
 
       {/* Cinematic Ambient Vignette (Zero GPU Pass Overhead, replaces heavy WebGL blit) */}
@@ -218,6 +237,7 @@ export default function App() {
         <TitleScreen
           onNewGame={() => setGameState('intro')}
           onContinue={() => setGameState('playing')}
+          onModalChange={setIsTitleModalOpen}
         />
       )}
 

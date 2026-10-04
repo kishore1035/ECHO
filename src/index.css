@@ -105,20 +105,9 @@ html, body, #root {
   cursor: not-allowed;
 }
 
-/* ── Scanlines Overlay (subtle CRT texture) ──────────────────── */
+/* ── Viewport Vignette Texture (Zero GPU compositing overhead) ── */
 .game-root::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.035) 2px,
-    rgba(0, 0, 0, 0.035) 4px
-  );
-  z-index: 9999;
+  display: none;
 }
 
 /* ── Animations ──────────────────────────────────────────────── */
@@ -143,8 +132,8 @@ html, body, #root {
 }
 
 @keyframes echo-title-in {
-  0%   { opacity: 0; letter-spacing: 0.6em; filter: blur(8px); }
-  100% { opacity: 1; letter-spacing: 0.35em; filter: blur(0); }
+  0%   { opacity: 0; transform: scale(0.96) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes echo-tagline-in {

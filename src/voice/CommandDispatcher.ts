@@ -12,7 +12,7 @@ import { handleInteractEntity } from '../systems/InteractionSystem';
 import { TimelineSystem } from '../systems/TimelineSystem';
 
 export function dispatchCommand(command: GameCommand): void {
-  console.log('[Dispatcher]', command.type, command);
+  if (import.meta.env?.DEV) console.log('[Dispatcher]', command.type, command);
 
   switch (command.type) {
     case 'SPAWN_ENTITY':

@@ -239,7 +239,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       useWorldStore.getState().addStoryLog(
         `Reality diverged. Alternate timeline established: ${forkedName}`
       );
-      console.log(`[TimelineSystem] Auto-branched into ${forkedName} (${newBranchId})`);
+      if (import.meta.env?.DEV) console.log(`[TimelineSystem] Auto-branched into ${forkedName} (${newBranchId})`);
     } else {
       // Continue along current branch
       updatedBranches[activeBranchId] = {
@@ -269,7 +269,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       activeCheckpointId: checkpointId,
     });
 
-    console.log(`[TimelineSystem] Checkpoint created: "${name}" (${checkpointId}) in ${targetBranchId}`);
+    if (import.meta.env?.DEV) console.log(`[TimelineSystem] Checkpoint created: "${name}" (${checkpointId}) in ${targetBranchId}`);
     return checkpointId;
   },
 
@@ -288,13 +288,17 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
 
     const branch = branches[cp.branchId];
     const isRewind = cp.branchId === get().activeBranchId;
+    const cpName = cp.name || 'Checkpoint';
+    const branchName = branch?.name || 'Timeline';
 
     // Trigger visual and sound effect
     playTimeWarpSound(isRewind);
 
     set({
       isTransitioning: true,
-      transitionText: isRewind ? `REWINDING REALITY TO: "${cp.name.toUpperCase()}"` : `SHIFTING TO: "${branch?.name.toUpperCase() ?? 'ALTERNATE REALITY'}"`,
+      transitionText: isRewind
+        ? `REWINDING REALITY TO: "${cpName.toUpperCase()}"`
+        : `SHIFTING TO: "${branchName.toUpperCase()}"`,
       transitionType: isRewind ? 'rewind' : 'branch_switch',
     });
 
@@ -343,8 +347,8 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
         .filter(Boolean);
 
       const match =
-        branchCps.find((c) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)) ||
-        Object.values(checkpoints).find((c) => c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q));
+        branchCps.find((c) => (c.name?.toLowerCase() || '').includes(q) || (c.description?.toLowerCase() || '').includes(q)) ||
+        Object.values(checkpoints).find((c) => (c.name?.toLowerCase() || '').includes(q) || (c.description?.toLowerCase() || '').includes(q));
 
       if (match) {
         return get().restoreCheckpoint(match.id);

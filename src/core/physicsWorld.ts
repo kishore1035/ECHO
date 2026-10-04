@@ -46,7 +46,7 @@ export function getWaterState(x: number, y: number, z: number, previousState?: W
 
   // Deep water:
   // If player's head/eyes are below the water plane (with small tolerance)
-  if (y < WATER_SURFACE_Y - 0.75) {
+  if (y < WATER_SURFACE_Y - 0.55) {
     return 'underwater';
   }
 

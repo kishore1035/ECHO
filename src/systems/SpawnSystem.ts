@@ -89,7 +89,7 @@ export function handleSpawnEntity(cmd: SpawnEntityCommand): void {
     significance: cmd.entityType === 'dragon' ? 3 : cmd.entityType === 'wolf' ? 2 : 1,
   });
 
-  console.log(
+  if (import.meta.env?.DEV) console.log(
     `[SpawnSystem] Spawned ${cmd.entityType} "${cmd.name}" at (${cmd.position.x.toFixed(1)}, ${groundY.toFixed(1)}, ${cmd.position.z.toFixed(1)})`
   );
 
@@ -106,7 +106,7 @@ export function handleDespawnEntity(cmd: DespawnEntityCommand): void {
 
   if (cmd.all) {
     store.removeAllEntities();
-    console.log('[SpawnSystem] Removed all entities');
+    if (import.meta.env?.DEV) console.log('[SpawnSystem] Removed all entities');
     TimelineSystem.createCheckpoint({
       name: 'Despawned All Entities',
       description: 'Player wiped clean all living entities in the valley.',
@@ -117,7 +117,7 @@ export function handleDespawnEntity(cmd: DespawnEntityCommand): void {
 
   if (cmd.entityId) {
     store.removeEntity(cmd.entityId);
-    console.log(`[SpawnSystem] Removed entity id=${cmd.entityId}`);
+    if (import.meta.env?.DEV) console.log(`[SpawnSystem] Removed entity id=${cmd.entityId}`);
     TimelineSystem.createCheckpoint({
       name: 'Removed Entity',
       description: `Player banished entity ${cmd.entityId}.`,
@@ -133,7 +133,7 @@ export function handleDespawnEntity(cmd: DespawnEntityCommand): void {
       useCampaignStore.getState().setStoryFlag('resolution_method', 'bridge');
     }
     store.removeEntityByName(cmd.entityName);
-    console.log(`[SpawnSystem] Removed entity name="${cmd.entityName}"`);
+    if (import.meta.env?.DEV) console.log(`[SpawnSystem] Removed entity name="${cmd.entityName}"`);
     TimelineSystem.createCheckpoint({
       name: `Removed ${cmd.entityName}`,
       description: `Player banished ${cmd.entityName} from the realm.`,
@@ -142,5 +142,5 @@ export function handleDespawnEntity(cmd: DespawnEntityCommand): void {
     return;
   }
 
-  console.warn('[SpawnSystem] DESPAWN_ENTITY had no target specified');
+  if (import.meta.env?.DEV) console.warn('[SpawnSystem] DESPAWN_ENTITY had no target specified');
 }

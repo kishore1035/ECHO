@@ -30,7 +30,6 @@ export default function CreditsScreen({ onClose }: CreditsScreenProps) {
         inset: 0,
         zIndex: 10000,
         background: '#070B12',
-        backdropFilter: 'blur(20px)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

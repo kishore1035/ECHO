@@ -22,15 +22,33 @@ import {
 interface TitleScreenProps {
   onNewGame: () => void;
   onContinue: () => void;
+  onModalChange?: (isOpen: boolean) => void;
 }
 
-export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps) {
+export default function TitleScreen({ onNewGame, onContinue, onModalChange }: TitleScreenProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndexRef = useRef(0);
+  selectedIndexRef.current = selectedIndex;
+
   const [activeModal, setActiveModal] = useState<'load' | 'save' | 'options' | 'credits' | 'help' | null>(null);
   const [quitMessage, setQuitMessage] = useState(false);
   const [mounted, setMounted] = useState(false);
   const canContinue = hasAnySave();
   const quitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastHoverTimeRef = useRef(0);
+
+  const setModal = (modal: 'load' | 'save' | 'options' | 'credits' | 'help' | null) => {
+    setActiveModal(modal);
+    onModalChange?.(modal !== null);
+  };
+
+  const playHoverThrottled = () => {
+    const now = performance.now();
+    if (now - lastHoverTimeRef.current > 70) {
+      lastHoverTimeRef.current = now;
+      playMenuHover();
+    }
+  };
 
   // Entrance animation trigger + ambience
   useEffect(() => {
@@ -67,28 +85,28 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
     {
       id: 'load_game',
       label: 'LOAD GAME',
-      action: () => setActiveModal('load'),
+      action: () => setModal('load'),
       enabled: true,
       hint: 'Choose from 3 recorded timeline slots',
     },
     {
       id: 'options',
       label: 'OPTIONS',
-      action: () => setActiveModal('options'),
+      action: () => setModal('options'),
       enabled: true,
       hint: 'Graphics, audio, and controls',
     },
     {
       id: 'help',
       label: 'HELP',
-      action: () => setActiveModal('help'),
+      action: () => setModal('help'),
       enabled: true,
       hint: 'Codex, voice commands, and game mechanics',
     },
     {
       id: 'credits',
       label: 'CREDITS',
-      action: () => setActiveModal('credits'),
+      action: () => setModal('credits'),
       enabled: true,
       hint: 'The minds behind ECHO',
     },
@@ -104,30 +122,28 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
     },
   ];
 
-  // Keyboard navigation
+  // Stable Keyboard navigation without listener re-binding
   useEffect(() => {
     if (activeModal !== null) return;
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
         e.preventDefault();
-        setSelectedIndex((i) => {
-          let next = (i - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
-          if (!MENU_ITEMS[next].enabled) next = (next - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
-          playMenuHover();
-          return next;
-        });
+        const curr = selectedIndexRef.current;
+        let next = (curr - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
+        if (!MENU_ITEMS[next].enabled) next = (next - 1 + MENU_ITEMS.length) % MENU_ITEMS.length;
+        playHoverThrottled();
+        setSelectedIndex(next);
       } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
         e.preventDefault();
-        setSelectedIndex((i) => {
-          let next = (i + 1) % MENU_ITEMS.length;
-          if (!MENU_ITEMS[next].enabled) next = (next + 1) % MENU_ITEMS.length;
-          playMenuHover();
-          return next;
-        });
+        const curr = selectedIndexRef.current;
+        let next = (curr + 1) % MENU_ITEMS.length;
+        if (!MENU_ITEMS[next].enabled) next = (next + 1) % MENU_ITEMS.length;
+        playHoverThrottled();
+        setSelectedIndex(next);
       } else if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        const item = MENU_ITEMS[selectedIndex];
+        const item = MENU_ITEMS[selectedIndexRef.current];
         if (item?.enabled) { playMenuSelect(); item.action(); }
       } else if (e.key === 'Escape') {
         e.preventDefault();
@@ -137,7 +153,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [selectedIndex, activeModal, canContinue]);
+  }, [activeModal, canContinue]);
 
   const activeItem = MENU_ITEMS[selectedIndex];
 
@@ -244,7 +260,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
               <div
                 key={item.id}
                 onMouseEnter={() => {
-                  if (!isDisabled) { setSelectedIndex(idx); playMenuHover(); }
+                  if (!isDisabled) { setSelectedIndex(idx); playHoverThrottled(); }
                 }}
                 onClick={() => {
                   if (!isDisabled) { playMenuSelect(); item.action(); }
@@ -252,13 +268,14 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
                 style={{
                   fontFamily: 'var(--font-ui)',
                   fontSize: 12.5,
-                  letterSpacing: isSelected ? '0.24em' : '0.18em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase' as const,
                   padding: '10px 0 10px 28px',
                   cursor: isDisabled ? 'default' : 'pointer',
                   position: 'relative',
                   color: isDisabled ? '#54524B' : isSelected ? 'var(--gold)' : '#77756D',
-                  transition: 'color 0.2s, letter-spacing 0.25s',
+                  transform: isSelected ? 'translateX(4px)' : 'translateX(0)',
+                  transition: 'color 0.15s ease, transform 0.15s ease',
                   animation: mounted ? `echo-menu-in 0.5s ${0.9 + idx * 0.06}s ease both` : 'none',
                   opacity: 0,
                 }}
@@ -344,7 +361,7 @@ export default function TitleScreen({ onNewGame, onContinue }: TitleScreenProps)
             color: '#54524B',
             letterSpacing: '0.12em',
           }}>
-            ECHO v1.0 · M0–M5 · TIMELINE ENGINE
+            ECHO v1.0 · M0–M4 · TIMELINE ENGINE
           </div>
         </div>
 

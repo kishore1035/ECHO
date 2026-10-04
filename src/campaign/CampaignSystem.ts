@@ -100,7 +100,7 @@ export const useCampaignStore = create<CampaignStore>((set, get) => ({
 
   setStoryFlag: (flag, value) => {
     set((s) => ({ storyFlags: { ...s.storyFlags, [flag]: value } }));
-    console.log(`[CampaignSystem] Flag set: ${flag} =`, value);
+    if (import.meta.env?.DEV) console.log(`[CampaignSystem] Flag set: ${flag} =`, value);
   },
 
   adjustBond: (character, delta) => {

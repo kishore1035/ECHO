@@ -47,6 +47,14 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
     defaultPrimary: 'Space',
     defaultAlt: 'KeyJ',
   },
+  {
+    id: 'sprint',
+    name: 'Sprint',
+    category: 'MOVEMENT',
+    context: 'gameplay',
+    defaultPrimary: 'ShiftLeft',
+    defaultAlt: 'ShiftRight',
+  },
 
   // ── CAMERA (Gameplay Context) ──
   {

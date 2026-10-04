@@ -20,6 +20,7 @@ export type ActionId =
   | 'moveLeft'
   | 'moveRight'
   | 'jump'
+  | 'sprint'
   // Camera
   | 'toggleCamera'
   | 'cameraReset'

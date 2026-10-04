@@ -42,7 +42,7 @@ export function record(opts: RecordOptions): void {
   // Fire narrative triggers after every event
   NarrativeEngine.evaluate();
 
-  console.log(`[MemorySystem] Recorded: ${opts.type} — ${opts.description}`);
+  if (import.meta.env?.DEV) console.log(`[MemorySystem] Recorded: ${opts.type} — ${opts.description}`);
 }
 
 // ─── Query helpers ────────────────────────────────────────────

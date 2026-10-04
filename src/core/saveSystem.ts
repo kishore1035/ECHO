@@ -31,10 +31,20 @@ export interface SaveSlotData {
 }
 
 const STORAGE_PREFIX = 'echo_save_slot_';
+const memoryStore: Record<string, string> = {};
+
+function getStorage() {
+  if (typeof localStorage !== 'undefined') return localStorage;
+  return {
+    getItem: (k: string) => memoryStore[k] || null,
+    setItem: (k: string, v: string) => { memoryStore[k] = v; },
+    removeItem: (k: string) => { delete memoryStore[k]; },
+  };
+}
 
 export function getSaveSlot(slotId: 1 | 2 | 3): SaveSlotData | null {
   try {
-    const raw = localStorage.getItem(`${STORAGE_PREFIX}${slotId}`);
+    const raw = getStorage().getItem(`${STORAGE_PREFIX}${slotId}`);
     if (!raw) return null;
     return JSON.parse(raw) as SaveSlotData;
   } catch (err) {
@@ -92,9 +102,9 @@ export function saveToSlot(slotId: 1 | 2 | 3, customName?: string): boolean {
       },
     };
 
-    localStorage.setItem(`${STORAGE_PREFIX}${slotId}`, JSON.stringify(saveData));
+    getStorage().setItem(`${STORAGE_PREFIX}${slotId}`, JSON.stringify(saveData));
     worldStore.addStoryLog(`Game saved to Slot ${slotId}: "${slotName}".`);
-    console.log(`[SaveSystem] Successfully saved to Slot ${slotId}`);
+    if (import.meta.env?.DEV) console.log(`[SaveSystem] Successfully saved to Slot ${slotId}`);
     return true;
   } catch (err) {
     console.error(`[SaveSystem] Failed saving to Slot ${slotId}:`, err);
@@ -133,7 +143,7 @@ export function loadFromSlot(slotId: 1 | 2 | 3): boolean {
       `Loaded Save Slot ${slotId}: "${data.name}" [${data.summary.actTitle}]`
     );
 
-    console.log(`[SaveSystem] Successfully loaded Slot ${slotId}`);
+    if (import.meta.env?.DEV) console.log(`[SaveSystem] Successfully loaded Slot ${slotId}`);
     return true;
   } catch (err) {
     console.error(`[SaveSystem] Failed loading Slot ${slotId}:`, err);

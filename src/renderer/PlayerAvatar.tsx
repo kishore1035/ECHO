@@ -173,7 +173,7 @@ export default function PlayerAvatar() {
   });
 
   return (
-    <group ref={rootRef} position={[initialPlayer.position.x, initialPlayer.position.y, initialPlayer.position.z]}>
+    <group ref={rootRef} name="playerAvatar" position={[initialPlayer.position.x, initialPlayer.position.y, initialPlayer.position.z]}>
       {/* Soft Ground Contact Shadow (hidden while submerged) */}
       <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[0.55, 16]} />

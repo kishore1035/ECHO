@@ -31,6 +31,7 @@ import type { WaterDepthState } from '../core/types';
 import { liveEntityTransforms } from './EntityMesh';
 import { useEchoTreeStore } from '../core/echoTreeState';
 import { isActionHeld, matchesAction } from '../core/controls/InputManager';
+import { useSettingsStore } from '../core/settingsStore';
 
 
 // Reusable scratch vectors to avoid per-frame allocations & GC pauses
@@ -41,6 +42,56 @@ const _scratchTargetCam = new THREE.Vector3();
 const _scratchLookTarget = new THREE.Vector3();
 const _scratchGroundPlane = new THREE.Plane();
 const _scratchHitPoint = new THREE.Vector3();
+const _cameraOcclusionRay = new THREE.Raycaster();
+const _cameraOcclusionDirection = new THREE.Vector3();
+const _cameraOcclusionResult = new THREE.Vector3();
+
+/** Check if a raycast hit is a valid solid occluder (ignoring the player avatar,
+ * transparent water surfaces, and particle effects). */
+function isOcclusionCandidate(hit: THREE.Intersection): boolean {
+  let curr: THREE.Object3D | null = hit.object;
+  while (curr) {
+    if (curr.name === 'playerAvatar' || curr.userData?.isPlayer) return false;
+    curr = curr.parent;
+  }
+  const mesh = hit.object as THREE.Mesh;
+  if (mesh.isMesh) {
+    const mat = mesh.material as any;
+    if (mat) {
+      if (mat.transparent && mat.depthWrite === false) return false;
+      if (mat.opacity !== undefined && mat.opacity < 0.25) return false;
+    }
+  }
+  return true;
+}
+
+/** Keep the camera on the subject's side of solid scene geometry. The broad
+ * circle colliders remain the cheap first pass; this catches roofs, walls, and bridges
+ * whose visible footprint extends beyond those gameplay colliders. */
+function avoidCameraOcclusion(
+  scene: THREE.Scene,
+  target: THREE.Vector3,
+  desired: THREE.Vector3,
+  minimumClearance = 0.85,
+): THREE.Vector3 {
+  _cameraOcclusionDirection.subVectors(desired, target);
+  const distance = _cameraOcclusionDirection.length();
+  if (distance <= minimumClearance) return desired;
+
+  _cameraOcclusionDirection.multiplyScalar(1 / distance);
+  _cameraOcclusionRay.set(target, _cameraOcclusionDirection);
+  // Start ray just outside player avatar radius (0.45m)
+  _cameraOcclusionRay.near = 0.45;
+  _cameraOcclusionRay.far = distance;
+  const hits = _cameraOcclusionRay.intersectObjects(scene.children, true);
+  const obstruction = hits.find(
+    (hit) => hit.distance < distance - 0.15 && isOcclusionCandidate(hit)
+  );
+
+  if (!obstruction) return desired;
+  const safeDistance = Math.max(minimumClearance, obstruction.distance - 0.25);
+  return _cameraOcclusionResult.copy(target).addScaledVector(_cameraOcclusionDirection, safeDistance);
+}
 
 function getEntityHeadHeight(entity: any): number {
   if (!entity) return 1.54;
@@ -87,8 +138,24 @@ export default function CameraSystem({
   const [mode, setMode] = useState<CameraMode>('firstPerson');
   const modeRef = useRef<CameraMode>('firstPerson');
   const orbitRef = useRef<any>(null);
-  const { camera, gl } = useThree();
+  const { camera, gl, scene } = useThree();
   const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 0));
+
+  const cameraSensitivity = useSettingsStore((s) => s.cameraSensitivity);
+  const sensitivityRef = useRef(cameraSensitivity);
+  useEffect(() => {
+    sensitivityRef.current = cameraSensitivity;
+  }, [cameraSensitivity]);
+
+  const isCinematicRef = useRef(isCinematic);
+  useEffect(() => {
+    isCinematicRef.current = isCinematic;
+  }, [isCinematic]);
+
+  const isPausedRef = useRef(isPaused);
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   // Dialogue Camera State & Smooth Transition Blend
   const lastConversingNpcRef = useRef<any>(null);
@@ -178,7 +245,7 @@ export default function CameraSystem({
 
     try {
       gl.domElement.requestPointerLock?.();
-    } catch (_) {}
+    } catch {}
   }, [camera, gl, onModeChange]);
 
   // ── Switch to God / Orbit View ──────────────────────────────
@@ -202,7 +269,7 @@ export default function CameraSystem({
       if (document.pointerLockElement) {
         document.exitPointerLock();
       }
-    } catch (_) {}
+    } catch {}
 
     activeKeys.current.clear();
     phys.isPointerLocked = false;
@@ -292,7 +359,7 @@ export default function CameraSystem({
       }
 
       const isDialogueActive = Boolean(useCampaignStore.getState().activeDialogue);
-      if (isDialogueActive || isCinematic || isPaused) {
+      if (isDialogueActive || isCinematicRef.current || isPausedRef.current) {
         activeKeys.current.clear();
         return;
       }
@@ -367,6 +434,21 @@ export default function CameraSystem({
     };
   }, [switchToAvatar, switchToOrbit, performAttack]);
 
+  // ── Auto-Release Pointer Lock during Dialogue, Cutscenes, or Pause ─
+  useEffect(() => {
+    const isDialogueActive = Boolean(useCampaignStore.getState().activeDialogue);
+    const isEchoTreeActive = useEchoTreeStore.getState().isInteracting;
+    if (isDialogueActive || isCinematic || isPaused || isEchoTreeActive) {
+      if (typeof document !== 'undefined' && document.pointerLockElement) {
+        try {
+          document.exitPointerLock?.();
+        } catch {}
+      }
+      playerPhys.current.isPointerLocked = false;
+      playerPhys.current.isDragging = false;
+    }
+  }, [isCinematic, isPaused]);
+
   // ── Mouse Look for Third-Person Avatar ───────────────────────
   useEffect(() => {
     const dom = gl.domElement;
@@ -375,9 +457,26 @@ export default function CameraSystem({
       e.preventDefault();
     };
 
+    const requestPointerLock = () => {
+      const isDialogueActive = Boolean(useCampaignStore.getState().activeDialogue);
+      const isEchoTreeActive = useEchoTreeStore.getState().isInteracting;
+      if (isDialogueActive || isCinematicRef.current || isPausedRef.current || isEchoTreeActive) return;
+      if (modeRef.current !== 'firstPerson') return;
+
+      if (document.pointerLockElement !== dom) {
+        try {
+          const res = dom.requestPointerLock?.();
+          if (res && typeof (res as any).catch === 'function') {
+            (res as any).catch(() => {});
+          }
+        } catch {}
+      }
+    };
+
     const onMouseDown = (e: MouseEvent) => {
       const isDialogueActive = Boolean(useCampaignStore.getState().activeDialogue);
-      if (isDialogueActive || isCinematic || isPaused) return;
+      const isEchoTreeActive = useEchoTreeStore.getState().isInteracting;
+      if (isDialogueActive || isCinematicRef.current || isPausedRef.current || isEchoTreeActive) return;
       if (modeRef.current !== 'firstPerson') return;
 
       // Left click attacks if pointer is already locked
@@ -389,10 +488,9 @@ export default function CameraSystem({
       playerPhys.current.lastMouseX = e.clientX;
       playerPhys.current.lastMouseY = e.clientY;
 
+      // On left click, if not locked, acquire pointer lock
       if (!playerPhys.current.isPointerLocked && e.button === 0) {
-        try {
-          dom.requestPointerLock?.();
-        } catch (_) {}
+        requestPointerLock();
       }
     };
 
@@ -402,15 +500,16 @@ export default function CameraSystem({
 
     const onMouseMove = (e: MouseEvent) => {
       const isDialogueActive = Boolean(useCampaignStore.getState().activeDialogue);
-      if (isDialogueActive || isCinematic || isPaused) return;
+      const isEchoTreeActive = useEchoTreeStore.getState().isInteracting;
+      if (isDialogueActive || isCinematicRef.current || isPausedRef.current || isEchoTreeActive) return;
       if (modeRef.current !== 'firstPerson') return;
 
       let dx = 0;
       let dy = 0;
 
       if (playerPhys.current.isPointerLocked) {
-        dx = e.movementX;
-        dy = e.movementY;
+        dx = e.movementX || (e as any).mozMovementX || (e as any).webkitMovementX || 0;
+        dy = e.movementY || (e as any).mozMovementY || (e as any).webkitMovementY || 0;
       } else if (playerPhys.current.isDragging) {
         dx = e.clientX - playerPhys.current.lastMouseX;
         dy = e.clientY - playerPhys.current.lastMouseY;
@@ -419,17 +518,23 @@ export default function CameraSystem({
       }
 
       if (dx !== 0 || dy !== 0) {
-        const sensitivity = 0.0032;
+        // Base sensitivity scaled by player's options setting (0.5x to 2.0x, default 1.0)
+        const baseSens = 0.0026;
+        const userMult = sensitivityRef.current || 1.0;
+        const sensitivity = baseSens * userMult;
+
         // Moving mouse right (dx > 0) turns camera right (increases yaw)
         playerPhys.current.yaw += dx * sensitivity;
-        // Moving mouse up (dy < 0) pitches camera up to look down
-        playerPhys.current.pitch -= dy * sensitivity;
+
+        // Moving mouse up (dy < 0) pitches camera up to look towards sky
+        // Moving mouse down (dy > 0) pitches camera down to look towards ground
+        playerPhys.current.pitch += dy * sensitivity;
 
         // Clamp pitch so camera stays comfortably behind avatar
         playerPhys.current.pitch = THREE.MathUtils.clamp(
           playerPhys.current.pitch,
           -0.35, // looking up
-          1.25   // looking down from above
+          1.20   // looking down from above
         );
       }
     };
@@ -521,7 +626,7 @@ export default function CameraSystem({
       keys.clear();
       playerPhys.current.isDragging = false;
       if (typeof document !== 'undefined' && document.pointerLockElement) {
-        try { document.exitPointerLock?.(); } catch (_) {}
+        try { document.exitPointerLock?.(); } catch {}
       }
     }
 
@@ -634,8 +739,12 @@ export default function CameraSystem({
         const rgtX = -fwdZ;
         const rgtZ = fwdX;
 
-        // Base speed modified by wading or swimming
-        let moveSpeed = isShift ? 14.5 : 8.5;
+        // Base speed modified by sprint and wading/swimming
+        // Target: Walk approx 2.0 - 2.5 m/s, Sprint approx 4.5 - 5.5 m/s
+        const isSprint = isActionHeld('sprint') || isShift;
+        const walkSpeed = 2.4;
+        const sprintSpeed = 5.0;
+        let moveSpeed = isSprint ? sprintSpeed : walkSpeed;
         if (currentWaterState === 'shallow') moveSpeed *= 0.82; // wading drag
         else if (isWaterSurfaceOrUnder) moveSpeed *= 0.68; // swimming resistance
 
@@ -897,22 +1006,28 @@ export default function CameraSystem({
         const isPlayerSpeaker =
           isInnerMonologue ||
           lineSpeakerLower.includes('player') ||
-          lineSpeakerLower.includes('you') ||
-          currentLine?.cameraFocusEntity === 'player';
+          lineSpeakerLower.includes('you');
 
         // 1. Identify Conversing NPC (only for genuine multi-character dialogue)
         let conversingNpc: any = null;
         if (!isInnerMonologue) {
-          const focusEntityId = currentLine?.cameraFocusEntity || activeDialogue.cameraFocusEntity;
-          if (focusEntityId && focusEntityId !== 'player' && worldEntities[focusEntityId]) {
-            conversingNpc = worldEntities[focusEntityId];
+          const lineFocusEntityId = currentLine?.cameraFocusEntity;
+          if (lineFocusEntityId && lineFocusEntityId !== 'player' && worldEntities[lineFocusEntityId]) {
+            conversingNpc = worldEntities[lineFocusEntityId];
           }
 
-          // Match current line speaker if not player
+          // Prefer the actual current speaker over a sequence-level focus;
+          // sequences can alternate between NPCs while keeping one fallback.
           if (!conversingNpc && !isPlayerSpeaker) {
             conversingNpc = Object.values(worldEntities).find((e) =>
               e.name && (lineSpeakerLower.includes(e.name.toLowerCase()) || e.name.toLowerCase().includes(lineSpeakerLower))
             );
+          }
+
+          // The sequence focus is a fallback for unnamed or indirect lines.
+          const sequenceFocusEntityId = activeDialogue.cameraFocusEntity;
+          if (!conversingNpc && sequenceFocusEntityId && sequenceFocusEntityId !== 'player' && worldEntities[sequenceFocusEntityId]) {
+            conversingNpc = worldEntities[sequenceFocusEntityId];
           }
 
           // Search any line in the dialogue sequence for a named NPC
@@ -1041,7 +1156,7 @@ export default function CameraSystem({
         // Smooth cinematic interpolation
         _scratchTargetCam.set(targetCamX, targetCamY, targetCamZ);
         _scratchLookTarget.set(targetLookX, targetLookY, targetLookZ);
-
+        _scratchTargetCam.copy(avoidCameraOcclusion(scene, _scratchLookTarget, _scratchTargetCam));
         camera.position.lerp(_scratchTargetCam, 0.082);
         currentLookAt.current.lerp(_scratchLookTarget, 0.095);
         camera.lookAt(currentLookAt.current);
@@ -1061,20 +1176,46 @@ export default function CameraSystem({
       } else {
         // Normal chase follow
         const chaseDist = 5.2;
-        const targetLookY = phys.y + 1.25;
+        const isSwimming = currentWaterState === 'swimming' || currentWaterState === 'underwater';
+        const targetLookY = isSwimming ? phys.y + 0.45 : phys.y + 1.25;
 
-        const camX = phys.x - Math.sin(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
-        const rawCamY = phys.y + 1.2 + Math.sin(phys.pitch) * chaseDist;
-        const camZ = phys.z - Math.cos(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
+        // In water, bring base camera height lower to match horizontal swimming posture
+        const baseCamOffset = isSwimming ? 0.65 : 1.2;
+        let camX = phys.x - Math.sin(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
+        let rawCamY = phys.y + baseCamOffset + Math.sin(phys.pitch) * chaseDist;
+        let camZ = phys.z - Math.cos(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
+
+        // Camera obstacle collision check (push camera forward if hitting wall/rock)
+        const camCollision = resolveCollision(camX, camZ, 0.45);
+        camX = camCollision.x;
+        camZ = camCollision.z;
 
         // Prevent camera from clipping through terrain ground
         const camTerrainY = getTerrainHeight(camX, camZ) + 0.6;
-        const camY = Math.max(rawCamY, camTerrainY);
+        let camY = Math.max(rawCamY, camTerrainY);
+
+        // When swimming near the river bridge at (-8, 5), ensure camera does not clip into bridge deck
+        if (!useWorldStore.getState().bridgeDestroyed && isSwimming) {
+          const distToBridgeCenter = Math.hypot(phys.x - (-8), phys.z - 5);
+          if (distToBridgeCenter < 6.0) {
+            const camDistToBridge = Math.hypot(camX - (-8), camZ - 5);
+            if (camDistToBridge < 5.2 && camY > 0.22 && camY < 1.35) {
+              camY = 0.20; // Keep camera safely under deck in water channel
+            }
+          }
+        }
+
+        _scratchTargetCam.set(camX, camY, camZ);
+        _scratchLookTarget.set(phys.x, targetLookY, phys.z);
+        _scratchTargetCam.copy(avoidCameraOcclusion(scene, _scratchLookTarget, _scratchTargetCam, 0.85));
+        camX = _scratchTargetCam.x;
+        const safeCamY = _scratchTargetCam.y;
+        camZ = _scratchTargetCam.z;
 
         if (dialogueExitBlendRef.current > 0.01) {
           // Smooth glide back to chase camera upon dialogue exit
           dialogueExitBlendRef.current = THREE.MathUtils.lerp(dialogueExitBlendRef.current, 0, 0.07);
-          _scratchTargetCam.set(camX, camY, camZ);
+          _scratchTargetCam.set(camX, safeCamY, camZ);
           _scratchLookTarget.set(phys.x, targetLookY, phys.z);
 
           camera.position.lerp(_scratchTargetCam, 0.085);
@@ -1083,7 +1224,7 @@ export default function CameraSystem({
         } else {
           // Standard direct chase camera
           dialogueExitBlendRef.current = 0;
-          camera.position.set(camX, camY, camZ);
+          camera.position.set(camX, safeCamY, camZ);
           currentLookAt.current.set(phys.x, targetLookY, phys.z);
           camera.lookAt(phys.x, targetLookY, phys.z);
         }

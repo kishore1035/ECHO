@@ -515,9 +515,9 @@ function fallbackParse(transcript: string): GameCommand | null {
 
 export async function parseVoiceCommand(
   transcript: string,
-  entities: Record<string, { id: string; name: string; type: string }>
+  entities: Record<string, { id: string; name: string; type: string }> = {}
 ): Promise<GameCommand | null> {
-  const entityContext = Object.values(entities)
+  const entityContext = Object.values(entities || {})
     .map((e) => `id="${e.id}" name="${e.name}" type=${e.type}`)
     .join('\n');
 

@@ -56,5 +56,9 @@ export function resolveCollision(
     }
   }
 
+  // Final clamp inside playable world borders
+  resolvedX = Math.max(-98, Math.min(98, resolvedX));
+  resolvedZ = Math.max(-98, Math.min(98, resolvedZ));
+
   return { x: resolvedX, z: resolvedZ };
 }

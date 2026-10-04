@@ -12,7 +12,7 @@
 // - Creatures: Sheep, Deer, Wolf, Dragon
 // ============================================================
 
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useWorldStore } from '../core/WorldState';
@@ -175,7 +175,9 @@ function RowanMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
             <cylinderGeometry args={[0.22, 0.17, 0.32, 7]} />
           </mesh>
           {/* Expressive Face */}
-          <mesh position={[0, 0.02, 0.19]}>
+          {/* Keep the portrait plane just in front of the head cylinder so its
+              eyes remain visible instead of being depth-occluded by the face mesh. */}
+          <mesh position={[0, 0.02, 0.235]}>
             <planeGeometry args={[0.3, 0.26]} />
             <meshBasicMaterial map={faceTexture} transparent depthWrite={false} />
           </mesh>
@@ -480,7 +482,7 @@ function MiraMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
             <cylinderGeometry args={[0.2, 0.16, 0.3, 7]} />
           </mesh>
           {/* Luminous Seer Face */}
-          <mesh position={[0, 0.02, 0.17]}>
+          <mesh position={[0, 0.02, 0.235]}>
             <planeGeometry args={[0.28, 0.24]} />
             <meshBasicMaterial map={faceTexture} transparent depthWrite={false} />
           </mesh>
@@ -1453,16 +1455,40 @@ function DragonMesh() {
 export default function EntityMesh({ entity }: { entity: Entity }) {
   const meshRef = useRef<THREE.Group>(null!);
 
+  const initialEntityY = entity.position.y !== 0 ? entity.position.y : getTerrainHeight(entity.position.x, entity.position.z);
+
   const aiRef = useRef({
-    currentPos: { ...entity.position },
-    targetPos: { ...entity.position },
+    currentPos: { x: entity.position.x, y: initialEntityY, z: entity.position.z },
+    targetPos: { x: entity.position.x, y: initialEntityY, z: entity.position.z },
     idleTimer: Math.random() * 3,
     walkPhase: 0,
     heading: entity.rotationY,
     lastAttackTime: 0,
   });
-
+  const timelineRestoreVersion = useWorldStore((s) => s.timelineRestoreVersion);
   const isStructure = entity.category === 'structure';
+
+  useEffect(() => {
+    if (timelineRestoreVersion === 0 || !meshRef.current || isStructure) return;
+
+    const restoredY = entity.position.y !== 0
+      ? entity.position.y
+      : getTerrainHeight(entity.position.x, entity.position.z);
+    aiRef.current.currentPos = { x: entity.position.x, y: restoredY, z: entity.position.z };
+    aiRef.current.targetPos = { x: entity.position.x, y: restoredY, z: entity.position.z };
+    aiRef.current.heading = entity.rotationY;
+    aiRef.current.walkPhase = 0;
+    aiRef.current.idleTimer = 0;
+    meshRef.current.position.set(entity.position.x, restoredY, entity.position.z);
+    meshRef.current.rotation.set(0, entity.rotationY, 0);
+    liveEntityTransforms[entity.id] = {
+      x: entity.position.x,
+      y: restoredY,
+      z: entity.position.z,
+      heading: entity.rotationY,
+    };
+  }, [timelineRestoreVersion, entity.id, entity.position.x, entity.position.y, entity.position.z, entity.rotationY, isStructure]);
+
   const name = entity.name.toLowerCase();
 
   // Pick the distinct humanoid model based on identity
@@ -1484,8 +1510,43 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
       return;
     }
 
-    // ── Authoritative Pause Check: Freeze NPC movements during dialogue, pause, etc. ──
-    if (!shouldWorldTimeProgress()) return;
+    // ── Authoritative Pause Check: freeze simulation while still allowing a
+    // dialogue subject to turn toward the player for its cinematic shot. ──
+    if (!shouldWorldTimeProgress()) {
+      const activeDiag = useCampaignStore.getState().activeDialogue;
+      if (activeDiag) {
+        const diagLine = activeDiag.lines[useCampaignStore.getState().dialogueLineIndex];
+        const isConversing =
+          entity.id === activeDiag.cameraFocusEntity ||
+          entity.id === diagLine?.cameraFocusEntity ||
+          (entity.name && activeDiag.lines.some((line) =>
+            line.speaker.toLowerCase().includes(entity.name.toLowerCase())
+          ));
+
+        if (isConversing) {
+          const ai = aiRef.current;
+          const player = useWorldStore.getState().player;
+          const toPlayerX = player.position.x - ai.currentPos.x;
+          const toPlayerZ = player.position.z - ai.currentPos.z;
+          if (Math.hypot(toPlayerX, toPlayerZ) > 0.15) {
+            ai.heading = Math.atan2(toPlayerX, toPlayerZ);
+          }
+          ai.walkPhase = 0;
+          ai.targetPos.x = ai.currentPos.x;
+          ai.targetPos.z = ai.currentPos.z;
+          ai.currentPos.y = getTerrainHeight(ai.currentPos.x, ai.currentPos.z);
+          meshRef.current.position.set(ai.currentPos.x, ai.currentPos.y, ai.currentPos.z);
+          meshRef.current.rotation.y = ai.heading;
+          liveEntityTransforms[entity.id] = {
+            x: ai.currentPos.x,
+            y: ai.currentPos.y,
+            z: ai.currentPos.z,
+            heading: ai.heading,
+          };
+        }
+      }
+      return;
+    }
 
     // ── Physical Combat Reaction: Stagger / Hit Recoil ──
     if (entity.isStaggered) {
@@ -1681,14 +1742,15 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
 
     // ── Dialogue State: Conversing NPCs halt and face the player directly ──
     const activeDiag = useCampaignStore.getState().activeDialogue;
+    let isFacingPlayerForDialogue = false;
     if (activeDiag) {
       const diagLine = activeDiag.lines[useCampaignStore.getState().dialogueLineIndex];
       const isConversing =
         entity.id === activeDiag.cameraFocusEntity ||
         entity.id === diagLine?.cameraFocusEntity ||
         (entity.name && activeDiag.lines.some((l) => l.speaker.toLowerCase().includes(entity.name.toLowerCase())));
-
       if (isConversing) {
+        isFacingPlayerForDialogue = true;
         ai.walkPhase = 0;
         ai.targetPos.x = ai.currentPos.x;
         ai.targetPos.z = ai.currentPos.z;
@@ -1704,7 +1766,9 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
 
     ai.currentPos.y = getTerrainHeight(ai.currentPos.x, ai.currentPos.z);
     meshRef.current.position.set(ai.currentPos.x, ai.currentPos.y, ai.currentPos.z);
-    meshRef.current.rotation.y = THREE.MathUtils.lerp(meshRef.current.rotation.y, ai.heading, 0.22);
+    meshRef.current.rotation.y = isFacingPlayerForDialogue
+      ? ai.heading
+      : THREE.MathUtils.lerp(meshRef.current.rotation.y, ai.heading, 0.22);
 
     // Sync live position and orientation for cinematic camera framing
     liveEntityTransforms[entity.id] = {
@@ -1723,7 +1787,7 @@ export default function EntityMesh({ entity }: { entity: Entity }) {
   return (
     <group
       ref={meshRef}
-      position={[entity.position.x, isStructure ? structureY : entity.position.y, entity.position.z]}
+      position={[entity.position.x, isStructure ? structureY : initialEntityY, entity.position.z]}
     >
       {/* Structures */}
       {isStructure && <StructureMesh entity={entity} />}
