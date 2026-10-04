@@ -6,7 +6,8 @@
 // ============================================================
 
 import { useWorldStore } from '../core/WorldState';
-import { useCampaignStore } from '../campaign/CampaignSystem';
+import { useCampaignStore, CampaignSystem } from '../campaign/CampaignSystem';
+import { buildRowanAndMiraDialogue, buildMission2StartDialogue } from '../campaign/dialogues';
 import type { InteractEntityCommand } from '../core/types';
 import { record } from './MemorySystem';
 import { TimelineSystem } from './TimelineSystem';
@@ -153,6 +154,21 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
   if (!target) {
     console.warn(`[InteractionSystem] No entity found matching "${cmd.entityName}"`);
     store.addStoryLog(`No one named "${cmd.entityName}" could be found.`);
+    return;
+  }
+
+  if (cmd.action === 'talk') {
+    if (target.name.includes('Mira')) {
+      CampaignSystem.triggerDialogue(buildMission2StartDialogue());
+    } else if (target.name.includes('Rowan')) {
+      CampaignSystem.triggerDialogue(buildRowanAndMiraDialogue());
+    } else {
+      store.updateEntity(target.id, {
+        dialogBark: target.dialogBark || `${target.name} turns and listens to the Voice.`,
+        aiState: 'alert',
+      });
+      store.addStoryLog(`You spoke with ${target.name}.`);
+    }
     return;
   }
 

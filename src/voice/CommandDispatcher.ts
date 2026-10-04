@@ -7,7 +7,7 @@ import type { GameCommand, TalkCommand } from '../core/types';
 import { useWorldStore } from '../core/WorldState';
 import { useCampaignStore, CampaignSystem } from '../campaign/CampaignSystem';
 import { useEchoTreeStore } from '../core/echoTreeState';
-import { buildRowanAndMiraDialogue } from '../campaign/dialogues';
+import { buildRowanAndMiraDialogue, buildMission2StartDialogue } from '../campaign/dialogues';
 import { handleSpawnEntity, handleDespawnEntity } from '../systems/SpawnSystem';
 import { handleBuildStructure } from '../systems/BuildingSystem';
 import { handleWorldModify } from '../systems/WorldModifySystem';
@@ -53,7 +53,9 @@ function handleVoiceTalk(cmd: TalkCommand): void {
   }
 
   if (target) {
-    if (target.name.includes('Rowan') || target.name.includes('Mira')) {
+    if (target.name.includes('Mira')) {
+      CampaignSystem.triggerDialogue(buildMission2StartDialogue());
+    } else if (target.name.includes('Rowan')) {
       CampaignSystem.triggerDialogue(buildRowanAndMiraDialogue());
     } else {
       world.updateEntity(target.id, {

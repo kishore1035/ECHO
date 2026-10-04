@@ -20,7 +20,11 @@ import { VoicePipeline } from './voice/VoicePipeline';
 import { TimelineSystem } from './systems/TimelineSystem';
 import { useWorldStore } from './core/WorldState';
 import { CampaignSystem, useCampaignStore } from './campaign/CampaignSystem';
-import { buildRowanAndMiraDialogue, buildMission4CommunionDialogue } from './campaign/dialogues';
+import {
+  buildRowanAndMiraDialogue,
+  buildMission2StartDialogue,
+  buildMission4CommunionDialogue,
+} from './campaign/dialogues';
 import { playEchoChime } from './core/soundFX';
 import TimelinePanel from './ui/TimelinePanel';
 import { useEchoTreeStore } from './core/echoTreeState';
@@ -155,6 +159,8 @@ export default function App() {
         const pPos = world.player.position;
         const rowan = Object.values(world.entities).find((ent) => ent.name.includes('Rowan'));
         const mira = Object.values(world.entities).find((ent) => ent.name.includes('Mira'));
+        const aldric = Object.values(world.entities).find((ent) => ent.name.includes('Aldric'));
+        const vorn = Object.values(world.entities).find((ent) => ent.name.includes('Vorn'));
 
         const distRowan = rowan
           ? Math.hypot(pPos.x - rowan.position.x, pPos.z - rowan.position.z)
@@ -162,9 +168,35 @@ export default function App() {
         const distMira = mira
           ? Math.hypot(pPos.x - mira.position.x, pPos.z - mira.position.z)
           : 999;
+        const distAldric = aldric
+          ? Math.hypot(pPos.x - aldric.position.x, pPos.z - aldric.position.z)
+          : 999;
+        const distVorn = vorn
+          ? Math.hypot(pPos.x - vorn.position.x, pPos.z - vorn.position.z)
+          : 999;
 
-        if (distRowan <= 7.0 || distMira <= 7.0) {
-          CampaignSystem.triggerDialogue(buildRowanAndMiraDialogue());
+        const candidates = [
+          { name: 'mira', dist: distMira, entity: mira },
+          { name: 'rowan', dist: distRowan, entity: rowan },
+          { name: 'aldric', dist: distAldric, entity: aldric },
+          { name: 'vorn', dist: distVorn, entity: vorn },
+        ]
+          .filter((c) => c.dist <= 7.0)
+          .sort((a, b) => a.dist - b.dist);
+
+        const closest = candidates[0];
+        if (closest) {
+          if (closest.name === 'mira') {
+            CampaignSystem.triggerDialogue(buildMission2StartDialogue());
+          } else if (closest.name === 'rowan') {
+            CampaignSystem.triggerDialogue(buildRowanAndMiraDialogue());
+          } else if (closest.entity) {
+            world.updateEntity(closest.entity.id, {
+              dialogBark: closest.entity.dialogBark || `${closest.entity.name} watches the Voice intently.`,
+              aiState: 'alert',
+            });
+            world.addStoryLog(`You spoke with ${closest.entity.name}.`);
+          }
         }
       }
 
