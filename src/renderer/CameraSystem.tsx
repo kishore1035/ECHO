@@ -526,8 +526,10 @@ export default function CameraSystem({
         const userMult = sensitivityRef.current || 1.0;
         const sensitivity = baseSens * userMult;
 
-        // Moving mouse right (dx > 0) turns camera right (increases yaw)
-        playerPhys.current.yaw += dx * sensitivity;
+        // Standard video game look:
+        // Moving mouse right (dx > 0) turns camera right (decreases yaw)
+        // Moving mouse left (dx < 0) turns camera left (increases yaw)
+        playerPhys.current.yaw -= dx * sensitivity;
 
         // Moving mouse up (dy < 0) pitches camera up to look towards sky
         // Moving mouse down (dy > 0) pitches camera down to look towards ground
@@ -733,8 +735,8 @@ export default function CameraSystem({
       if (!isDialogueActive && !isCinematic && !isEchoTreeInteracting) {
         // Keyboard turning with Q/E
         const turnSpeed = 2.4 * dt;
-        if (keys.has('q') || keys.has('keyq')) phys.yaw -= turnSpeed; // Q turns left
-        if (keys.has('e') || keys.has('keye')) phys.yaw += turnSpeed; // E turns right
+        if (keys.has('q') || keys.has('keyq')) phys.yaw += turnSpeed; // Q turns left
+        if (keys.has('e') || keys.has('keye')) phys.yaw -= turnSpeed; // E turns right
 
         // Camera horizontal forward & right vectors
         const fwdX = Math.sin(phys.yaw);
