@@ -117,7 +117,10 @@ async function runControlsVerification() {
   assert(useControlsStore.getState().getPrimaryCode('interact') === 'KeyT', 'Interact remapped to KeyT');
 
   // 2. Perform a timeline checkpoint / rewind
-  TimelineSystem.createCheckpoint('Control Settings Isolation Test');
+  TimelineSystem.createCheckpoint({
+    name: 'Control Settings Isolation Test',
+    description: 'Testing controls isolation during timeline rewind',
+  });
   TimelineSystem.rewind('last');
 
   // 3. Verify interact is STILL KeyT after timeline rewind
