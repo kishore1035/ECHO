@@ -216,7 +216,7 @@ export default function App() {
       {/* Live 3D Scene running in background */}
       <Scene
         isCinematic={gameState === 'title' || gameState === 'intro'}
-        isPaused={gameState === 'paused' || gameState === 'splash' || isTitleModalOpen}
+        isPaused={gameState === 'paused' || gameState === 'splash' || (gameState === 'title' && isTitleModalOpen)}
       />
 
       {/* Cinematic Ambient Vignette (Zero GPU Pass Overhead, replaces heavy WebGL blit) */}
@@ -238,8 +238,8 @@ export default function App() {
       {/* ── Title Screen ── */}
       {gameState === 'title' && (
         <TitleScreen
-          onNewGame={() => setGameState('intro')}
-          onContinue={() => setGameState('playing')}
+          onNewGame={() => { setIsTitleModalOpen(false); setGameState('intro'); }}
+          onContinue={() => { setIsTitleModalOpen(false); setGameState('playing'); }}
           onModalChange={setIsTitleModalOpen}
         />
       )}
