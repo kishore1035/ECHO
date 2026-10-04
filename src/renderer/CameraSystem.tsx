@@ -24,7 +24,6 @@ import {
   updateWaterAmbience,
   stopWaterAmbience,
   playCombatHit,
-  playDestructionSound,
   setTensionHeartbeat,
 } from '../core/soundFX';
 import type { WaterDepthState } from '../core/types';
@@ -307,14 +306,8 @@ export default function CameraSystem({
       }
     }
 
-    // 2. Destructible Structure Interaction: Bridge at (-8, 5)
-    if (!store.bridgeDestroyed) {
-      const distToBridge = Math.hypot(phys.x - (-8), phys.z - 5);
-      if (distToBridge < 4.8) {
-        store.setBridgeDestroyed(true);
-        playDestructionSound();
-      }
-    }
+    // 2. Destructible Structure Interaction: Handled via deliberate commands or storyline events
+    // (Accidental sword swings do not destroy the stone bridge)
 
     // 3. Hit Detection & Knockback Feedback on Characters / Creatures
     const hitReach = 2.6;
@@ -710,8 +703,20 @@ export default function CameraSystem({
     if (modeRef.current === 'firstPerson') {
       const phys = playerPhys.current;
 
+      // Check if avatar is traversing the stone river bridge at (-8, 5)
+      const bDx = phys.x - (-8);
+      const bDz = phys.z - 5;
+      const bLocalX = bDx * 0.980066 + bDz * 0.198669;
+      const bLocalZ = -bDx * 0.198669 + bDz * 0.980066;
+      const isOnBridgeDeck =
+        !useWorldStore.getState().bridgeDestroyed &&
+        Math.abs(bLocalX) <= 2.2 &&
+        Math.abs(bLocalZ) <= 4.6 &&
+        phys.y >= 0.15;
+
       // 1. Current water state at avatar position with hysteresis support
-      const currentWaterState = getWaterState(phys.x, phys.y, phys.z, phys.waterState);
+      const rawWaterState = getWaterState(phys.x, phys.y, phys.z, phys.waterState);
+      const currentWaterState = isOnBridgeDeck ? 'none' : rawWaterState;
       const isWaterSurfaceOrUnder = currentWaterState === 'swimming' || currentWaterState === 'underwater';
 
       // Water entry / exit splashes with debouncing (no rapid frame-by-frame triggers)
@@ -845,7 +850,17 @@ export default function CameraSystem({
       phys.z = resolved.z;
 
       // Vertical Gravity & Water Buoyancy
-      const terrainGroundY = getTerrainHeight(phys.x, phys.z);
+      const rawGroundY = getTerrainHeight(phys.x, phys.z);
+      const postBDx = phys.x - (-8);
+      const postBDz = phys.z - 5;
+      const postBLocalX = postBDx * 0.980066 + postBDz * 0.198669;
+      const postBLocalZ = -postBDx * 0.198669 + postBDz * 0.980066;
+      const onBridgeNow =
+        !useWorldStore.getState().bridgeDestroyed &&
+        Math.abs(postBLocalX) <= 2.2 &&
+        Math.abs(postBLocalZ) <= 4.6 &&
+        phys.y >= 0.15;
+      const terrainGroundY = onBridgeNow ? 0.65 : rawGroundY;
       phys.wasGrounded = phys.isGrounded;
 
       if (isWaterSurfaceOrUnder) {

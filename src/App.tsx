@@ -157,6 +157,22 @@ export default function App() {
 
         const world = useWorldStore.getState();
         const pPos = world.player.position;
+
+        // Bridge Repair interaction when near broken bridge
+        const distBridge = Math.hypot(pPos.x - (-8), pPos.z - 5);
+        if (world.bridgeDestroyed && distBridge <= 6.5) {
+          world.setBridgeDestroyed(false);
+          useCampaignStore.getState().setStoryFlag('bridge_cut', false);
+          playEchoChime();
+          world.addStoryLog('The Voice channeled the Echo to mend the shattered River Bridge.');
+          TimelineSystem.createCheckpoint({
+            name: 'Repaired River Bridge',
+            description: 'You restored the collapsed stone crossing over the Silverflow.',
+            significance: 'story',
+          });
+          return;
+        }
+
         const rowan = Object.values(world.entities).find((ent) => ent.name.includes('Rowan'));
         const mira = Object.values(world.entities).find((ent) => ent.name.includes('Mira'));
         const aldric = Object.values(world.entities).find((ent) => ent.name.includes('Aldric'));

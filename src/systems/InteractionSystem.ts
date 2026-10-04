@@ -151,6 +151,22 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
     return;
   }
 
+  if (
+    cmd.entityName?.toLowerCase().includes('bridge') ||
+    cmd.action === 'repair' ||
+    cmd.action === 'fix'
+  ) {
+    store.setBridgeDestroyed(false);
+    useCampaignStore.getState().setStoryFlag('bridge_cut', false);
+    store.addStoryLog('The Voice mended the shattered River Bridge.');
+    TimelineSystem.createCheckpoint({
+      name: 'Repaired River Bridge',
+      description: 'The Voice restored the stone bridge over the Silverflow.',
+      significance: 'command',
+    });
+    return;
+  }
+
   if (!target) {
     console.warn(`[InteractionSystem] No entity found matching "${cmd.entityName}"`);
     store.addStoryLog(`No one named "${cmd.entityName}" could be found.`);

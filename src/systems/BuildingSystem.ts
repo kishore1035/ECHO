@@ -43,6 +43,11 @@ export function handleBuildStructure(cmd: BuildStructureCommand): string {
     category: 'structure',
   });
 
+  if (cmd.structureType === 'bridge' || name.toLowerCase().includes('bridge')) {
+    store.setBridgeDestroyed(false);
+    store.addStoryLog('The Voice reconstructed the River Bridge.');
+  }
+
   // M3: Record construction in world memory
   record({
     type: 'structure_built',

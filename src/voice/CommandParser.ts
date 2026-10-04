@@ -70,6 +70,7 @@ Supported commands and JSON shapes:
 {"command":"INTERACT_ENTITY","action":"help","entityName":"Rowan"}
 {"command":"INTERACT_ENTITY","action":"shield","entityName":"Rowan"}
 {"command":"INTERACT_ENTITY","action":"warm","entityName":"Rowan"}
+{"command":"INTERACT_ENTITY","action":"repair","entityName":"bridge"}
 {"command":"INTERACT_ENTITY","action":"retreat","entityName":"soldiers"}
 
 9. Rewind reality / time:
@@ -637,6 +638,34 @@ function fallbackParse(transcript: string): GameCommand | null {
     t.includes('run away')
   ) {
     return { type: 'INTERACT_ENTITY', action: 'retreat', entityName: 'soldiers' };
+  }
+
+  // Fix / Repair / Rebuild Bridge
+  if (
+    (t.includes('fix') ||
+      t.includes('repair') ||
+      t.includes('rebuild') ||
+      t.includes('mend') ||
+      t.includes('restore') ||
+      t.includes('broken') ||
+      (t.includes('build') && t.includes('bridge'))) &&
+    (t.includes('bridge') || t.includes('crossing') || t.includes('span'))
+  ) {
+    return {
+      type: 'BUILD_STRUCTURE',
+      structureType: 'bridge',
+      position: { x: -8, y: 0.45, z: 5 },
+      name: 'The River Bridge',
+    };
+  }
+
+  if (t.includes('bridge is broken') || t.includes('broken bridge')) {
+    return {
+      type: 'BUILD_STRUCTURE',
+      structureType: 'bridge',
+      position: { x: -8, y: 0.45, z: 5 },
+      name: 'The River Bridge',
+    };
   }
 
   // Destroy Bridge

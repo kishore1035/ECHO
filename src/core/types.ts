@@ -240,7 +240,7 @@ export interface SetFactionRelationCommand {
 // M3: Direct interaction command — help, attack, talk, shield, warm, guide, freeze, retreat
 export interface InteractEntityCommand {
   type: 'INTERACT_ENTITY';
-  action: 'help' | 'attack' | 'retreat' | 'flee' | 'shield' | 'talk' | 'warm' | 'guide' | 'freeze';
+  action: 'help' | 'attack' | 'retreat' | 'flee' | 'shield' | 'talk' | 'warm' | 'guide' | 'freeze' | 'repair' | 'fix';
   entityName: string;
 }
 

@@ -59,9 +59,17 @@ export default function HUD() {
     return null;
   }
 
+  const isNearBrokenBridge = useWorldStore((s) => {
+    if (!s.bridgeDestroyed) return false;
+    const p = s.player.position;
+    return Math.hypot(p.x - (-8), p.z - 5) <= 6.5;
+  });
+
   const interactKey = useControlsStore.getState().getBindingDisplay('interact');
   const actionTarget = isNearEchoTree
     ? 'TOUCH THE ECHO TREE'
+    : isNearBrokenBridge
+    ? 'REPAIR THE BRIDGE'
     : targetNpc
     ? `TALK TO ${targetNpc}`
     : '';
