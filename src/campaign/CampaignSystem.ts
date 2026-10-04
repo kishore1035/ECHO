@@ -642,3 +642,8 @@ export const CampaignSystem = {
   getSnapshot: () => useCampaignStore.getState().getSnapshot(),
   restoreSnapshot: (snap: any) => useCampaignStore.getState().restoreSnapshot(snap),
 };
+
+if (typeof window !== 'undefined') {
+  (window as any).__CampaignSystem = CampaignSystem;
+  (window as any).__useCampaignStore = useCampaignStore;
+}

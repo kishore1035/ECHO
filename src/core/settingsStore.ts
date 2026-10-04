@@ -98,3 +98,7 @@ export const useSettingsStore = create<SettingsStore>((set) => ({
     set(DEFAULT_SETTINGS);
   },
 }));
+
+if (typeof window !== 'undefined') {
+  (window as any).__useSettingsStore = useSettingsStore;
+}

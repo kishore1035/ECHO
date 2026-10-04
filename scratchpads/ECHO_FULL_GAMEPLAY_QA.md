@@ -636,6 +636,69 @@ The following items were physically executed and verified in the live running ap
 
 ---
 
+### 6. BUG-BLOCKER-06 (Camera Pitch Inversion, Vertical Look Range, and Dialogue DoF Fix)
+- **ID:** BUG-BLOCKER-06
+- **AREA:** Camera / Controls / PostFX / Dialogue
+- **SEVERITY:** Critical (Presentation & Core Gameplay Controls)
+- **REPRODUCTION IN RUNNING GAME:**
+  1. Moving mouse UP caused camera boom to lower into the dirt while view hit a hard stop clamp at -0.35 rad (only 9° elevation). Sky could not be seen.
+  2. Moving mouse DOWN caused camera boom to rise up to 6m, looking steeply down at character head.
+  3. Opening dialogue with Rowan or Mira activated Depth of Field pass that blurred the background village, buildings, lanterns, and trees into an unreadable low-res smear.
+- **ROOT CAUSE:**
+  1. **Pitch Inversion**: In `src/renderer/CameraSystem.tsx`, line 534 had `playerPhys.current.pitch += dy * sensitivity;`. In DOM mouse events, moving mouse UP produces `movementY < 0` (`dy < 0`), which decreased pitch, while moving mouse DOWN increased pitch. Combined with line 1188 `rawCamY = phys.y + baseCamOffset + Math.sin(phys.pitch) * chaseDist;`, mouse UP lowered the camera boom and mouse DOWN raised the camera boom.
+  2. **Restrictive Pitch Clamp & Pinned Look Target**: Pitch was clamped between `-0.35` and `1.20`. More critically, `targetLookY` was rigidly fixed at `phys.y + 1.25` (player chest). Because the camera boom hit the ground clamp (`camTerrainY = terrain + 0.60`), the camera could never tilt upward more than `atan((1.25 - 0.60) / 5.2) = 7° to 9°`. The sky was completely unreachable.
+  3. **Excessive Dialogue DoF**: In `src/renderer/PostFX.tsx`, `DepthOfField` was configured with `height={180}` (a 180p downsampled bokeh buffer that pixelated and magnified blur kernels 4x-6x), `bokehScale={2}`, and `focalLength={0.018}` (`bokehScale={5}` for Echo tree). This created an aggressive blur that destroyed background legibility.
+- **FILES CHANGED:**
+  - `src/renderer/CameraSystem.tsx`:
+    - Updated mouse move accumulator: `playerPhys.current.pitch -= dy * sensitivity;` so mouse UP increases elevation (looks up) and mouse DOWN decreases elevation (looks down).
+    - Expanded pitch clamp range: `[-0.65, +0.75]` radians (from restrictive `[-0.35, 1.20]`).
+    - Dynamic look elevation: `const lookPitchElevate = Math.sin(phys.pitch) * (chaseDist * 0.85); const targetLookY = baseLookY + lookPitchElevate;`.
+    - Dynamic camera boom: `const camPitchOffset = -Math.sin(phys.pitch) * (chaseDist * 0.45); rawCamY = phys.y + baseCamOffset + camPitchOffset;`.
+    - Default neutral pitch updated to `-0.14` rad (natural -9.8° over-the-shoulder adventure view).
+  - `src/renderer/PostFX.tsx`:
+    - Upgraded bokeh resolution to `height={480}` for crisp, smooth anti-aliased bokeh circles.
+    - Dialogue DoF: `bokehScale: 0.7` (was 2), `focalLength: 0.009` (was 0.018), `focalDist: estimateFocalDistance() / 140`.
+    - Echo Tree DoF: `bokehScale: 1.6` (was 5), `focalLength: 0.020` (was 0.045), `focalDist: 0.022`.
+  - `src/campaign/CampaignSystem.ts`: Exposed `CampaignSystem` and `useCampaignStore` on `window` for reliable automated testing.
+  - `src/core/settingsStore.ts`: Exposed `useSettingsStore` on `window` for test telemetry.
+- **BEFORE / AFTER PARAMETER COMPARISON:**
+  | Metric / Parameter | Before Fix | After Fix |
+  |---|---|---|
+  | Pitch Sign Formula | `pitch += dy * sens` (inverted) | `pitch -= dy * sens` (correct) |
+  | Pitch Clamp Range | `[-0.35, +1.20]` rad | `[-0.65, +0.75]` rad |
+  | Max Upward Elevation | +9.06° (sky cut off) | **+44.65°** (full sky, towers, banners visible) |
+  | Max Downward Elevation | -68.55° (steep overhead) | **-44.31°** (comfortable ground framing, no ground clip/flip) |
+  | Neutral Elevation | -15.51° | **-9.84°** (cinematic third-person framing) |
+  | Dialogue `bokehScale` | `2.0` (smearing blur) | **`0.7`** (subtle cinematic softness) |
+  | Dialogue `focalLength` | `0.018` | **`0.009`** (deep, readable field of view) |
+  | Dialogue Bokeh Resolution | `height={180}` (chunky pixelated) | **`height={480}`** (clean, high-definition) |
+  | Echo Tree `bokehScale` | `5.0` (extreme blur) | **`1.6`** (tasteful contemplative focus) |
+- **PHYSICAL LIVE VERIFICATION (CDP in running game):**
+  - **A. Mouse UP**: Dispatched `dy = -100` via pointer lock; pitch increased from `-0.14` to `+0.38`, elevation increased from `-9.84°` to `+26.58°`. Camera visually tilted up.
+  - **B. Mouse DOWN**: Dispatched `dy = +100` via pointer lock; pitch decreased from `-0.14` to `-0.65`, elevation lowered to `-44.31°`. Camera visually tilted down.
+  - **C. Full Upward Look**: Pitch set to `+0.75` rad; elevation measured `+44.65°`. Confirmed in screenshot `acceptance_full_up_sky.png`: sky, clouds, castle spires, and banners fully framed and visible.
+  - **D. Full Downward Look**: Pitch set to `-0.65` rad; elevation measured `-44.31°`. Confirmed in screenshot `acceptance_full_down_ground.png`: ground paths, grass, and character feet framed from above without ground clipping, snapping, or camera flipping.
+  - **E. Sensitivity Scaling**: Verified at 0.5x (delta 0.0650), 1.0x (delta 0.1300), and 2.0x (delta 0.2600) — perfect linear scaling.
+  - **F. Pointer Lock & Mouse Drag**: Verified both pointer lock (`movementX`/`movementY`) and right-click dragging (`clientX`/`clientY`).
+  - **G. Dialogue DoF (Rowan & Mira)**: Screenshots `acceptance_rowan_dialogue.png`, `acceptance_mira_dialogue.png`, and `live_dialogue_mira_subtle_dof.png` confirm: Rowan and Mira are crisp and in clear focus; background hillside, stone stairs, lanterns, trees, mountains, and sky are sharp, readable, and recognizable.
+  - **H. Dialogue Exit Blend**: Returns smoothly from portrait close-up to gameplay camera.
+  - **I. Camera Collision**: Verified at Old Mill, Stone Bridge, river swimming channel, Whispering Stones trees, and Castle approach. Camera pushes forward on obstacle hit and stays minimum 0.6m above terrain.
+
+---
+
+## AUTOMATED VERIFIED
+
+- `npm run build`: **PASSED** (`tsc -b && vite build` transformed 634 modules in 509ms; 0 TypeScript errors).
+- `npm run lint`: **PASSED** (0 errors, 112 warnings).
+- Regression test suites executed and passed 100%:
+  1. `scripts/verify_dialogue_camera.ts`: **PASS** (Direct face framing for Rowan, Mira, Player).
+  2. `scripts/verify_controls_system.ts`: **PASS** (Default keybindings, KeyM push-to-talk, Space jump, key remapping, conflict resolution, timeline isolation).
+  3. `scripts/verify_full_gameplay_36_pass.ts`: **PASS** (36/36 integration checkpoints passed).
+  4. `scripts/verify_campaign.ts`: **PASS** (Full M1-M3 progression, voice command parsing, timeline snapshot serialization).
+  5. `scripts/verify_m4_anchor.ts`: **PASS** (Glade dampening, 8 memory beats, conviction selection, vertical slice completion).
+
+---
+
 ## AUTOMATED VERIFIED
 
 - `npm run build`: **PASSED** (`tsc -b && vite build` transformed 634 modules in 539ms; 0 TypeScript errors).

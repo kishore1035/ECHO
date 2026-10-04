@@ -97,14 +97,12 @@ export default function PostFX() {
 
 
   // ── Depth of Field (dialogue / Echo Tree — tuned for smooth performance) ──
-  // Echo Tree communion: strong contemplative blur (dedicated meditative moment).
-  // Dialogue: very subtle blur — world must remain legible during conversations.
+  // ── Depth of Field (dialogue / Echo Tree — subtle cinematic focus) ──
+  // Speaker remains sharp and prominent while village, buildings, terrain and sky remain readable.
   const dofActive = isHighEnd && (isDialogueActive || isEchoTreeActive);
-  const focalDist = isEchoTreeActive ? 0.028 : estimateFocalDistance() / 100;
-  // Echo Tree: bokehScale 5 keeps the immersive blur; dialogue: 2 is a barely-perceptible
-  // soft-focus hint that does not obscure the world or background characters.
-  const bokehScale = isEchoTreeActive ? 5 : 2;
-  const focalLength = isEchoTreeActive ? 0.045 : 0.018;
+  const focalDist = isEchoTreeActive ? 0.022 : estimateFocalDistance() / 140;
+  const bokehScale = isEchoTreeActive ? 1.6 : 0.7;
+  const focalLength = isEchoTreeActive ? 0.020 : 0.009;
 
   // ── Chromatic Aberration ──
   const chromaPeak = chromaState.peak;
@@ -165,7 +163,7 @@ export default function PostFX() {
           focusDistance={focalDist}
           focalLength={focalLength}
           bokehScale={bokehScale}
-          height={180}
+          height={480}
         />
       )}
 

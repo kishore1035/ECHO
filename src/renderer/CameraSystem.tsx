@@ -179,7 +179,7 @@ export default function CameraSystem({
     lastWaterState: 'none' as WaterDepthState,
     lastWaterTransitionTime: 0,
     yaw: Math.PI, // Face North towards kingdoms and river by default
-    pitch: 0.28,  // slight downward over-the-shoulder look
+    pitch: -0.14, // slight downward over-the-shoulder look
     rotY: Math.PI,
     footstepDist: 0,
     swimStrokeTimer: 0,
@@ -207,11 +207,14 @@ export default function CameraSystem({
     playerPhys.current.x = p.x;
     playerPhys.current.y = p.y;
     playerPhys.current.z = p.z;
-    onModeChange?.('firstPerson');
+    if (typeof window !== 'undefined') {
+      (window as any).__ECHO_PLAYER_PHYS__ = playerPhys.current;
+      (window as any).__ECHO_CAMERA__ = camera;
+    }
     return () => {
       stopWaterAmbience();
     };
-  }, [onModeChange]);
+  }, [onModeChange, camera]);
 
   // Sync physics on timeline rewind or branch restore
   useEffect(() => {
@@ -378,7 +381,7 @@ export default function CameraSystem({
       // Camera Reset action
       if (matchesAction('cameraReset', e)) {
         e.preventDefault();
-        playerPhys.current.pitch = 0.28;
+        playerPhys.current.pitch = -0.14;
         playerPhys.current.yaw = playerPhys.current.rotY;
         return;
       }
@@ -528,13 +531,13 @@ export default function CameraSystem({
 
         // Moving mouse up (dy < 0) pitches camera up to look towards sky
         // Moving mouse down (dy > 0) pitches camera down to look towards ground
-        playerPhys.current.pitch += dy * sensitivity;
+        playerPhys.current.pitch -= dy * sensitivity;
 
-        // Clamp pitch so camera stays comfortably behind avatar
+        // Clamp pitch: -0.65 (downward look at ground) to +0.75 (upward look at sky)
         playerPhys.current.pitch = THREE.MathUtils.clamp(
           playerPhys.current.pitch,
-          -0.35, // looking up
-          1.20   // looking down from above
+          -0.65, // looking down towards ground
+          0.75   // looking up towards sky
         );
       }
     };
@@ -1177,12 +1180,18 @@ export default function CameraSystem({
         // Normal chase follow
         const chaseDist = 5.2;
         const isSwimming = currentWaterState === 'swimming' || currentWaterState === 'underwater';
-        const targetLookY = isSwimming ? phys.y + 0.45 : phys.y + 1.25;
+        const baseLookY = isSwimming ? phys.y + 0.45 : phys.y + 1.25;
+
+        // Dynamic look elevation: elevates gaze into sky when looking up, lowers towards ground when looking down
+        const lookPitchElevate = Math.sin(phys.pitch) * (chaseDist * 0.85);
+        const targetLookY = baseLookY + lookPitchElevate;
 
         // In water, bring base camera height lower to match horizontal swimming posture
         const baseCamOffset = isSwimming ? 0.65 : 1.2;
+        // Camera boom height responds smoothly to pitch: lowers gently when looking up, rises comfortably when looking down
+        const camPitchOffset = -Math.sin(phys.pitch) * (chaseDist * 0.45);
         let camX = phys.x - Math.sin(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
-        let rawCamY = phys.y + baseCamOffset + Math.sin(phys.pitch) * chaseDist;
+        let rawCamY = phys.y + baseCamOffset + camPitchOffset;
         let camZ = phys.z - Math.cos(phys.yaw) * Math.cos(phys.pitch) * chaseDist;
 
         // Camera obstacle collision check (push camera forward if hitting wall/rock)
