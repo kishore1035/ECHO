@@ -580,6 +580,22 @@ function KingAldricMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
   return (
     <group position={[0, 0.74, 0]}>
+      {/* ── Royal Waist Belt & Faulds (bridges Torso to Legs) ── */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.3, 0.32, 0.2, 8]} />
+        <meshToonMaterial color="#7a141e" gradientMap={toonRamp} />
+      </mesh>
+      {/* Golden Belt Buckle */}
+      <mesh position={[0, 0, 0.2]}>
+        <boxGeometry args={[0.16, 0.12, 0.05]} />
+        <meshToonMaterial color="#ffd700" map={goldMetal} gradientMap={toonRamp} />
+      </mesh>
+      {/* Royal Faulds / Tassets */}
+      <mesh position={[0, -0.06, 0.08]} rotation={[-0.1, 0, 0]} castShadow>
+        <boxGeometry args={[0.36, 0.18, 0.18]} />
+        <meshToonMaterial color="#1a4ca8" gradientMap={toonRamp} />
+      </mesh>
+
       {/* ── Royal Surcoat & Golden Armor ── */}
       <group position={[0, 0.08, 0]}>
         {/* Royal Blue Surcoat */}
@@ -623,6 +639,12 @@ function KingAldricMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
             <meshToonMaterial color="#edeae2" gradientMap={toonRamp} />
           </mesh>
         </group>
+
+        {/* Golden Neck Gorget (bridges Torso to Head) */}
+        <mesh position={[0, 0.5, 0]} castShadow>
+          <cylinderGeometry args={[0.12, 0.14, 0.12, 6]} />
+          <meshToonMaterial color="#e0b830" map={goldMetal} gradientMap={toonRamp} />
+        </mesh>
 
         {/* ── Head with Royal Golden Crown ── */}
         <group position={[0, 0.68, 0]}>
@@ -741,6 +763,22 @@ function WarlordVornMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
   return (
     <group position={[0, 0.76, 0]}>
+      {/* ── Heavy Iron Armored Waist & Hips (bridges Torso to Legs) ── */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.32, 0.34, 0.22, 8]} />
+        <meshToonMaterial color="#1a1c20" gradientMap={toonRamp} />
+      </mesh>
+      {/* Iron Belt Buckle */}
+      <mesh position={[0, 0, 0.22]} castShadow>
+        <boxGeometry args={[0.18, 0.14, 0.06]} />
+        <meshToonMaterial color="#353840" map={ironMetal} gradientMap={toonRamp} />
+      </mesh>
+      {/* Front Armored Tassets / Faulds (hanging over thighs) */}
+      <mesh position={[0, -0.08, 0.16]} rotation={[-0.12, 0, 0]} castShadow>
+        <boxGeometry args={[0.38, 0.22, 0.08]} />
+        <meshToonMaterial color="#22252a" map={ironMetal} gradientMap={toonRamp} />
+      </mesh>
+
       {/* ── Broad Heavy Iron Plated Torso ── */}
       <group position={[0, 0.08, 0]}>
         <group position={[0, 0.25, 0]}>
@@ -787,6 +825,12 @@ function WarlordVornMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
           <meshToonMaterial color="#4a1818" gradientMap={toonRamp} />
         </mesh>
 
+        {/* Armored Neck Gorget (bridges Torso to Helmet) */}
+        <mesh position={[0, 0.54, 0]} castShadow>
+          <cylinderGeometry args={[0.14, 0.16, 0.14, 7]} />
+          <meshToonMaterial color="#1a1c20" map={ironMetal} gradientMap={toonRamp} />
+        </mesh>
+
         {/* ── Head with Horned Iron War Helmet ── */}
         <group position={[0, 0.7, 0]}>
           <mesh castShadow>
@@ -821,10 +865,17 @@ function WarlordVornMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
         {/* ── Right Arm with Heavy Dual-Headed Battle Axe ── */}
         <group ref={rightArmRef} position={[0.42, 0.38, 0]} rotation={[-0.5, 0, 0]}>
-          <mesh position={[0, -0.18, 0]} castShadow>
-            <cylinderGeometry args={[0.13, 0.11, 0.32, 6]} />
+          {/* Upper Arm / Bicep */}
+          <mesh position={[0, -0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.13, 0.11, 0.24, 6]} />
             <meshToonMaterial color="#25282e" gradientMap={toonRamp} />
           </mesh>
+          {/* Spiked Forearm Bracer */}
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.1, 0.2, 6]} />
+            <meshToonMaterial color="#2d3036" map={ironMetal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Armored Hand / Gauntlet */}
           <mesh position={[0, -0.42, 0]} castShadow>
             <boxGeometry args={[0.12, 0.14, 0.1]} />
             <meshToonMaterial color="#eec6a2" gradientMap={toonRamp} />
@@ -851,10 +902,17 @@ function WarlordVornMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
         {/* ── Left Arm ── */}
         <group ref={leftArmRef} position={[-0.42, 0.38, 0]}>
-          <mesh position={[0, -0.18, 0]} castShadow>
-            <cylinderGeometry args={[0.13, 0.11, 0.32, 6]} />
+          {/* Upper Arm / Bicep */}
+          <mesh position={[0, -0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.13, 0.11, 0.24, 6]} />
             <meshToonMaterial color="#25282e" gradientMap={toonRamp} />
           </mesh>
+          {/* Spiked Forearm Bracer */}
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.1, 0.2, 6]} />
+            <meshToonMaterial color="#2d3036" map={ironMetal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Armored Hand / Gauntlet */}
           <mesh position={[0, -0.42, 0]} castShadow>
             <boxGeometry args={[0.12, 0.14, 0.1]} />
             <meshToonMaterial color="#eec6a2" gradientMap={toonRamp} />
@@ -928,6 +986,17 @@ function SoldierMesh({
 
   return (
     <group position={[0, 0.72, 0]}>
+      {/* ── Armored Waist Belt & Hips (bridges Torso to Legs) ── */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.28, 0.3, 0.18, 8]} />
+        <meshToonMaterial color={faction.metal} map={steelMetal} gradientMap={toonRamp} />
+      </mesh>
+      {/* Heraldic Faulds / Hip Armor */}
+      <mesh position={[0, -0.06, 0.08]} rotation={[-0.1, 0, 0]} castShadow>
+        <boxGeometry args={[0.34, 0.18, 0.18]} />
+        <meshToonMaterial color={faction.primary} gradientMap={toonRamp} />
+      </mesh>
+
       {/* ── Torso Armor & Tabard ── */}
       <group position={[0, 0.08, 0]}>
         <group position={[0, 0.25, 0]}>
@@ -953,6 +1022,12 @@ function SoldierMesh({
         <mesh position={[0.32, 0.42, 0]} rotation={[0, 0, -0.15]} castShadow>
           <sphereGeometry args={[0.12, 6, 5]} />
           <meshToonMaterial color={faction.metal} map={steelMetal} gradientMap={toonRamp} />
+        </mesh>
+
+        {/* Steel Neck Gorget (bridges Torso to Helmet) */}
+        <mesh position={[0, 0.5, 0]} castShadow>
+          <cylinderGeometry args={[0.11, 0.13, 0.12, 6]} />
+          <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
         </mesh>
 
         {/* ── Barbute / Sallet Helmet ── */}
@@ -986,9 +1061,20 @@ function SoldierMesh({
 
         {/* ── Left Arm with Shield OR Shadowfang Raid Torch ── */}
         <group ref={leftArmRef} position={[-0.34, 0.36, 0]}>
-          <mesh position={[0, -0.16, 0]} castShadow>
-            <cylinderGeometry args={[0.1, 0.09, 0.26, 6]} />
+          {/* Upper Arm */}
+          <mesh position={[0, -0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.09, 0.22, 6]} />
             <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Forearm */}
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.09, 0.08, 0.18, 6]} />
+            <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Hand */}
+          <mesh position={[0, -0.4, 0]} castShadow>
+            <boxGeometry args={[0.1, 0.12, 0.08]} />
+            <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
           </mesh>
 
           {/* Shadowfang Raid Torch */}
@@ -1042,9 +1128,20 @@ function SoldierMesh({
 
         {/* ── Right Arm with Steel Sword / Spear ── */}
         <group ref={rightArmRef} position={[0.34, 0.36, 0]} rotation={[-0.4, 0, 0]}>
-          <mesh position={[0, -0.16, 0]} castShadow>
-            <cylinderGeometry args={[0.1, 0.09, 0.26, 6]} />
+          {/* Upper Arm */}
+          <mesh position={[0, -0.12, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.09, 0.22, 6]} />
             <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Forearm */}
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.09, 0.08, 0.18, 6]} />
+            <meshToonMaterial color={faction.metal} gradientMap={toonRamp} />
+          </mesh>
+          {/* Hand */}
+          <mesh position={[0, -0.4, 0]} castShadow>
+            <boxGeometry args={[0.1, 0.12, 0.08]} />
+            <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
           </mesh>
           {/* Steel Sword */}
           <group position={[0, -0.4, 0.1]} rotation={[Math.PI / 3, 0, 0]}>
@@ -1110,6 +1207,17 @@ function VillagerMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
   return (
     <group position={[0, 0.72, 0]}>
+      {/* ── Villager Waist & Leather Belt (bridges Torso to Legs) ── */}
+      <mesh position={[0, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.26, 0.29, 0.18, 8]} />
+        <meshToonMaterial color="#3a2414" gradientMap={toonRamp} />
+      </mesh>
+      {/* Simple Iron Belt Buckle */}
+      <mesh position={[0, 0, 0.18]}>
+        <boxGeometry args={[0.1, 0.08, 0.04]} />
+        <meshToonMaterial color="#7c8088" gradientMap={toonRamp} />
+      </mesh>
+
       {/* Linen Tunic & Herbalist Vest */}
       <group position={[0, 0.08, 0]}>
         <group position={[0, 0.22, 0]}>
@@ -1124,6 +1232,12 @@ function VillagerMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
         <mesh position={[0, 0.24, 0.02]} castShadow>
           <boxGeometry args={[0.32, 0.36, 0.26]} />
           <meshToonMaterial color="#886038" gradientMap={toonRamp} />
+        </mesh>
+
+        {/* Neck */}
+        <mesh position={[0, 0.48, 0]} castShadow>
+          <cylinderGeometry args={[0.1, 0.12, 0.12, 6]} />
+          <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
         </mesh>
 
         {/* Head with Woven Straw/Herb Headwrap */}
@@ -1147,9 +1261,13 @@ function VillagerMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
 
         {/* Arms with Herbalist Herb Basket */}
         <group ref={leftArmRef} position={[-0.34, 0.34, 0]}>
-          <mesh position={[0, -0.16, 0]} castShadow>
-            <cylinderGeometry args={[0.1, 0.09, 0.26, 6]} />
+          <mesh position={[0, -0.14, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.09, 0.22, 6]} />
             <meshToonMaterial color="#486e4e" gradientMap={toonRamp} />
+          </mesh>
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.08, 0.07, 0.16, 6]} />
+            <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
           </mesh>
           {/* Woven Basket */}
           <mesh position={[0, -0.38, 0.15]} castShadow>
@@ -1159,11 +1277,15 @@ function VillagerMesh({ aiRef }: { aiRef: React.MutableRefObject<any> }) {
         </group>
 
         <group ref={rightArmRef} position={[0.34, 0.34, 0]}>
-          <mesh position={[0, -0.16, 0]} castShadow>
-            <cylinderGeometry args={[0.1, 0.09, 0.26, 6]} />
+          <mesh position={[0, -0.14, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.09, 0.22, 6]} />
             <meshToonMaterial color="#486e4e" gradientMap={toonRamp} />
           </mesh>
-          <mesh position={[0, -0.38, 0]} castShadow>
+          <mesh position={[0, -0.28, 0]} castShadow>
+            <cylinderGeometry args={[0.08, 0.07, 0.16, 6]} />
+            <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
+          </mesh>
+          <mesh position={[0, -0.4, 0]} castShadow>
             <boxGeometry args={[0.1, 0.12, 0.08]} />
             <meshToonMaterial color="#eed1b4" gradientMap={toonRamp} />
           </mesh>
