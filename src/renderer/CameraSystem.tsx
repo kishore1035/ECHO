@@ -1251,8 +1251,21 @@ export default function CameraSystem({
         _scratchLookTarget.set(phys.x, targetLookY, phys.z);
         _scratchTargetCam.copy(avoidCameraOcclusion(scene, _scratchLookTarget, _scratchTargetCam, 0.85));
         camX = _scratchTargetCam.x;
-        const safeCamY = _scratchTargetCam.y;
+        const occludedY = _scratchTargetCam.y;
         camZ = _scratchTargetCam.z;
+
+        // Ensure camera position after occlusion is strictly above the terrain surface
+        const postOcclusionTerrainY = getTerrainHeight(camX, camZ) + 0.65;
+        let safeCamY = Math.max(occludedY, postOcclusionTerrainY);
+
+        // Check midpoint between camera and avatar to prevent convex terrain mounds from slicing view
+        const midCamX = (camX + phys.x) * 0.5;
+        const midCamZ = (camZ + phys.z) * 0.5;
+        const midTerrainY = getTerrainHeight(midCamX, midCamZ) + 0.55;
+        const midRayY = (safeCamY + targetLookY) * 0.5;
+        if (midRayY < midTerrainY) {
+          safeCamY += (midTerrainY - midRayY) * 0.85;
+        }
 
         if (dialogueExitBlendRef.current > 0.01) {
           // Smooth glide back to chase camera upon dialogue exit

@@ -206,15 +206,15 @@ export default function EchoTree() {
 
   return (
     <group position={[treeX, treeY, treeZ]}>
-      {/* ── 1. Sacred Moss Ground Disk (Clearing Floor) ── */}
+      {/* ── 1. Sacred Moss Root Collar at Trunk Base (Tightly nestled at trunk) ── */}
       <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <circleGeometry args={[6.4, 24]} />
+        <circleGeometry args={[2.5, 16]} />
         <meshToonMaterial color="#2d402b" gradientMap={toonRamp3} />
       </mesh>
 
-      {/* Subtle Chronal Root Haze / Shimmer Ring */}
-      <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.5, 4.2, 24]} />
+      {/* Subtle Chronal Root Haze / Shimmer Ring close to trunk */}
+      <mesh position={[0, 0.10, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.6, 2.7, 16]} />
         <meshBasicMaterial
           color={leafTheme.glow}
           transparent
@@ -278,8 +278,9 @@ export default function EchoTree() {
       {monoliths.map((m, i) => {
         const mx = Math.cos(m.angle) * m.dist;
         const mz = Math.sin(m.angle) * m.dist;
+        const localY = getTerrainHeight(treeX + mx, treeZ + mz) - treeY;
         return (
-          <group key={`monolith-${i}`} position={[mx, 0, mz]} rotation={[m.lean, m.angle, 0]}>
+          <group key={`monolith-${i}`} position={[mx, localY, mz]} rotation={[m.lean, m.angle, 0]}>
             <mesh position={[0, m.h * 0.5, 0]} castShadow receiveShadow>
               <boxGeometry args={[m.w, m.h, m.w * 0.7]} />
               <meshToonMaterial map={stoneTex} gradientMap={toonRamp3} />
