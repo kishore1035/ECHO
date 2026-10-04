@@ -70,7 +70,7 @@ export default function VoiceIndicator() {
     return false;
   });
 
-  const voiceKey = useControlsStore((s) => s.getBindingDisplay('voicePushToTalk')) || 'SPACE';
+  const voiceKey = useControlsStore((s) => s.getBindingDisplay('voicePushToTalk')) || 'M';
 
   // Contextual command guidance for idle state
   let idleLabel = `HOLD [${voiceKey}] TO COMMAND`;

@@ -29,12 +29,15 @@ import './index.css';
 
 import { isSaveLoadActive } from './core/timeSystem';
 import { useTimelineStore } from './systems/TimelineSystem';
+import { useControlsStore } from './core/controls/controlsStore';
 
 if (typeof window !== 'undefined') {
   (window as any).useWorldStore = useWorldStore;
   (window as any).useTimelineStore = useTimelineStore;
   (window as any).TimelineSystem = TimelineSystem;
   (window as any).useCampaignStore = useCampaignStore;
+  (window as any).useControlsStore = useControlsStore;
+  (window as any).VoicePipeline = VoicePipeline;
 }
 
 export type GameState = 'splash' | 'title' | 'intro' | 'playing' | 'paused';

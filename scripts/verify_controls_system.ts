@@ -41,12 +41,14 @@ async function runControlsVerification() {
   assert(store.getPrimaryCode('jump') === 'Space', 'Default Jump is Space');
   assert(store.getPrimaryCode('interact') === 'KeyE', 'Default Interact is KeyE');
   assert(store.getPrimaryCode('pause') === 'Escape', 'Default Pause is Escape');
-  assert(store.getPrimaryCode('voicePushToTalk') === 'Space', 'Default Push to Talk is Space');
+  assert(store.getPrimaryCode('voicePushToTalk') === 'KeyM', 'Default Push to Talk is KeyM');
+  assert(store.getBindingDisplay('voicePushToTalk') === 'M', 'Default Push to Talk display is M');
   assert(store.getPrimaryCode('timelineRewind') === 'KeyR', 'Default Timeline Rewind is KeyR');
   assert(store.getPrimaryCode('dialogueAdvance') === 'Enter', 'Default Dialogue Advance is Enter');
 
   // Display formats
   assert(formatKeyCodeDisplay('KeyW') === 'W', 'formatKeyCodeDisplay("KeyW") -> "W"');
+  assert(formatKeyCodeDisplay('KeyM') === 'M', 'formatKeyCodeDisplay("KeyM") -> "M"');
   assert(formatKeyCodeDisplay('Space') === 'SPACE', 'formatKeyCodeDisplay("Space") -> "SPACE"');
   assert(formatKeyCodeDisplay('Escape') === 'ESC', 'formatKeyCodeDisplay("Escape") -> "ESC"');
 
@@ -56,7 +58,10 @@ async function runControlsVerification() {
   assert(matchesAction('moveForward', 'ArrowUp'), 'matchesAction("moveForward", "ArrowUp") alt is true');
   assert(matchesAction('pause', 'Escape'), 'matchesAction("pause", "Escape") is true');
   assert(matchesAction('interact', 'KeyE'), 'matchesAction("interact", "KeyE") is true');
-  assert(matchesAction('voicePushToTalk', 'Space'), 'matchesAction("voicePushToTalk", "Space") is true');
+  assert(matchesAction('voicePushToTalk', 'KeyM'), 'matchesAction("voicePushToTalk", "KeyM") is true');
+  assert(!matchesAction('voicePushToTalk', 'Space'), 'matchesAction("voicePushToTalk", "Space") is false');
+  assert(matchesAction('jump', 'Space'), 'matchesAction("jump", "Space") is true');
+  assert(!matchesAction('jump', 'KeyM'), 'matchesAction("jump", "KeyM") is false');
   assert(matchesAction('dialogueAdvance', 'Enter'), 'matchesAction("dialogueAdvance", "Enter") is true');
   assert(matchesAction('timelineRewind', 'KeyR'), 'matchesAction("timelineRewind", "KeyR") is true');
 

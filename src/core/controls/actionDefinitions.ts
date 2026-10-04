@@ -94,7 +94,7 @@ export const ACTION_DEFINITIONS: ActionDefinition[] = [
     name: 'Push To Talk / Voice Command',
     category: 'VOICE',
     context: 'gameplay',
-    defaultPrimary: 'Space',
+    defaultPrimary: 'KeyM',
   },
 
   // ── DIALOGUE (Dialogue Context) ──

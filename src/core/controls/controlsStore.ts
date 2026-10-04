@@ -96,6 +96,10 @@ function loadStoredBindings(): ActionBindingsMap {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      // Migrate legacy Space voice binding if present (to avoid conflict with jump)
+      if (parsed.voicePushToTalk?.primary === 'Space') {
+        parsed.voicePushToTalk.primary = 'KeyM';
+      }
       // Merge with defaults in case new actions were added
       return { ...defaults, ...parsed };
     }

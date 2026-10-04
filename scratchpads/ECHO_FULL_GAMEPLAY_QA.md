@@ -612,13 +612,37 @@ The following items were physically executed and verified in the live running ap
 
 ---
 
+### 5. BUG-BLOCKER-05 (Controls: Push-to-Talk Conflict with Jump Separated to Key M)
+- **ID:** BUG-BLOCKER-05
+- **AREA:** Controls / Voice / Movement
+- **SEVERITY:** High (Input Conflict)
+- **REPRODUCTION:** Press Space while in gameplay to jump.
+- **EXPECTED:** Space triggers Jump only. Push-to-Talk has a dedicated binding (M) and is not activated by jumping.
+- **ACTUAL:** Default primary for `voicePushToTalk` was `Space`, identical to `jump`. Pressing Space to jump simultaneously activated Push-to-Talk and mic listening.
+- **ROOT CAUSE:** `src/core/controls/actionDefinitions.ts` configured both `jump` and `voicePushToTalk` with `defaultPrimary: 'Space'`.
+- **FILES CHANGED:** `src/core/controls/actionDefinitions.ts`, `src/core/controls/controlsStore.ts`, `src/ui/VoiceIndicator.tsx`, `scripts/verify_controls_system.ts`.
+- **FIX:** 
+  1. Updated `voicePushToTalk` defaultPrimary to `'KeyM'` in `actionDefinitions.ts`.
+  2. Maintained `jump` defaultPrimary on `'Space'` (and alt `'KeyJ'`).
+  3. Added migration in `controlsStore.ts` `loadStoredBindings()` so any legacy stored bindings with `'Space'` for Push-to-Talk automatically upgrade to `'KeyM'`.
+  4. Updated fallback display in `VoiceIndicator.tsx` to `'M'`.
+  5. Updated `scripts/verify_controls_system.ts` assertions.
+- **RETEST RESULT:**
+  - In live game: Pressing `KeyM` sets `voice.status` to `listening`; releasing sets it to `idle` (after buffer). Player does not jump (`y = 2.20m`).
+  - Pressing `Space` causes vertical jump arc (`y = 3.10m`); `voice.status` remains strictly `idle`.
+  - Rapid alternating test (Space -> M -> Space -> M) passed 4/4 cycles with zero cross-triggering.
+  - Controls menu explicitly displays `Push To Talk / Voice Command: M`.
+  - Controls regression test suite passed 100%.
+
+---
+
 ## AUTOMATED VERIFIED
 
-- `npm run build`: **PASSED** (`tsc -b && vite build --configLoader native` transformed 634 modules in 1.31s; 0 TypeScript errors).
-- `npm run lint`: **PASSED** (0 errors, 90 warnings).
+- `npm run build`: **PASSED** (`tsc -b && vite build` transformed 634 modules in 539ms; 0 TypeScript errors).
+- `npm run lint`: **PASSED** (0 errors, 93 warnings).
 - All 12 regression test suites executed and passed 100%:
   1. `scripts/verify_campaign.ts`: **PASS** (Full M1-M3 progression, voice command parsing, timeline snapshot serialization).
-  2. `scripts/verify_controls_system.ts`: **PASS** (Default keybindings, key remapping, conflict resolution, timeline isolation).
+  2. `scripts/verify_controls_system.ts`: **PASS** (Default keybindings, KeyM push-to-talk, Space jump, key remapping, conflict resolution, timeline isolation).
   3. `scripts/verify_dialogue_camera.ts`: **PASS** (Face-focused camera framing for Rowan, Mira, Player).
   4. `scripts/verify_echo_tree.ts`: **PASS** (Echo Tree glade grounding, proximity detection, communion auto-pause, timeline security).
   5. `scripts/verify_full_gameplay_36_pass.ts`: **PASS** (36/36 integration checkpoints passed).
@@ -645,4 +669,5 @@ The following items were physically executed and verified in the live running ap
 
 1. **Host-Level Microphone Permission:** In environments without an interactive desktop permission prompter or virtual audio device, Web Audio mic capture is blocked by Chrome security policy. (External environment constraint, not an application code bug).
 2. **Build Chunk Size Advisory:** Vite emits an advisory that production JS bundle exceeds 500 kB (1,656 kB uncompressed, 439 kB gzip). This is standard for monolithic Three.js + React bundles without code-splitting and does not affect runtime execution.
+
 
