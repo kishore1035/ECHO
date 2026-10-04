@@ -237,11 +237,26 @@ export interface SetFactionRelationCommand {
   relation: FactionRelation;
 }
 
-// M3: Direct interaction command — help or attack a named entity
+// M3: Direct interaction command — help, attack, talk, shield, warm, guide, freeze, retreat
 export interface InteractEntityCommand {
   type: 'INTERACT_ENTITY';
-  action: 'help' | 'attack' | 'retreat' | 'flee' | 'shield';
+  action: 'help' | 'attack' | 'retreat' | 'flee' | 'shield' | 'talk' | 'warm' | 'guide' | 'freeze';
   entityName: string;
+}
+
+// Player Action Commands
+export interface JumpCommand {
+  type: 'JUMP';
+}
+
+export interface AttackCommand {
+  type: 'ATTACK';
+  targetName?: string;
+}
+
+export interface TalkCommand {
+  type: 'TALK';
+  entityName?: string;
 }
 
 // M4: Timeline and Reality control commands
@@ -269,7 +284,10 @@ export type GameCommand =
   | InteractEntityCommand
   | RewindCommand
   | SwitchBranchCommand
-  | CreateCheckpointCommand;
+  | CreateCheckpointCommand
+  | JumpCommand
+  | AttackCommand
+  | TalkCommand;
 
 // ─── Voice pipeline ──────────────────────────────────────────
 

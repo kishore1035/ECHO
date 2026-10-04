@@ -16,6 +16,7 @@ class VoicePipelineClass {
   private recognition: any = null;
   private isListening = false;
   private transcript = '';
+  private liveTranscript = '';
 
   constructor() {
     this.init();
@@ -38,13 +39,16 @@ class VoicePipelineClass {
       let interim = '';
       let final = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
+        const t = event.results[i][0]?.transcript || '';
         if (event.results[i].isFinal) final += t;
         else interim += t;
       }
-      // Keep accumulating; final takes precedence
-      if (final) this.transcript = this.transcript + final;
-      const display = this.transcript + interim;
+      // Keep accumulating final transcripts
+      if (final) {
+        this.transcript = (this.transcript ? this.transcript + ' ' : '') + final.trim();
+      }
+      const display = ((this.transcript ? this.transcript + ' ' : '') + interim).trim();
+      this.liveTranscript = display;
       useWorldStore.getState().setVoiceTranscript(display);
     };
 
@@ -66,11 +70,12 @@ class VoicePipelineClass {
     return !!(win?.SpeechRecognition ?? win?.webkitSpeechRecognition);
   }
 
-  /** Call on spacebar keydown */
+  /** Call on PTT keydown */
   startListening(): void {
     if (!this.recognition || this.isListening) return;
     this.isListening = true;
     this.transcript = '';
+    this.liveTranscript = '';
     useWorldStore.getState().setVoiceStatus('listening');
     useWorldStore.getState().setVoiceTranscript('');
     useWorldStore.getState().setVoiceError('');
@@ -81,7 +86,7 @@ class VoicePipelineClass {
     }
   }
 
-  /** Call on spacebar keyup — stops listening, runs full pipeline */
+  /** Call on PTT keyup — stops listening, runs full pipeline */
   async stopAndProcess(): Promise<void> {
     if (!this.recognition || !this.isListening) return;
     this.isListening = false;
@@ -90,11 +95,13 @@ class VoicePipelineClass {
       this.recognition.stop();
     } catch (_) { /* ignore */ }
 
-    // Short buffer to let final results arrive
-    await new Promise((r) => setTimeout(r, 300));
+    // Short buffer to let speech recognition engine flush trailing words
+    await new Promise((r) => setTimeout(r, 350));
 
-    const transcript = this.transcript.trim();
+    // Prefer final transcript; fallback to whatever live transcript was heard and displayed
+    const transcript = (this.transcript || this.liveTranscript).trim();
     this.transcript = '';
+    this.liveTranscript = '';
 
     if (!transcript) {
       useWorldStore.getState().setVoiceStatus('idle');

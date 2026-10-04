@@ -354,6 +354,22 @@ export default function CameraSystem({
     }
   }, []);
 
+  // Expose attack and jump handlers on window for voice commands
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__ECHO_PERFORM_ATTACK__ = performAttack;
+      (window as any).__ECHO_PERFORM_JUMP__ = () => {
+        const p = playerPhys.current;
+        if (p.waterState === 'swimming' || p.waterState === 'underwater') {
+          p.vy = 3.6;
+        } else if (p.isGrounded) {
+          p.vy = 8.5;
+          p.isGrounded = false;
+        }
+      };
+    }
+  }, [performAttack]);
+
   // ── Global Keyboard Input ───────────────────────────────────
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

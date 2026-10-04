@@ -56,6 +56,56 @@ export function handleInteractEntity(cmd: InteractEntityCommand): void {
     return;
   }
 
+  if (cmd.action === 'warm' || cmd.action === 'guide') {
+    const warmTarget = target || Object.values(store.entities).find((e) => e.name.toLowerCase().includes('rowan'));
+    if (!warmTarget) {
+      store.addStoryLog(`No one nearby to warm.`);
+      return;
+    }
+
+    store.updateEntity(warmTarget.id, {
+      health: warmTarget.maxHealth,
+      dialogBark: 'A soothing warmth chases the cold from my bones! Bless you, Voice.',
+      aiState: 'cheering',
+    });
+
+    useCampaignStore.getState().setStoryFlag('echo_demonstrated', true);
+    useCampaignStore.getState().adjustBond('rowan', 25);
+
+    record({
+      type: 'player_helped',
+      actorId: 'player',
+      actorName: 'The Voice',
+      targetId: warmTarget.id,
+      targetName: warmTarget.name,
+      factionId: warmTarget.factionId ?? undefined,
+      description: `The Voice suffused ${warmTarget.name} with chronal warmth and comfort.`,
+      significance: 2,
+    });
+
+    store.addStoryLog(`A gentle golden warmth radiates from the Voice, soothing ${warmTarget.name}.`);
+    return;
+  }
+
+  if (cmd.action === 'freeze') {
+    const hostiles = Object.values(store.entities).filter(
+      (e) => e.factionId === 'shadowfang' || e.name.toLowerCase().includes('raider')
+    );
+    if (hostiles.length > 0) {
+      hostiles.forEach((h) => {
+        store.updateEntity(h.id, {
+          isStaggered: true,
+          dialogBark: 'My limbs... I cannot move! Time itself has frozen!',
+        });
+        setTimeout(() => {
+          useWorldStore.getState().updateEntity(h.id, { isStaggered: false });
+        }, 4500);
+      });
+      store.addStoryLog('The Voice froze the enemy vanguard in their tracks.');
+      return;
+    }
+  }
+
   if (cmd.action === 'retreat' || cmd.action === 'flee') {
     const isSoldiersGeneral =
       cmd.entityName.toLowerCase().includes('soldier') ||

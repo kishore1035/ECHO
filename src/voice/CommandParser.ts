@@ -1,11 +1,12 @@
 // ============================================================
 // COMMAND PARSER — Voice transcript → typed GameCommand
 // Uses Gemini API (structured JSON output) with a keyword fallback
-// so the game works even without an API key set.
+// so the game works instantly and reliably with or without API key.
 // ============================================================
 
 import type { GameCommand, EntityType, StructureType, Vec3, InteractEntityCommand } from '../core/types';
 import { NAMED_LOCATIONS, getTerrainHeight } from '../core/terrain';
+import { useWorldStore } from '../core/WorldState';
 
 function getApiKey(): string | undefined {
   const envKey = typeof import.meta !== 'undefined' && import.meta.env ? (import.meta.env.VITE_GEMINI_API_KEY as string | undefined) : undefined;
@@ -42,48 +43,46 @@ ${locationList}
 
 Supported commands and JSON shapes:
 
-1. Spawn character or creature:
+1. Player actions:
+{"command":"JUMP"}
+{"command":"ATTACK"}
+{"command":"TALK","entityName":"Rowan"}
+
+2. Spawn character or creature:
 {"command":"SPAWN_ENTITY","entityType":"deer","position":{"x":0,"y":0,"z":0},"name":"Fleetfoot"}
 
-2. Build structure:
+3. Build structure:
 {"command":"BUILD_STRUCTURE","structureType":"tower","position":{"x":0,"y":0,"z":0},"name":"Watchtower"}
 
-3. Change weather:
+4. Change weather:
 {"command":"WORLD_MODIFY","property":"weather","value":"rain"} (values: clear, rain, storm, fog)
 
-4. Change time of day:
+5. Change time of day:
 {"command":"WORLD_MODIFY","property":"time","value":"night"} (values: day, night, noon, sunrise, sunset, midnight)
 
-5. Change relationship between kingdoms (peace or war):
+6. Change relationship between kingdoms (peace or war):
 {"command":"SET_FACTION_RELATION","factionA":"suncrest","factionB":"shadowfang","relation":"allied"}
-or
-{"command":"SET_FACTION_RELATION","factionA":"suncrest","factionB":"shadowfang","relation":"hostile"}
 
-6. Despawn entity:
+7. Despawn entity:
 {"command":"DESPAWN_ENTITY","entityName":"Ignaroth","all":false}
-or
-{"command":"DESPAWN_ENTITY","all":true}
 
-7. Interact with a named character (help or attack):
+8. Interact with a named character (help, attack, shield, warm, guide, freeze, retreat):
 {"command":"INTERACT_ENTITY","action":"help","entityName":"Rowan"}
-or
-{"command":"INTERACT_ENTITY","action":"attack","entityName":"King Aldric"}
+{"command":"INTERACT_ENTITY","action":"shield","entityName":"Rowan"}
+{"command":"INTERACT_ENTITY","action":"warm","entityName":"Rowan"}
+{"command":"INTERACT_ENTITY","action":"retreat","entityName":"soldiers"}
 
-8. Rewind reality / time:
+9. Rewind reality / time:
 {"command":"REWIND"}
-or with a target ("rewind to the war", "rewind to beginning", "go back to when village was standing"):
-{"command":"REWIND","target":"war"}
 
-9. Switch alternate reality / timeline branch:
+10. Switch alternate reality / timeline branch:
 {"command":"SWITCH_BRANCH","branchIdOrName":"Beta"}
 
-10. Save checkpoint / bookmark reality:
+11. Save checkpoint / bookmark reality:
 {"command":"CREATE_CHECKPOINT","name":"Before the Siege"}
 
 IMPORTANT:
-- Position y should always be 0 — the game engine automatically sets terrain height.
-- If player says "here" or no location, use center (x=0, z=0).
-- Return ONLY valid JSON. No other text.`;
+- Return ONLY valid JSON. No conversational text.`;
 }
 
 // ─── Gemini API call ──────────────────────────────────────────
@@ -93,7 +92,7 @@ async function callGemini(
   entityContext: string
 ): Promise<GameCommand | null> {
   const url = getGeminiUrl();
-  if (!url) throw new Error('No Gemini URL configured');
+  if (!url) return null;
 
   const response = await fetch(url, {
     method: 'POST',
@@ -124,100 +123,248 @@ async function callGemini(
 
   const data = await response.json();
   const text: string = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty Gemini response');
+  if (!text) return null;
 
-  const parsed = JSON.parse(text);
-  return convertToCommand(parsed);
+  try {
+    const parsed = JSON.parse(text);
+    return convertToCommand(parsed);
+  } catch (e) {
+    console.warn('[CommandParser] Could not parse Gemini JSON:', e);
+    return null;
+  }
 }
 
 // ─── Convert raw JSON → typed GameCommand ─────────────────────
 
-function resolvePosition(raw: { x?: number; y?: number; z?: number } | undefined): Vec3 {
-  const x = raw?.x ?? 0;
-  const z = raw?.z ?? 0;
+function resolvePosition(raw: any): Vec3 {
+  const store = useWorldStore.getState();
+  const player = store.player;
+  const pPos = player?.position || { x: 0, y: 0, z: 0 };
+  const pRot = player?.rotationY || 0;
+
+  // If raw is empty, "here", non-object, or 0,0 without explicit position:
+  // Spawn 4.5m in front of player in direction they are facing!
+  const isDefaultOrZero =
+    !raw ||
+    raw === 'here' ||
+    typeof raw !== 'object' ||
+    ((raw.x === 0 || raw.x === undefined) && (raw.z === 0 || raw.z === undefined));
+
+  if (isDefaultOrZero) {
+    const fwdX = Math.sin(pRot);
+    const fwdZ = Math.cos(pRot);
+    const spawnX = pPos.x + fwdX * 4.5;
+    const spawnZ = pPos.z + fwdZ * 4.5;
+    return {
+      x: spawnX,
+      y: getTerrainHeight(spawnX, spawnZ) + 0.05,
+      z: spawnZ,
+    };
+  }
+
+  const x = Number(raw.x ?? 0);
+  const z = Number(raw.z ?? 0);
   return { x, y: getTerrainHeight(x, z) + 0.05, z };
 }
 
-function convertToCommand(obj: Record<string, unknown>): GameCommand | null {
-  if (obj.command === 'SPAWN_ENTITY') {
+function convertToCommand(obj: Record<string, any>): GameCommand | null {
+  if (!obj || typeof obj !== 'object') return null;
+
+  const rawCmd = String(obj.command || '').toUpperCase();
+  const params = (obj.parameters && typeof obj.parameters === 'object' ? obj.parameters : {}) as Record<string, any>;
+
+  // 1. Direct Player Action: JUMP
+  if (rawCmd === 'JUMP' || params.action === 'jump' || obj.action === 'jump') {
+    return { type: 'JUMP' };
+  }
+
+  // 2. Direct Player Action: ATTACK
+  if (rawCmd === 'ATTACK') {
+    return { type: 'ATTACK' };
+  }
+
+  // 3. Direct Player Action: TALK
+  if (
+    rawCmd === 'TALK' ||
+    params.action === 'talk' ||
+    obj.action === 'talk' ||
+    obj.action === 'speak' ||
+    obj.action === 'commune'
+  ) {
+    const entityName = String(
+      obj.entityName || obj.target || params.target || params.entity || params.entityName || ''
+    ).trim();
+    return { type: 'TALK', entityName: entityName || undefined };
+  }
+
+  // 4. SPAWN_ENTITY
+  if (rawCmd === 'SPAWN_ENTITY' || rawCmd === 'SPAWN') {
+    const rawType = String(
+      obj.entityType ||
+      obj.entity ||
+      params.entity ||
+      params.entityType ||
+      params.type ||
+      'wolf'
+    ).toLowerCase();
+
+    let entityType: EntityType = 'wolf';
+    for (const kw of ENTITY_KEYWORDS) {
+      if (rawType.includes(kw)) {
+        entityType = kw;
+        break;
+      }
+    }
+    for (const st of STRUCTURE_KEYWORDS) {
+      if (rawType.includes(st)) {
+        entityType = st;
+        break;
+      }
+    }
+
+    const pos = resolvePosition(obj.position || params.position);
+    const name = String(obj.name || params.name || pickName(entityType));
     return {
       type: 'SPAWN_ENTITY',
-      entityType: (obj.entityType as EntityType) || 'generic',
-      position: resolvePosition(obj.position as { x?: number; y?: number; z?: number }),
-      name: (obj.name as string) || 'Unknown',
+      entityType,
+      position: pos,
+      name,
     };
   }
 
-  if (obj.command === 'BUILD_STRUCTURE') {
+  // 5. BUILD_STRUCTURE
+  if (rawCmd === 'BUILD_STRUCTURE' || rawCmd === 'BUILD') {
+    const rawType = String(
+      obj.structureType ||
+      obj.structure ||
+      params.structure ||
+      params.structureType ||
+      params.type ||
+      'house'
+    ).toLowerCase();
+
+    let structureType: StructureType = 'house';
+    for (const st of STRUCTURE_KEYWORDS) {
+      if (rawType.includes(st)) {
+        structureType = st;
+        break;
+      }
+    }
+
+    const pos = resolvePosition(obj.position || params.position);
+    const name = String(
+      obj.name || params.name || (structureType.charAt(0).toUpperCase() + structureType.slice(1))
+    );
     return {
       type: 'BUILD_STRUCTURE',
-      structureType: (obj.structureType as StructureType) || 'house',
-      position: resolvePosition(obj.position as { x?: number; y?: number; z?: number }),
-      name: (obj.name as string) || 'Structure',
+      structureType,
+      position: pos,
+      name,
     };
   }
 
-  if (obj.command === 'WORLD_MODIFY') {
-    return {
-      type: 'WORLD_MODIFY',
-      property: (obj.property as 'weather' | 'time') || 'weather',
-      value: String(obj.value || 'clear'),
-    };
+  // 6. WORLD_MODIFY
+  if (rawCmd === 'WORLD_MODIFY' || rawCmd === 'WEATHER' || rawCmd === 'TIME') {
+    const prop = String(obj.property || params.property || '').toLowerCase();
+    const val = String(
+      obj.value || params.value || params.type || obj.weather || obj.time || ''
+    ).toLowerCase();
+
+    const isWeather =
+      prop === 'weather' ||
+      params.action === 'weather' ||
+      val.includes('rain') ||
+      val.includes('storm') ||
+      val.includes('fog') ||
+      val.includes('clear') ||
+      val.includes('sun');
+
+    if (isWeather) {
+      let weatherVal = 'clear';
+      if (val.includes('rain')) weatherVal = 'rain';
+      else if (val.includes('storm')) weatherVal = 'storm';
+      else if (val.includes('fog')) weatherVal = 'fog';
+      return { type: 'WORLD_MODIFY', property: 'weather', value: weatherVal };
+    }
+
+    let timeVal = 'noon';
+    if (val.includes('night') || val.includes('midnight') || val.includes('dark')) timeVal = 'night';
+    else if (val.includes('sunset') || val.includes('dusk')) timeVal = 'sunset';
+    else if (val.includes('sunrise') || val.includes('dawn') || val.includes('morning')) timeVal = 'sunrise';
+    return { type: 'WORLD_MODIFY', property: 'time', value: timeVal };
   }
 
-  if (obj.command === 'SET_FACTION_RELATION') {
+  // 7. SET_FACTION_RELATION
+  if (rawCmd === 'SET_FACTION_RELATION') {
     return {
       type: 'SET_FACTION_RELATION',
-      factionA: String(obj.factionA || 'suncrest').toLowerCase(),
-      factionB: String(obj.factionB || 'shadowfang').toLowerCase(),
-      relation: (obj.relation as any) === 'hostile' ? 'hostile' : 'allied',
+      factionA: String(obj.factionA || params.factionA || 'suncrest').toLowerCase(),
+      factionB: String(obj.factionB || params.factionB || 'shadowfang').toLowerCase(),
+      relation: String(obj.relation || params.relation) === 'hostile' ? 'hostile' : 'allied',
     };
   }
 
-  if (obj.command === 'DESPAWN_ENTITY') {
+  // 8. DESPAWN_ENTITY
+  if (rawCmd === 'DESPAWN_ENTITY') {
     return {
       type: 'DESPAWN_ENTITY',
-      entityId: (obj.entityId as string) || undefined,
-      entityName: (obj.entityName as string) || undefined,
-      all: Boolean(obj.all),
+      entityId: (obj.entityId as string) || (params.entityId as string) || undefined,
+      entityName:
+        (obj.entityName as string) || (params.entityName as string) || (obj.target as string) || undefined,
+      all: Boolean(obj.all || params.all),
     };
   }
 
-  if (obj.command === 'INTERACT_ENTITY') {
-    const rawAction = String(obj.action || '').toLowerCase();
+  // 9. INTERACT_ENTITY
+  if (rawCmd === 'INTERACT_ENTITY') {
+    const rawAction = String(obj.action || params.action || '').toLowerCase();
+    const entityName = String(
+      obj.entityName || obj.target || obj.entity || params.target || params.entity || params.entityName || ''
+    ).trim();
+
+    if (rawAction === 'attack' && !entityName) {
+      return { type: 'ATTACK' };
+    }
+    if (rawAction === 'talk' || rawAction === 'speak' || rawAction === 'commune') {
+      return { type: 'TALK', entityName: entityName || undefined };
+    }
+
     const action =
-      rawAction === 'attack'
-        ? 'attack'
-        : rawAction === 'shield'
-        ? 'shield'
-        : rawAction === 'retreat' || rawAction === 'flee'
-        ? 'retreat'
-        : 'help';
+      rawAction === 'attack' ? 'attack' :
+      rawAction === 'shield' || rawAction === 'defend' || rawAction === 'protect' ? 'shield' :
+      rawAction === 'retreat' || rawAction === 'flee' ? 'retreat' :
+      rawAction === 'warm' || rawAction === 'heal' ? 'warm' :
+      rawAction === 'guide' ? 'guide' :
+      rawAction === 'freeze' || rawAction === 'halt' ? 'freeze' : 'help';
+
     return {
       type: 'INTERACT_ENTITY',
       action,
-      entityName: String(obj.entityName || ''),
+      entityName: entityName || 'Rowan',
     };
   }
 
-  if (obj.command === 'REWIND') {
+  // 10. REWIND
+  if (rawCmd === 'REWIND') {
     return {
       type: 'REWIND',
-      target: (obj.target as string) || 'last',
+      target: String(obj.target || params.target || 'last'),
     };
   }
 
-  if (obj.command === 'SWITCH_BRANCH') {
+  // 11. SWITCH_BRANCH
+  if (rawCmd === 'SWITCH_BRANCH') {
     return {
       type: 'SWITCH_BRANCH',
-      branchIdOrName: String(obj.branchIdOrName || 'Prime'),
+      branchIdOrName: String(obj.branchIdOrName || params.branchIdOrName || 'Prime'),
     };
   }
 
-  if (obj.command === 'CREATE_CHECKPOINT') {
+  // 12. CREATE_CHECKPOINT
+  if (rawCmd === 'CREATE_CHECKPOINT') {
     return {
       type: 'CREATE_CHECKPOINT',
-      name: (obj.name as string) || 'Voice Bookmark',
+      name: String(obj.name || params.name || 'Voice Bookmark'),
     };
   }
 
@@ -256,24 +403,69 @@ function pickName(type: string): string {
 }
 
 function extractLocation(t: string): Vec3 {
-  let pos: Vec3 = { x: 0, y: 0, z: 0 };
   for (const [locName, { x, z }] of Object.entries(NAMED_LOCATIONS)) {
     if (t.includes(locName)) {
-      pos = { x, y: getTerrainHeight(x, z) + 0.05, z };
-      break;
+      return { x, y: getTerrainHeight(x, z) + 0.05, z };
     }
   }
-  if (pos.y === 0) {
-    pos.y = getTerrainHeight(pos.x, pos.z) + 0.05;
-  }
-  return pos;
+
+  // Default: 4.5m directly in front of avatar
+  const store = useWorldStore.getState();
+  const player = store.player;
+  const pPos = player?.position || { x: 0, y: 0, z: 0 };
+  const pRot = player?.rotationY || 0;
+  const fwdX = Math.sin(pRot);
+  const fwdZ = Math.cos(pRot);
+  const spawnX = pPos.x + fwdX * 4.5;
+  const spawnZ = pPos.z + fwdZ * 4.5;
+  return {
+    x: spawnX,
+    y: getTerrainHeight(spawnX, spawnZ) + 0.05,
+    z: spawnZ,
+  };
 }
 
 function fallbackParse(transcript: string): GameCommand | null {
-  const t = transcript.toLowerCase();
+  const t = transcript.toLowerCase().trim();
 
-  // ── M4 Timeline & Reality Commands ────────────────────────
-  // 1. Create Checkpoint / Bookmark
+  // ── 1. Player Action Commands ─────────────────────────────
+  if (t === 'jump' || t.includes('jump') || t.includes('leap') || t.includes('hop')) {
+    return { type: 'JUMP' };
+  }
+
+  // Direct strike / attack action
+  if (
+    t === 'attack' ||
+    t === 'strike' ||
+    t === 'swing' ||
+    t === 'slash' ||
+    t === 'fight' ||
+    t.includes('swing sword') ||
+    t.includes('use sword')
+  ) {
+    return { type: 'ATTACK' };
+  }
+
+  // Direct talk / dialogue / interact
+  if (
+    t.startsWith('talk') ||
+    t.startsWith('speak') ||
+    t.startsWith('chat') ||
+    t.includes('commune') ||
+    t === 'interact' ||
+    t.includes('talk to') ||
+    t.includes('speak to')
+  ) {
+    let name: string | undefined = undefined;
+    if (t.includes('rowan')) name = 'rowan';
+    else if (t.includes('mira')) name = 'mira';
+    else if (t.includes('aldric')) name = 'aldric';
+    else if (t.includes('vorn')) name = 'vorn';
+    else if (t.includes('tree') || t.includes('anchor')) name = 'tree';
+    return { type: 'TALK', entityName: name };
+  }
+
+  // ── 2. M4 Timeline & Reality Commands ─────────────────────
   if (
     t.includes('save checkpoint') ||
     t.includes('create checkpoint') ||
@@ -284,7 +476,6 @@ function fallbackParse(transcript: string): GameCommand | null {
     return { type: 'CREATE_CHECKPOINT', name: 'Voice Bookmark' };
   }
 
-  // 2. Switch Branch / Alternate Reality
   if (
     t.includes('switch branch') ||
     t.includes('switch timeline') ||
@@ -303,14 +494,13 @@ function fallbackParse(transcript: string): GameCommand | null {
     return { type: 'SWITCH_BRANCH', branchIdOrName: branchName };
   }
 
-  // 3. Rewind Reality / Time
   if (
     t.includes('rewind') ||
     t.includes('go back') ||
     t.includes('turn back time') ||
     t.includes('time travel') ||
     t.includes('undo') ||
-    t.includes('restore checkpoint')
+    t.includes('restore')
   ) {
     let target = 'last';
     if (
@@ -339,7 +529,7 @@ function fallbackParse(transcript: string): GameCommand | null {
     return { type: 'REWIND', target };
   }
 
-  // Kingdom Alliance / Peace commands
+  // ── 3. Faction Commands ───────────────────────────────────
   if (
     t.includes('allies') ||
     t.includes('alliance') ||
@@ -357,7 +547,6 @@ function fallbackParse(transcript: string): GameCommand | null {
     };
   }
 
-  // Kingdom War / Hostile commands
   if (
     t.includes('declare war') ||
     t.includes('start war') ||
@@ -376,7 +565,7 @@ function fallbackParse(transcript: string): GameCommand | null {
     };
   }
 
-  // Weather commands
+  // ── 4. Weather & Time Commands ────────────────────────────
   if (t.includes('rain') || t.includes('raining')) {
     return { type: 'WORLD_MODIFY', property: 'weather', value: 'rain' };
   }
@@ -386,22 +575,76 @@ function fallbackParse(transcript: string): GameCommand | null {
   if (t.includes('fog') || t.includes('foggy') || t.includes('mist')) {
     return { type: 'WORLD_MODIFY', property: 'weather', value: 'fog' };
   }
-  if (t.includes('clear') || t.includes('sunny') || t.includes('sunshine')) {
+  if (t.includes('clear') || t.includes('sunny') || t.includes('sunshine') || t.includes('clear skies')) {
     return { type: 'WORLD_MODIFY', property: 'weather', value: 'clear' };
   }
 
-  // Time commands
   if (t.includes('night') || t.includes('midnight') || t.includes('darkness')) {
     return { type: 'WORLD_MODIFY', property: 'time', value: 'night' };
   }
-  if (t.includes('day') || t.includes('noon') || t.includes('daylight') || t.includes('morning')) {
+  if (t.includes('day') || t.includes('noon') || t.includes('daylight') || t.includes('midday')) {
     return { type: 'WORLD_MODIFY', property: 'time', value: 'noon' };
   }
-  if (t.includes('sunrise') || t.includes('dawn')) {
+  if (t.includes('sunrise') || t.includes('dawn') || t.includes('morning')) {
     return { type: 'WORLD_MODIFY', property: 'time', value: 'sunrise' };
   }
   if (t.includes('sunset') || t.includes('dusk') || t.includes('evening')) {
     return { type: 'WORLD_MODIFY', property: 'time', value: 'sunset' };
+  }
+
+  // ── 5. Contextual Entity Interactions ─────────────────────
+  // Shield / Protect / Defend
+  if (
+    t.includes('shield') ||
+    t.includes('barrier') ||
+    t.includes('defend') ||
+    t.includes('protect') ||
+    t.includes('guard rowan')
+  ) {
+    return { type: 'INTERACT_ENTITY', action: 'shield', entityName: 'rowan' };
+  }
+
+  // Warm / Heal / Aid
+  if (
+    t.includes('warm') ||
+    t.includes('heal') ||
+    t.includes('soothe') ||
+    t.includes('aid rowan') ||
+    t.includes('help rowan') ||
+    t === 'aid' ||
+    t === 'help' ||
+    t === 'warm'
+  ) {
+    return { type: 'INTERACT_ENTITY', action: 'warm', entityName: 'rowan' };
+  }
+
+  // Guide
+  if (t.includes('guide') || t.includes('lead') || t === 'guide') {
+    return { type: 'INTERACT_ENTITY', action: 'guide', entityName: 'rowan' };
+  }
+
+  // Freeze / Halt
+  if (t.includes('freeze') || t.includes('halt') || t.includes('stop soldiers') || t === 'freeze') {
+    return { type: 'INTERACT_ENTITY', action: 'freeze', entityName: 'soldiers' };
+  }
+
+  // Retreat / Flee
+  if (
+    t.includes('retreat') ||
+    t.includes('flee') ||
+    t.includes('fall back') ||
+    t.includes('withdraw') ||
+    t.includes('run away')
+  ) {
+    return { type: 'INTERACT_ENTITY', action: 'retreat', entityName: 'soldiers' };
+  }
+
+  // Destroy Bridge
+  if (
+    (t.includes('destroy') || t.includes('break') || t.includes('collapse') || t.includes('remove')) &&
+    t.includes('bridge')
+  ) {
+    return { type: 'DESPAWN_ENTITY', entityName: 'bridge' };
   }
 
   // Despawn all
@@ -412,62 +655,7 @@ function fallbackParse(transcript: string): GameCommand | null {
     return { type: 'DESPAWN_ENTITY', all: true };
   }
 
-  // Build structure commands
-  if (t.includes('build') || t.includes('create') || t.includes('construct') || t.includes('place')) {
-    for (const structType of STRUCTURE_KEYWORDS) {
-      if (t.includes(structType)) {
-        return {
-          type: 'BUILD_STRUCTURE',
-          structureType: structType,
-          position: extractLocation(t),
-          name: structType.charAt(0).toUpperCase() + structType.slice(1),
-        };
-      }
-    }
-    if (t.includes('cottage')) {
-      return {
-        type: 'BUILD_STRUCTURE',
-        structureType: 'house',
-        position: extractLocation(t),
-        name: 'Cozy Cottage',
-      };
-    }
-  }
-
-  // Destroy Bridge / Structure command
-  if (
-    (t.includes('destroy') || t.includes('break') || t.includes('collapse') || t.includes('remove')) &&
-    t.includes('bridge')
-  ) {
-    return { type: 'DESPAWN_ENTITY', entityName: 'bridge' };
-  }
-
-  // Make soldiers / raiders retreat or flee
-  if (
-    t.includes('retreat') ||
-    t.includes('flee') ||
-    t.includes('fall back') ||
-    t.includes('withdraw') ||
-    t.includes('run away')
-  ) {
-    let name = 'soldiers';
-    if (t.includes('shadowfang')) name = 'shadowfang';
-    else if (t.includes('raider')) name = 'raider';
-    else if (t.includes('vorn')) name = 'vorn';
-    return { type: 'INTERACT_ENTITY', action: 'retreat', entityName: name };
-  }
-
-  // Shield / Protect Rowan specifically
-  if (
-    (t.includes('shield') || t.includes('barrier') || t.includes('protect') || t.includes('guard')) &&
-    (t.includes('rowan') || t.includes('miller') || t.includes('him'))
-  ) {
-    return { type: 'INTERACT_ENTITY', action: 'shield', entityName: 'rowan' };
-  }
-
-  // M3: Help / Attack named entity (fallback)
-  // Patterns: "help Rowan", "aid the king", "protect Aldric"
-  //           "attack Vorn", "strike the guard", "hurt Korg"
+  // General Help / Attack named entity
   const HELP_VERBS = ['help', 'aid', 'heal', 'protect', 'save', 'assist'];
   const ATTACK_VERBS = ['attack', 'strike', 'hurt', 'hit', 'fight', 'wound'];
   const KNOWN_NAMES = [
@@ -495,7 +683,29 @@ function fallbackParse(transcript: string): GameCommand | null {
     }
   }
 
-  // Spawn entity
+  // ── 6. Build Structure Commands ───────────────────────────
+  if (t.includes('build') || t.includes('create') || t.includes('construct') || t.includes('place')) {
+    for (const structType of STRUCTURE_KEYWORDS) {
+      if (t.includes(structType)) {
+        return {
+          type: 'BUILD_STRUCTURE',
+          structureType: structType,
+          position: extractLocation(t),
+          name: structType.charAt(0).toUpperCase() + structType.slice(1),
+        };
+      }
+    }
+    if (t.includes('cottage')) {
+      return {
+        type: 'BUILD_STRUCTURE',
+        structureType: 'house',
+        position: extractLocation(t),
+        name: 'Cozy Cottage',
+      };
+    }
+  }
+
+  // ── 7. Spawn Entity Commands ──────────────────────────────
   for (const entityType of ENTITY_KEYWORDS) {
     if (t.includes(entityType)) {
       return {
@@ -507,9 +717,20 @@ function fallbackParse(transcript: string): GameCommand | null {
     }
   }
 
+  // Fallback structure keywords without "build" verb (e.g. "a tower here")
+  for (const structType of STRUCTURE_KEYWORDS) {
+    if (t.includes(structType)) {
+      return {
+        type: 'BUILD_STRUCTURE',
+        structureType: structType,
+        position: extractLocation(t),
+        name: structType.charAt(0).toUpperCase() + structType.slice(1),
+      };
+    }
+  }
+
   return null;
 }
-
 
 // ─── Public API ───────────────────────────────────────────────
 
@@ -517,19 +738,44 @@ export async function parseVoiceCommand(
   transcript: string,
   entities: Record<string, { id: string; name: string; type: string }> = {}
 ): Promise<GameCommand | null> {
+  const t = transcript.trim().toLowerCase();
+
+  // Instant fast-path for direct single-word or short action verbs (0ms delay!)
+  if (t === 'jump' || t === 'leap' || t === 'hop') {
+    return { type: 'JUMP' };
+  }
+  if (t === 'attack' || t === 'strike' || t === 'swing' || t === 'slash' || t === 'fight') {
+    return { type: 'ATTACK' };
+  }
+  if (t === 'talk' || t === 'speak' || t === 'interact' || t === 'commune') {
+    return { type: 'TALK' };
+  }
+  if (t === 'rain' || t === 'make it rain') {
+    return { type: 'WORLD_MODIFY', property: 'weather', value: 'rain' };
+  }
+  if (t === 'clear' || t === 'clear skies' || t === 'sunny') {
+    return { type: 'WORLD_MODIFY', property: 'weather', value: 'clear' };
+  }
+  if (t === 'night' || t === 'midnight') {
+    return { type: 'WORLD_MODIFY', property: 'time', value: 'night' };
+  }
+  if (t === 'day' || t === 'noon' || t === 'morning') {
+    return { type: 'WORLD_MODIFY', property: 'time', value: 'noon' };
+  }
+
   const entityContext = Object.values(entities || {})
     .map((e) => `id="${e.id}" name="${e.name}" type=${e.type}`)
     .join('\n');
 
   if (getApiKey()) {
     try {
-      return await callGemini(transcript, entityContext);
+      const geminiCmd = await callGemini(transcript, entityContext);
+      if (geminiCmd) return geminiCmd;
     } catch (err) {
-      console.warn('[CommandParser] Gemini failed, using fallback:', err);
+      console.warn('[CommandParser] Gemini failed, falling back to local parser:', err);
     }
-  } else {
-    console.info('[CommandParser] Using keyword fallback');
   }
 
+  // Robust local keyword fallback
   return fallbackParse(transcript);
 }
